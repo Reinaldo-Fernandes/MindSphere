@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindSphere - Ecossistema Neurodivergente</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background-overlay"></div>
+    <div id="ambient-layer" class="ambient-layer"></div>
+    
+    <header>
+        <button id="panic-btn">RESET DE PÂNICO</button>
+        <h1 class="logo">MindSphere</h1>
+    </header>
+
+    <main class="container">
+        <aside class="side-panel left">
+            <h3>Lentes</h3>
+            <button class="mode-btn" onclick="setMode('dopamina')">✨ Dopamina</button>
+            <button class="mode-btn" onclick="setMode('serenidade')">🌊 Serenidade</button>
+            <button class="mode-btn" onclick="setMode('autonomia')">🦾 Autonomia</button>
+        </aside>
+
+        <div class="sphere-wrapper">
+            <div class="orbit-path orbit-1"></div>
+            <div class="orbit-path orbit-2"></div>
+            
+            <div class="sphere-outer">
+                <div class="glass-glare"></div>
+                <div id="garden-layer" class="garden"></div>
+                
+                <div class="sphere-content">
+                    <div class="brain-icon" id="main-icon">🧠</div>
+                    <div id="timer-display">25:00</div>
+                    <p id="status-text">Pronto para focar?</p>
+                </div>
+
+                <svg class="progress-ring" width="440" height="440">
+                    <circle class="progress-ring__circle" stroke="var(--accent-cyan)" stroke-width="4" fill="transparent" r="212" cx="220" cy="220"/>
+                </svg>
+            </div>
+
+            <div id="orbit-assistant" class="orbit-container">
+                <div class="orbit-bubble" id="orbit-speech">Oi! Vamos no seu ritmo hoje?</div>
+                <div class="orbit-character">
+                    <img src="/assistente/Orbit2.png" alt="Orbit" id="orbit-img">
+                </div>
+            </div>
+        </div>
+
+        <aside class="side-panel right">
+            <h3>Goblin Mode 👹</h3>
+            <div class="task-input-group">
+                <input type="text" id="task-input" placeholder="O que é difícil?">
+                <button id="break-task-btn">Split</button>
+            </div>
+            <div id="subtasks-list"></div>
+        </aside>
+
+        <footer class="mixer glass-panel">
+            <div class="sound-control">
+                <span>🌧️</span> 
+                <input type="range" id="rain-vol" min="0" max="1" step="0.1" value="0">
+            </div>
+            <button id="start-btn" class="glow-btn">INICIAR FOCO</button>
+            <div class="sound-control">
+                <span>🔥</span> 
+                <input type="range" id="fire-vol" min="0" max="1" step="0.1" value="0">
+            </div>
+        </footer>
+    </main>
+
+    <div id="audio-engine">
+        <audio id="audio-rain" loop src="https://www.soundjay.com/nature/rain-07.mp3"></audio>
+        <audio id="audio-fire" loop src="https://www.soundjay.com/nature/fire-1.mp3"></audio>
+        <audio id="audio-plant" src="https://www.soundjay.com/buttons/button-37.mp3"></audio>
+        <audio id="audio-alarm" src="https://www.soundjay.com/clock-and-watch/beep-07.mp3"></audio>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

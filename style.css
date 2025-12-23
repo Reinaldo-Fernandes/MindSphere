@@ -1,0 +1,146 @@
+:root {
+    --bg-color: #020508;
+    --accent-cyan: #5ef3ff;
+    --accent-pink: #ff2da4;
+    --glass: rgba(15, 32, 50, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.1);
+}
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #03070b;
+    color: white;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.background-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(circle at center, #0d1b2a 0%, #020508 100%);
+}
+
+header {
+    padding: 30px 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-weight: 200; letter-spacing: 8px; text-transform: uppercase;
+    opacity: 0.6; font-size: 1.1rem; margin: 0;
+}
+
+#panic-btn {
+    background: rgba(255, 69, 0, 0.1); border: 1px solid #ff4500;
+    color: #ff4500; padding: 8px 16px; border-radius: 8px;
+    cursor: pointer; transition: 0.3s; z-index: 100;
+}
+
+#panic-btn:hover { background: #ff4500; color: white; }
+
+.container {
+    position: relative; flex: 1; display: flex;
+    justify-content: center; align-items: center;
+}
+
+/* ESFERA CENTRAL */
+.sphere-wrapper {
+    position: relative; width: 500px; height: 500px;
+    display: flex; justify-content: center; align-items: center;
+}
+
+.sphere-outer {
+    position: relative; width: 420px; height: 420px; border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.05), transparent);
+    backdrop-filter: blur(20px); border: 1px solid var(--glass-border);
+    box-shadow: inset 0 0 60px rgba(0,0,0,0.6), 0 30px 60px rgba(0,0,0,0.4);
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    overflow: hidden; z-index: 2;
+}
+
+.sphere-content { text-align: center; z-index: 10; transform: translateY(-20px); }
+
+#timer-display {
+    font-size: 5rem; font-weight: 800; line-height: 1; margin: 5px 0;
+    font-variant-numeric: tabular-nums; text-shadow: 0 0 20px rgba(94, 243, 255, 0.3);
+}
+
+.orbit-path { position: absolute; border: 1px solid rgba(255,255,255,0.03); border-radius: 50%; }
+.orbit-1 { width: 480px; height: 480px; border-left: 2px solid var(--accent-pink); animation: rotate 40s linear infinite; }
+.orbit-2 { width: 540px; height: 540px; border-right: 2px solid var(--accent-cyan); animation: rotate 60s linear infinite reverse; }
+
+/* PROGRESS RING */
+.progress-ring { position: absolute; transform: rotate(-90deg); pointer-events: none; }
+.progress-ring__circle { transition: stroke-dashoffset 0.5s ease; }
+
+/* PAINÉIS LATERAIS */
+.side-panel {
+    position: absolute; width: 230px; padding: 25px;
+    background: var(--glass); border-radius: 25px;
+    border: 1px solid var(--glass-border); backdrop-filter: blur(15px);
+}
+.side-panel.left { left: 40px; }
+.side-panel.right { right: 40px; }
+
+.mode-btn {
+    width: 100%; margin-bottom: 10px; padding: 12px; border-radius: 12px;
+    background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border);
+    color: white; cursor: pointer; transition: 0.3s;
+}
+
+/* MIXER */
+.mixer {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+    width: 550px; padding: 12px 40px; border-radius: 100px;
+    background: var(--glass); border: 1px solid var(--glass-border);
+    display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(20px);
+}
+
+.glow-btn {
+    background: var(--accent-cyan); color: #000; border: none;
+    padding: 12px 35px; border-radius: 50px; font-weight: 800; cursor: pointer;
+}
+
+/* --- ESTILOS DO ORBIT --- */
+.orbit-container {
+    position: absolute; bottom: 0; right: -60px;
+    display: flex; flex-direction: column; align-items: center;
+    z-index: 5; animation: floatOrbit 4s ease-in-out infinite;
+    
+}
+
+.orbit-character { width: 80px; height: 80px; filter: drop-shadow(0 0 10px var(--accent-cyan)); }
+.orbit-character img { width: 100%; height: 100%; image-rendering: pixelated; }
+
+.orbit-bubble {
+    background: var(--glass); border: 1px solid var(--glass-border);
+    padding: 10px 15px; border-radius: 15px; font-size: 0.8rem;
+    max-width: 180px; margin-bottom: 10px; opacity: 0;
+    transform: translateY(10px); transition: 0.5s ease; text-align: center;
+}
+
+.orbit-bubble.active { opacity: 1; transform: translateY(0); }
+
+@keyframes floatOrbit {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+@keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+.ambient-layer { position: fixed; inset: 0; pointer-events: none; z-index: -1; transition: opacity 1.5s ease; opacity: 0; }
+.mode-rain { background-image: linear-gradient(0deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px); background-size: 2px 50px; animation: rainFall 0.5s linear infinite; }
+@keyframes rainFall { 0% { background-position: 0 0; } 100% { background-position: 0 500px; } }
+
+.brain-icon {
+    font-size: 55px; /* Tamanho restaurado conforme o código original */
+    filter: drop-shadow(0 0 15px var(--accent-pink));
+    margin-bottom: 5px;
+    display: block; /* Garante que o alinhamento central funcione */
+}
