@@ -13,6 +13,12 @@
     <header>
         <button id="panic-btn">RESET DE PÂNICO</button>
         <h1 class="logo">MindSphere</h1>
+        <select id="garden-style" class="glass-select">
+            <option value="plantas">🌿 Jardim</option>
+            <option value="espaco">✨ Galáxia</option>
+            <option value="notas">🎵 Musical</option>
+            <option value="comida">☕ Café</option>
+        </select>
     </header>
 
     <main class="container">
@@ -42,10 +48,10 @@
                 </svg>
             </div>
 
-            <div id="orbit-assistant" class="orbit-container">
+            <div id="orbit-assistant" class="orbit-container intro">
                 <div class="orbit-bubble" id="orbit-speech">Oi! Vamos no seu ritmo hoje?</div>
                 <div class="orbit-character">
-                    <img src="/assistente/Orbit2.png" alt="Orbit" id="orbit-img">
+                    <img src="./assistente/Orbit.png" alt="Orbit" id="orbit-img">
                 </div>
             </div>
         </div>
@@ -72,11 +78,11 @@
         </footer>
     </main>
 
-    <div id="audio-engine">
-        <audio id="audio-rain" loop src="https://www.soundjay.com/nature/rain-07.mp3"></audio>
-        <audio id="audio-fire" loop src="https://www.soundjay.com/nature/fire-1.mp3"></audio>
-        <audio id="audio-plant" src="https://www.soundjay.com/buttons/button-37.mp3"></audio>
-        <audio id="audio-alarm" src="https://www.soundjay.com/clock-and-watch/beep-07.mp3"></audio>
+    <div id="audio-engine" style="display: none;">
+        <audio id="audio-rain" loop src="./sons/rain.mp3"></audio>
+        <audio id="audio-fire" loop src="./sons/fire.mp3"></audio>
+        <audio id="audio-plant" src="./sons/plant.mp3"></audio>
+        <audio id="audio-alarm" src="./sons/alarm.mp3"></audio>
     </div>
 
     <script src="script.js"></script>
