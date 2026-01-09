@@ -56,3 +56,8 @@ neurodiversity pomodoro-timer productivity accessibility glassmorphism adhd-frie
 
 Commit Mensagem Sugerida:
 feat: refactor UI with glassmorphism, orbit onboarding and button transition logic
+
+
+<!--
+🌱 Integrar isso com a ideia do jardim / gamificação
+-->
