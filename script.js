@@ -4,6 +4,8 @@ const totalTime = 1500;
 
 const startBtn = document.getElementById('start-btn');
 const orbitSpeech = document.getElementById('orbit-speech');
+const orbitImg = document.getElementById('orbit-img');
+const taskInput = document.getElementById('task-input');
 const mixerAnchor = document.getElementById('mixer-anchor');
 const circle = document.querySelector('.progress-ring__circle');
 const display = document.getElementById('timer-display');
@@ -21,7 +23,6 @@ function orbitTalk(text) {
     setTimeout(() => {
         orbitSpeech.innerText = text;
         orbitSpeech.classList.add('active');
-        // O balão desaparece após 8 segundos para não poluir a tela
         setTimeout(() => orbitSpeech.classList.remove('active'), 8000);
     }, 500);
 }
@@ -65,8 +66,32 @@ function updateTimer() {
 function setMode(mode) {
     const colors = { dopamina: '#ff2da4', serenidade: '#5ef3ff', autonomia: '#adff2f' };
     document.documentElement.style.setProperty('--accent-cyan', colors[mode]);
+    
+    const fileName = mode.charAt(0).toUpperCase() + mode.slice(1);
+    orbitImg.src = `./assistente/orbits/${fileName}.png`;
+    
     orbitTalk(`Modo ${mode} ativado!`);
 }
+
+// NOVO: Orbit entra em modo Goblin ao clicar ou digitar na tarefa
+taskInput.addEventListener('focus', () => {
+    orbitImg.src = `./assistente/orbits/Goblin.png`;
+    orbitTalk("Modo Goblin ativado! Vamos organizar essas tarefas.");
+});
+
+// Opcional: Orbit volta ao normal se o campo perder o foco e estiver vazio
+taskInput.addEventListener('blur', () => {
+    if (taskInput.value === "") {
+        orbitImg.src = `./assistente/orbits/foco.png`;
+    }
+});
+
+document.getElementById('break-task-btn').addEventListener('click', () => {
+    if(taskInput.value) {
+        orbitImg.src = `./assistente/orbits/Goblin.png`;
+        orbitTalk("Esmagando essa tarefa em pedaços menores!");
+    }
+});
 
 function spawnPlant() {
     const orbit = document.getElementById('orbit-1');
@@ -80,6 +105,7 @@ function spawnPlant() {
     plant.style.top = `calc(50% + ${Math.sin(angle) * r}px)`;
     plant.style.transform = 'translate(-50%, -50%)';
     orbit.appendChild(plant);
+    document.getElementById('audio-plant').play();
 }
 
 document.getElementById('panic-btn').addEventListener('click', () => location.reload());
