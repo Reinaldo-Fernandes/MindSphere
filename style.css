@@ -73,6 +73,67 @@ header { padding: 30px 60px; display: flex; justify-content: space-between; alig
     text-align: center;
 }
 
+.glass-select {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 10px 15px;
+    color: white;
+    cursor: pointer;
+    font-family: inherit;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: all 0.4s ease;
+    outline: none;
+}
+
+.glass-select:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--accent-cyan);
+}
+
+.glass-select option {
+    background: #0d1b2a;
+    color: white;
+}
+
+#task-input {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(5px);
+    border: 1px solid var(--glass-border);
+    color: white;
+    padding: 10px;
+    border-radius: 8px;
+    width: 70%;
+    outline: none;
+    transition: 0.3s;
+}
+
+#task-input:focus {
+    border-color: var(--accent-pink);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+#break-task-btn {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    color: var(--accent-cyan);
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    transition: 0.3s;
+}
+
+#break-task-btn:hover {
+    background: var(--accent-cyan);
+    color: #020508;
+    box-shadow: 0 0 15px var(--accent-cyan);
+}
+
 .orbit-path { 
     position: absolute; border-radius: 50%; border: 1px solid rgba(255,255,255,0.05);
     box-sizing: border-box; pointer-events: none;
@@ -95,6 +156,7 @@ header { padding: 30px 60px; display: flex; justify-content: space-between; alig
     position: absolute; bottom: -40px; right: -40px;
     display: flex; flex-direction: column; align-items: center;
     z-index: 2000; transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translate(80px, -60px);
 }
 
 .onboarding-active .orbit-container {
@@ -105,12 +167,36 @@ header { padding: 30px 60px; display: flex; justify-content: space-between; alig
 .onboarding-active .orbit-character { width: 280px; }
 .orbit-character img { width: 100%; filter: drop-shadow(0 0 15px var(--accent-cyan)); border-radius: 50%;}
 
+/* CORREÇÃO DO BALÃO */
 .orbit-bubble {
-    background: white; color: black; padding: 15px 25px; border-radius: 20px;
-    font-weight: 600; max-width: 280px; margin-bottom: 20px;
-    opacity: 0; transform: scale(0.8); transition: 0.5s; text-align: center;
+    background: white !important;
+    color: black !important;
+    padding: 12px 20px;
+    border-radius: 20px;
+    font-weight: 700;
+    max-width: 200px;
+    margin-bottom: 15px;
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.8);
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-align: center;
+    font-size: 0.9rem;
+    z-index: 3000;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    position: relative;
 }
-.orbit-bubble.active { opacity: 1; transform: scale(1); }
+
+.orbit-bubble.active {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: scale(1);
+}
+
+.onboarding-active .orbit-bubble {
+    max-width: 300px;
+    font-size: 1.1rem;
+}
 
 @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
@@ -132,3 +218,11 @@ header { padding: 30px 60px; display: flex; justify-content: space-between; alig
 .side-panel { width: 200px; padding: 20px; background: var(--glass); border-radius: 20px; border: 1px solid var(--glass-border); backdrop-filter: blur(15px); }
 .mode-btn { width: 100%; margin: 8px 0; padding: 10px; border-radius: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: white; cursor: pointer; transition: 0.3s; }
 .mode-btn:hover { border-color: var(--accent-cyan); background: rgba(94, 243, 255, 0.1); }
+
+.sound-control input[type="range"] {
+    accent-color: var(--accent-cyan);
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    height: 4px;
+    cursor: pointer;
+}
