@@ -159,3 +159,70 @@ function spawnPlant() {
 }
 
 document.getElementById('panic-btn').addEventListener('click', () => location.reload());
+
+// --- ESTADO DE GAMIFICAÇÃO ---
+let usuarioLogado = false;
+const conquistas = [
+    { id: 'first_cycle', nome: 'Pioneiro', img: './conquistas/pioneiro.png', desc: 'Primeiro ciclo completo', unlocked: false },
+    { id: 'goblin_king', nome: 'Mestre Goblin', img: './conquistas/goblin.png', desc: 'Dividiu uma tarefa difícil', unlocked: false },
+    { id: 'night_owl', nome: 'Coruja', img: './conquistas/coruja.png', desc: 'Focou durante a noite', unlocked: false }
+];
+
+// Abrir/Fechar Modais
+const authModal = document.getElementById('auth-modal');
+const shelfModal = document.getElementById('shelf-modal');
+const authTrigger = document.getElementById('auth-trigger');
+
+authTrigger.onclick = () => {
+    if (!usuarioLogado) authModal.classList.add('active');
+    else {
+        renderTrophies();
+        shelfModal.classList.add('active');
+    }
+};
+
+document.querySelectorAll('.close-modal').forEach(btn => {
+    btn.onclick = () => {
+        authModal.classList.remove('active');
+        shelfModal.classList.remove('active');
+    }
+});
+
+// Simular Login
+document.getElementById('auth-form').onsubmit = (e) => {
+    e.preventDefault();
+    usuarioLogado = true;
+    authModal.classList.remove('active');
+    authTrigger.innerText = "👤 PERFIL";
+    orbitTalk("Conectado! Agora cada minuto de foco vira um prêmio na sua estante.");
+};
+
+// Função para Desbloquear
+function checkUnlock(id) {
+    if (!usuarioLogado) return;
+    const item = conquistas.find(c => c.id === id);
+    if (item && !item.unlocked) {
+        item.unlocked = true;
+        orbitTalk(`🏆 CONQUISTA! Você desbloqueou: ${item.nome}!`);
+        // Aqui você pode tocar um som de prêmio se desejar
+    }
+}
+
+function renderTrophies() {
+    const grid = document.getElementById('trophy-display');
+    grid.innerHTML = conquistas.map(c => `
+        <div class="trophy-item ${c.unlocked ? 'unlocked' : ''}">
+            <img src="${c.img}" alt="${c.nome}">
+            <span>${c.nome}</span>
+            <p style="font-size: 0.6rem; opacity: 0.7;">${c.desc}</p>
+        </div>
+    `).join('');
+}
+
+// --- INTEGRAÇÃO COM O QUE JÁ EXISTE ---
+
+// No fim da função updateTimer(), dentro do if(timeLeft <= 0):
+// checkUnlock('first_cycle');
+
+// No evento de clique do seu botão de Modo Goblin:
+// checkUnlock('goblin_king');

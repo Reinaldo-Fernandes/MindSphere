@@ -226,3 +226,60 @@ header { padding: 30px 60px; display: flex; justify-content: space-between; alig
     height: 4px;
     cursor: pointer;
 }
+
+/* --- NOVOS ELEMENTOS (LOGIN E ESTANTE) --- */
+.header-left { display: flex; gap: 10px; align-items: center; }
+
+/* Modal Vitral - Estilo de Vidro mais Profundo */
+.modal-vitral {
+    position: fixed; inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(20px);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 2000; opacity: 0; visibility: hidden;
+    transition: 0.5s ease;
+}
+.modal-vitral.active { opacity: 1; visibility: visible; }
+
+.auth-card, .shelf-card {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    padding: 40px; border-radius: 30px;
+    width: 100%; max-width: 400px;
+    text-align: center; position: relative;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+}
+
+.shelf-card { max-width: 600px; }
+
+/* Grade de Troféus */
+.trophy-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 20px; margin-top: 30px;
+}
+.trophy-item {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 15px; border-radius: 20px;
+    border: 1px solid transparent; transition: 0.4s;
+    opacity: 0.3; filter: grayscale(1);
+}
+.trophy-item.unlocked {
+    opacity: 1; filter: grayscale(0);
+    border-color: var(--accent-cyan);
+    background: rgba(94, 243, 255, 0.1);
+}
+.trophy-item img { width: 100%; margin-bottom: 10px; }
+.trophy-item span { font-size: 0.75rem; font-weight: bold; color: var(--accent-cyan); }
+
+/* Inputs e Botões do Modal */
+.glass-input {
+    width: 100%; background: rgba(255, 255, 255, 0.07);
+    border: 1px solid var(--glass-border); padding: 12px;
+    border-radius: 12px; color: white; margin-bottom: 15px; outline: none;
+}
+.close-modal {
+    position: absolute; top: 20px; right: 20px;
+    background: none; border: none; color: white;
+    font-size: 1.5rem; cursor: pointer; opacity: 0.5;
+}
+.close-modal:hover { opacity: 1; }

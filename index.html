@@ -2,15 +2,18 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MindSphere - Ecossistema Neurodivergente</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="onboarding-active">
     <div class="background-overlay"></div>
     
-    <header class="interface-element">
-        <button id="panic-btn" class="glass-btn panic">RESET DE PÂNICO</button>
+  <header class="interface-element">
+        <div class="header-left">
+            <button id="panic-btn" class="glass-btn panic">RESET</button>
+            <button id="auth-trigger" class="glass-btn">🔑 ENTRAR</button>
+        </div>
         <h1 class="logo">MindSphere</h1>
         <select id="garden-style" class="glass-select">
             <option value="plantas">🌿 Jardim</option>
@@ -19,6 +22,28 @@
             <option value="comida">☕ Café</option>
         </select>
     </header>
+
+    <div id="auth-modal" class="modal-vitral">
+        <div class="auth-card">
+            <button class="close-modal">×</button>
+            <h2 class="panel-title">Explorador MindSphere</h2>
+            <p style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 20px;">Salve seu progresso e colecione prêmios.</p>
+            <form id="auth-form">
+                <input type="email" placeholder="Seu E-mail" class="glass-input" required>
+                <input type="password" placeholder="Sinal de Acesso" class="glass-input" required>
+                <button type="submit" class="glass-btn start" style="width: 100%;">CONECTAR</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="shelf-modal" class="modal-vitral">
+        <div class="shelf-card">
+            <button class="close-modal">×</button>
+            <h2 class="panel-title">Sua Coleção Vitral</h2>
+            <div class="trophy-grid" id="trophy-display">
+                </div>
+        </div>
+    </div>
 
     <main class="container">
         <aside class="side-panel left interface-element">

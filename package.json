@@ -1,0 +1,26 @@
+{
+  "name": "mindsphere",
+  "version": "1.0.0",
+  "description": "\"A produtividade não é uma linha reta. Cada cérebro tem seu ritmo, suas pausas e suas cores.\"",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Reinaldo-Fernandes/MindSphere.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Reinaldo-Fernandes/MindSphere/issues"
+  },
+  "homepage": "https://github.com/Reinaldo-Fernandes/MindSphere#readme",
+  "dependencies": {
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/cli": "^8.0.0",
+    "@capacitor/core": "^8.0.0"
+  }
+}
