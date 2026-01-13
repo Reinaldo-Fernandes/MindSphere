@@ -160,7 +160,42 @@ header { padding: 30px 60px; display: flex; justify-content: space-between; alig
 }
 
 .onboarding-active .orbit-container {
-    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    position: fixed; top: 52%; left: 50%; transform: translate(-50%, -50%);
+}
+
+/* Correção para o container do jardim */
+.sphere-wrapper {
+    position: relative;
+    overflow: visible; /* Permite que os itens saiam um pouco da borda */
+}
+
+.garden-item {
+    position: absolute;
+    font-size: 2rem;
+    z-index: 1; /* Atrás da esfera principal */
+    pointer-events: none;
+    animation: gardenAppear 10s ease-in-out forwards;
+    transform: translate(-50%, -50%);
+}
+
+@keyframes gardenAppear {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0) rotate(-20deg); }
+    15% { opacity: 1; transform: translate(-50%, -50%) scale(1.2) rotate(0deg); }
+    85% { opacity: 1; }
+    100% { opacity: 0; transform: translate(-50%, -80%) scale(0.5); }
+}
+
+/* Garante que o balão de fala do Orbit não suma */
+.orbit-bubble {
+    z-index: 3000 !important;
+    background: white !important;
+    color: black !important;
+    display: block; /* Garante renderização */
+}
+
+/* Impede que o mixer esconda elementos importantes */
+.mixer {
+    gap: 15px;
 }
 
 .orbit-character { width: 80px; transition: 0.8s; animation: float 3s ease-in-out infinite; }
@@ -230,6 +265,19 @@ header { padding: 30px 60px; display: flex; justify-content: space-between; alig
 /* --- NOVOS ELEMENTOS (LOGIN E ESTANTE) --- */
 .header-left { display: flex; gap: 10px; align-items: center; }
 
+/* Efeitos de Brilho Dinâmico */
+.glow-login {
+    filter: drop-shadow(0 0 20px rgba(255, 0, 0, 0.8)) !important;
+}
+
+.glow-cadastro {
+    filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8)) !important;
+}nsição suave para a imagem */
+.orbit-character img {
+    transition: filter 0.5s ease, transform 0.5s ease;
+}
+
+
 /* Modal Vitral - Estilo de Vidro mais Profundo */
 .modal-vitral {
     position: fixed; inset: 0;
@@ -283,3 +331,57 @@ header { padding: 30px 60px; display: flex; justify-content: space-between; alig
     font-size: 1.5rem; cursor: pointer; opacity: 0.5;
 }
 .close-modal:hover { opacity: 1; }
+
+/* Modo Goblin - Lista de Tarefas */
+#subtasks-list {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.task-item {
+    background: var(--glass);
+    padding: 10px;
+    border-radius: 12px;
+    border-left: 4px solid var(--accent-pink);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    animation: fadeIn 0.5s ease;
+}
+
+.task-item input[type="checkbox"]:checked + span {
+    text-decoration: line-through;
+    opacity: 0.5;
+}
+
+/* Itens do Jardim */
+.garden-item {
+    position: absolute;
+    font-size: 1.8rem;
+    z-index: 5;
+    pointer-events: none;
+    animation: floatItem 10s linear forwards;
+    transform: translate(-50%, -50%);
+}
+
+@keyframes floatItem {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0); }
+    10% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -150%) scale(0.5); }
+}
+
+/* Glow das Lentes e Orbit */
+.glow-login { filter: drop-shadow(0 0 15px var(--accent-pink)); }
+.glow-cadastro { filter: drop-shadow(0 0 15px var(--accent-cyan)); }
+
+/* Responsividade do Botão Reset */
+.panic {
+    background: rgba(255, 50, 50, 0.2);
+    border-color: #ff3232;
+    color: #ff3232;
+}

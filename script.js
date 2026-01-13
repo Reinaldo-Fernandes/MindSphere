@@ -1,228 +1,176 @@
 let timer = null;
 let timeLeft = 1500;
 const totalTime = 1500;
+const TIME_TO_BLOOM = 300; 
 
-// Referências da Interface
+// --- REFERÊNCIAS ---
+const body = document.body;
 const startBtn = document.getElementById('start-btn');
+const panicBtn = document.getElementById('panic-btn');
 const orbitSpeech = document.getElementById('orbit-speech');
 const orbitImg = document.getElementById('orbit-img');
 const taskInput = document.getElementById('task-input');
+const subtasksList = document.getElementById('subtasks-list');
 const mixerAnchor = document.getElementById('mixer-anchor');
 const circle = document.querySelector('.progress-ring__circle');
 const display = document.getElementById('timer-display');
 
-// Referências de Áudio e Mixagem
-const rainVol = document.getElementById('rain-vol');
-const fireVol = document.getElementById('fire-vol');
+// Áudios
 const audioRain = document.getElementById('audio-rain');
 const audioFire = document.getElementById('audio-fire');
-const audioPlant = document.getElementById('audio-plant');
-const audioAlarm = document.getElementById('audio-alarm');
+const audioStart = document.getElementById('audio-start'); 
+const audioComplete = document.getElementById('audio-complete');
 
-// Configuração inicial de looping
-audioRain.loop = true;
-audioFire.loop = true;
-
-// Configuração do Círculo de Progresso
+// --- CONFIGURAÇÃO CIRCULAR ---
 const circumference = 212 * 2 * Math.PI;
 circle.style.strokeDasharray = `${circumference} ${circumference}`;
 circle.style.strokeDashoffset = circumference;
 
-// Mensagem de Boas-vindas
-window.onload = () => {
-    orbitTalk("Olá! Sou o Orbit. 🚀 Vamos cultivar o foco hoje? Clique abaixo para iniciar.");
-};
-
-// Sistema de Fala do Orbit
-function orbitTalk(text) {
-    orbitSpeech.classList.remove('active');
-    setTimeout(() => {
-        orbitSpeech.innerText = text;
-        orbitSpeech.classList.add('active');
-        setTimeout(() => orbitSpeech.classList.remove('active'), 8000);
-    }, 100);
+// --- FUNÇÕES DE INTERAÇÃO DO ORBIT ---
+function orbitTalk(t) {
+    orbitSpeech.innerText = t;
+    orbitSpeech.classList.add('active');
+    setTimeout(() => orbitSpeech.classList.remove('active'), 5000);
 }
 
-// Botão Iniciar / Pausar com Som de Feedback
-startBtn.addEventListener('click', () => {
-    if (document.body.classList.contains('onboarding-active')) {
-        document.body.classList.remove('onboarding-active');
-        setTimeout(() => {
-            mixerAnchor.appendChild(startBtn);
-            startBtn.style.marginTop = "0";
-            startBtn.style.fontSize = "0.85rem";
-        }, 600);
-        orbitTalk("Foco ligado! Estarei aqui no cantinho vigiando tudo. Bons estudos!");
+function setOrbitState(state) {
+    const paths = {
+        'default': './assistente/orbits/Orbit.png',
+        'goblin': './assistente/orbits/Goblin.png',
+        'foco': './assistente/orbits/Foco.png',
+        'login': './assistente/orbits/Orbit.png',
+        'cadastro': './assistente/orbits/Orbit.png'
+    };
+    
+    if (paths[state]) {
+        orbitImg.src = paths[state];
+    }
+
+    // Efeitos de glow dinâmicos
+    orbitImg.className = (state === 'login') ? 'glow-login' : (state === 'cadastro') ? 'glow-cadastro' : '';
+}
+
+// --- MODO GOBLIN ---
+document.getElementById('break-task-btn').onclick = () => {
+    const task = taskInput.value;
+    if (!task) return orbitTalk("Diga-me o que é difícil primeiro! ");
+    
+    setOrbitState('goblin'); 
+    
+    const steps = ["Começar pequeno", "Focar 5 minutos", "Respirar", "Concluir"];
+    subtasksList.innerHTML = "";
+    steps.forEach(step => {
+        const li = document.createElement('div');
+        li.className = 'task-item';
+        li.innerHTML = `<input type="checkbox"> <span>${step} ${task}</span>`;
+        subtasksList.appendChild(li);
+    });
+    orbitTalk("Tarefa dividida! Um passo de cada vez. ");
+};
+
+// --- MODO LENTES (CORES) ---
+window.setMode = (mode) => {
+    const themes = {
+        dopamina: { color: '#ff2da4', text: "Modo Dopamina: Estímulo máximo! " },
+        serenidade: { color: '#5ef3ff', text: "Modo Serenidade: Foco calmo. " },
+        autonomia: { color: '#adff2f', text: "Modo Autonomia: Você no controle. " }
+    };
+    const theme = themes[mode];
+    document.documentElement.style.setProperty('--accent-cyan', theme.color);
+    orbitTalk(theme.text);
+};
+
+// --- CONTROLE DO TIMER ---
+startBtn.onclick = () => {
+    // Transição do Onboarding
+    if (body.classList.contains('onboarding-active')) {
+        body.classList.remove('onboarding-active');
+        setTimeout(() => mixerAnchor.appendChild(startBtn), 800);
     }
 
     if (!timer) {
+        if (audioStart) audioStart.play(); 
         timer = setInterval(updateTimer, 1000);
         startBtn.innerText = "PAUSAR";
-        orbitTalk("Cronómetro a contar! Concentração total agora. 🧠");
-        
-        // Toca som de início (start)
-        audioPlant.currentTime = 0;
-        audioPlant.play().catch(e => console.log("Áudio aguardando interação..."));
+        setOrbitState('foco');
     } else {
         clearInterval(timer);
         timer = null;
         startBtn.innerText = "RETOMAR";
-        orbitTalk("Pausa rápida? Tudo bem, estarei à tua espera. ✨");
+        setOrbitState('default');
     }
-});
+};
 
-// Atualização do Timer e Som de Conclusão
 function updateTimer() {
     if (timeLeft <= 0) {
         clearInterval(timer);
-        timer = null;
-        
-        // Toca som de alarme ao completar
-        audioAlarm.currentTime = 0;
-        audioAlarm.volume = 1.0;
-        audioAlarm.play();
-        
-        orbitTalk("Sessão concluída! Excelente trabalho. Mereces um descanso. 🌿");
+        if (audioComplete) audioComplete.play();
+        orbitTalk("Missão cumprida! 🏆");
+        startBtn.innerText = "REINICIAR";
         return;
     }
-    
     timeLeft--;
+    
+    // Lógica do Jardim (Cria itens a cada 10 segundos após os primeiros 5 min)
+    if (timeLeft <= (totalTime - TIME_TO_BLOOM) && timeLeft % 10 === 0) spawnGardenItem();
+    
     const min = Math.floor(timeLeft / 60);
     const sec = timeLeft % 60;
     display.innerText = `${min}:${sec < 10 ? '0' + sec : sec}`;
-    
     circle.style.strokeDashoffset = circumference - (timeLeft / totalTime) * circumference;
-    
-    if (timeLeft % 300 === 0 && timeLeft !== totalTime && timeLeft > 0) {
-        spawnPlant();
-    }
 }
 
-// Controle de Volume e Ativação de Áudio em Loop
-rainVol.addEventListener('input', (e) => {
-    const vol = e.target.value;
-    audioRain.volume = vol;
-    if (vol > 0) audioRain.play().catch(() => {});
-    else audioRain.pause();
-});
+// --- RESET DE PÂNICO ---
+panicBtn.onclick = () => {
+    clearInterval(timer);
+    timer = null;
+    timeLeft = totalTime;
+    
+    display.innerText = "25:00";
+    circle.style.strokeDashoffset = circumference;
+    startBtn.innerText = "INICIAR FOCO";
+    
+    audioRain.pause();
+    audioFire.pause();
+    audioRain.currentTime = 0;
+    audioFire.currentTime = 0;
+    
+    setOrbitState('default');
+    orbitTalk("Sistema reiniciado. Respire fundo.");
+};
 
-fireVol.addEventListener('input', (e) => {
-    const vol = e.target.value;
-    audioFire.volume = vol;
-    if (vol > 0) audioFire.play().catch(() => {});
-    else audioFire.pause();
-});
-
-// Troca de Modos
-function setMode(mode) {
-    const colors = { dopamina: '#ff2da4', serenidade: '#5ef3ff', autonomia: '#adff2f' };
-    const messages = {
-        dopamina: "Modo Dopamina! Vamos tornar isto divertido e estimulante. ✨",
-        serenidade: "Modo Serenidade... Respira fundo e foca com calma. 🌊",
-        autonomia: "Modo Autonomia ativado! Tu estás no controlo total. 🦾"
+// --- JARDIM ---
+function spawnGardenItem() {
+    const container = document.querySelector('.sphere-wrapper');
+    const style = document.getElementById('garden-style').value;
+    const items = { 
+        plantas: ['🌿', '🌱', '🌸'], 
+        espaco: ['✨', '🪐'], 
+        notas: ['🎵', '🎹'], 
+        comida: ['☕', '🍪'] 
     };
-
-    document.documentElement.style.setProperty('--accent-cyan', colors[mode]);
-    const fileName = mode.charAt(0).toUpperCase() + mode.slice(1);
-    orbitImg.src = `./assistente/orbits/${fileName}.png`;
-    orbitTalk(messages[mode]);
-}
-
-// Lógica Modo Goblin e Input
-taskInput.addEventListener('focus', () => {
-    orbitImg.src = `./assistente/orbits/Goblin.png`;
-    orbitTalk("Modo Goblin ativado! Vamos organizar essas tarefas? 👹");
-});
-
-taskInput.addEventListener('blur', () => {
-    if (taskInput.value === "") {
-        const currentAccent = getComputedStyle(document.documentElement).getPropertyValue('--accent-cyan').trim().toLowerCase();
-        if (currentAccent === '#ff2da4') orbitImg.src = `./assistente/orbits/Dopamina.png`;
-        else if (currentAccent === '#adff2f') orbitImg.src = `./assistente/orbits/Autonomia.png`;
-        else orbitImg.src = `./assistente/orbits/Serenidade.png`;
-    }
-});
-
-function spawnPlant() {
-    const orbit = document.getElementById('orbit-1');
-    const plant = document.createElement('div');
-    plant.className = 'garden-item';
-    plant.innerText = '🌿';
-    const angle = Math.random() * Math.PI * 2;
-    const r = orbit.offsetWidth / 2;
-    plant.style.left = `calc(50% + ${Math.cos(angle) * r}px)`;
-    plant.style.top = `calc(50% + ${Math.sin(angle) * r}px)`;
-    orbit.appendChild(plant);
+    const selected = items[style] || items.plantas;
     
-    audioPlant.currentTime = 0;
-    audioPlant.play().catch(() => {});
+    const item = document.createElement('div');
+    item.className = 'garden-item';
+    item.innerText = selected[Math.floor(Math.random() * selected.length)];
+    
+    const angle = Math.random() * Math.PI * 2;
+    const radius = 230 + Math.random() * 50;
+    item.style.left = `${Math.cos(angle) * radius + container.offsetWidth / 2}px`;
+    item.style.top = `${Math.sin(angle) * radius + container.offsetHeight / 2}px`;
+    
+    container.appendChild(item);
+    setTimeout(() => item.remove(), 10000);
 }
 
-document.getElementById('panic-btn').addEventListener('click', () => location.reload());
-
-// --- ESTADO DE GAMIFICAÇÃO ---
-let usuarioLogado = false;
-const conquistas = [
-    { id: 'first_cycle', nome: 'Pioneiro', img: './conquistas/pioneiro.png', desc: 'Primeiro ciclo completo', unlocked: false },
-    { id: 'goblin_king', nome: 'Mestre Goblin', img: './conquistas/goblin.png', desc: 'Dividiu uma tarefa difícil', unlocked: false },
-    { id: 'night_owl', nome: 'Coruja', img: './conquistas/coruja.png', desc: 'Focou durante a noite', unlocked: false }
-];
-
-// Abrir/Fechar Modais
-const authModal = document.getElementById('auth-modal');
-const shelfModal = document.getElementById('shelf-modal');
-const authTrigger = document.getElementById('auth-trigger');
-
-authTrigger.onclick = () => {
-    if (!usuarioLogado) authModal.classList.add('active');
-    else {
-        renderTrophies();
-        shelfModal.classList.add('active');
-    }
+// --- CONTROLES DE VOLUME ---
+document.getElementById('rain-vol').oninput = (e) => {
+    audioRain.volume = e.target.value;
+    if (audioRain.volume > 0) audioRain.play(); else audioRain.pause();
 };
 
-document.querySelectorAll('.close-modal').forEach(btn => {
-    btn.onclick = () => {
-        authModal.classList.remove('active');
-        shelfModal.classList.remove('active');
-    }
-});
-
-// Simular Login
-document.getElementById('auth-form').onsubmit = (e) => {
-    e.preventDefault();
-    usuarioLogado = true;
-    authModal.classList.remove('active');
-    authTrigger.innerText = "👤 PERFIL";
-    orbitTalk("Conectado! Agora cada minuto de foco vira um prêmio na sua estante.");
+document.getElementById('fire-vol').oninput = (e) => {
+    audioFire.volume = e.target.value;
+    if (audioFire.volume > 0) audioFire.play(); else audioFire.pause();
 };
-
-// Função para Desbloquear
-function checkUnlock(id) {
-    if (!usuarioLogado) return;
-    const item = conquistas.find(c => c.id === id);
-    if (item && !item.unlocked) {
-        item.unlocked = true;
-        orbitTalk(`🏆 CONQUISTA! Você desbloqueou: ${item.nome}!`);
-        // Aqui você pode tocar um som de prêmio se desejar
-    }
-}
-
-function renderTrophies() {
-    const grid = document.getElementById('trophy-display');
-    grid.innerHTML = conquistas.map(c => `
-        <div class="trophy-item ${c.unlocked ? 'unlocked' : ''}">
-            <img src="${c.img}" alt="${c.nome}">
-            <span>${c.nome}</span>
-            <p style="font-size: 0.6rem; opacity: 0.7;">${c.desc}</p>
-        </div>
-    `).join('');
-}
-
-// --- INTEGRAÇÃO COM O QUE JÁ EXISTE ---
-
-// No fim da função updateTimer(), dentro do if(timeLeft <= 0):
-// checkUnlock('first_cycle');
-
-// No evento de clique do seu botão de Modo Goblin:
-// checkUnlock('goblin_king');

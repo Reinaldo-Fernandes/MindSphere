@@ -5,15 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MindSphere - Ecossistema Neurodivergente</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="manifest" href="manifest.json">
 </head>
 <body class="onboarding-active">
     <div class="background-overlay"></div>
     
-  <header class="interface-element">
+    <header class="interface-element">
         <div class="header-left">
             <button id="panic-btn" class="glass-btn panic">RESET</button>
-            <button id="auth-trigger" class="glass-btn">🔑 ENTRAR</button>
+            <button id="auth-trigger" class="glass-btn">🔑 ENTRAR / REGISTAR</button>
         </div>
         <h1 class="logo">MindSphere</h1>
         <select id="garden-style" class="glass-select">
@@ -30,10 +29,36 @@
             <h2 class="panel-title">Explorador MindSphere</h2>
             <p style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 20px;">Salve seu progresso e colecione prêmios.</p>
             <form id="auth-form">
-                <input type="email" placeholder="Seu E-mail" class="glass-input" required>
-                <input type="password" placeholder="Sinal de Acesso" class="glass-input" required>
+                <input type="email" id="login-email" placeholder="Seu E-mail" class="glass-input" required>
+                <input type="password" id="login-pass" placeholder="Sinal de Acesso" class="glass-input" required>
                 <button type="submit" class="glass-btn start" style="width: 100%;">CONECTAR</button>
             </form>
+            <p style="font-size: 0.7rem; margin-top: 15px;">Novo aqui? <span id="go-to-register" style="color: var(--accent-cyan); cursor: pointer; font-weight: bold;">Crie seu perfil</span></p>
+        </div>
+    </div>
+
+    <div id="register-modal" class="modal-vitral">
+        <div class="auth-card">
+            <button class="close-modal">×</button>
+            <h2 class="panel-title">Novo Explorador</h2>
+            <p style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 20px;">Comece sua jornada de foco personalizado.</p>
+            
+            <form id="register-form">
+                <input type="text" id="reg-nome" placeholder="Nome ou Nickname" class="glass-input" required>
+                <input type="email" id="reg-email" placeholder="E-mail" class="glass-input" required>
+                <input type="number" id="reg-idade" placeholder="Idade" class="glass-input" required>
+                
+                <select id="reg-neuro" class="glass-select" style="width: 100%; margin-bottom: 15px; padding: 12px;">
+                    <option value="" disabled selected>Perfil Cognitivo (Opcional)</option>
+                    <option value="tdah">TDAH</option>
+                    <option value="autismo">Autista</option>
+                    <option value="neurotipico">Neurotípico</option>
+                    <option value="outro">Outro</option>
+                </select>
+
+                <button type="submit" class="glass-btn start" style="width: 100%;">CRIAR PERFIL</button>
+            </form>
+            <p style="font-size: 0.7rem; margin-top: 15px;">Já tem conta? <span id="go-to-login" style="color: var(--accent-pink); cursor: pointer; font-weight: bold;">Fazer Login</span></p>
         </div>
     </div>
 
@@ -41,8 +66,7 @@
         <div class="shelf-card">
             <button class="close-modal">×</button>
             <h2 class="panel-title">Sua Coleção Vitral</h2>
-            <div class="trophy-grid" id="trophy-display">
-                </div>
+            <div class="trophy-grid" id="trophy-display"></div>
         </div>
     </div>
 
@@ -101,14 +125,17 @@
             <input type="range" id="fire-vol" min="0" max="1" step="0.1" value="0">
         </div>
     </footer>
+    
 
-    <div style="display: none;">
+   <div hidden>
         <audio id="audio-rain" loop src="./sons/rain.mp3"></audio>
         <audio id="audio-fire" loop src="./sons/fire.mp3"></audio>
-        <audio id="audio-plant" src="./sons/start.mp3"></audio>
-        <audio id="audio-alarm" src="./sons/complete.mp3"></audio>
+        <audio id="audio-start" src="./sons/start.mp3"></audio>
+        <audio id="audio-complete" src="./sons/complet.mp3"></audio>
     </div>
 
-    <script src="script.js"></script>
+    <script src="script.js">
+        
+    </script>
 </body>
 </html>
