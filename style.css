@@ -160,29 +160,78 @@ header { padding: 30px 60px; display: flex; justify-content: space-between; alig
 }
 
 .onboarding-active .orbit-container {
-    position: fixed; top: 52%; left: 50%; transform: translate(-50%, -50%);
+    position: fixed; top: 56%; left: 50%; transform: translate(-50%, -50%);
 }
 
-/* Correção para o container do jardim */
+/* Container principal do jardim */
 .sphere-wrapper {
     position: relative;
     overflow: visible; /* Permite que os itens saiam um pouco da borda */
 }
 
+/* --- ÚNICO BLOCO PARA O JARDIM INFINITO --- */
 .garden-item {
     position: absolute;
-    font-size: 2rem;
-    z-index: 1; /* Atrás da esfera principal */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Garante centralização inicial */
+    font-size: 2.2rem;
+    z-index: 100; /* Aumentado para garantir que fique visível */
     pointer-events: none;
-    animation: gardenAppear 10s ease-in-out forwards;
-    transform: translate(-50%, -50%);
+    opacity: 1 !important; /* Força a visibilidade */
+    
+    /* Usa as variáveis que o JS enviou */
+    animation: orbitContinuous var(--orbit-duration) linear infinite !important;
 }
 
-@keyframes gardenAppear {
-    0% { opacity: 0; transform: translate(-50%, -50%) scale(0) rotate(-20deg); }
-    15% { opacity: 1; transform: translate(-50%, -50%) scale(1.2) rotate(0deg); }
-    85% { opacity: 1; }
-    100% { opacity: 0; transform: translate(-50%, -80%) scale(0.5); }
+@keyframes orbitContinuous {
+    from {
+        transform: translate(-50%, -50%) 
+                   rotate(var(--start-angle)) 
+                   translateX(var(--orbit-distance)) 
+                   rotate(calc(-1 * var(--start-angle)));
+    }
+    to {
+        transform: translate(-50%, -50%) 
+                   rotate(calc(var(--start-angle) + 360deg)) 
+                   translateX(var(--orbit-distance)) 
+                   rotate(calc(-1 * (var(--start-angle) + 360deg)));
+    }
+}
+
+/* Estilo persistente para itens do jardim */
+.garden-icon.active-item {
+    position: absolute;
+    font-size: 2.2rem;
+    opacity: 1;
+    animation: orbitar-permanente var(--duration) linear infinite;
+    transform-origin: center;
+    transition: opacity 0.5s ease;
+}
+
+/* Animação de órbita circular infinita */
+@keyframes orbitar-permanente {
+    from { 
+        transform: rotate(var(--start-angle)) translateX(var(--radius)) rotate(calc(var(--start-angle) * -1)); 
+    }
+    to { 
+        transform: rotate(calc(var(--start-angle) + 360deg)) translateX(var(--radius)) rotate(calc((var(--start-angle) + 360deg) * -1)); 
+    }
+}
+
+/* Estilo do Goblin no Orbit */
+.glow-goblin {
+    filter: drop-shadow(0 0 20px #ff4500) !important;
+}
+
+/* Animação para o item aparecer suavemente */
+.garden-appear {
+    animation: fadeIn 1s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; scale: 0; }
+    to { opacity: 1; scale: 1; }
 }
 
 /* Garante que o balão de fala do Orbit não suma */
