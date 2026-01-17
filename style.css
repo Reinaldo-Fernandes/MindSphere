@@ -236,11 +236,21 @@ header {
 
 .garden-item {
     position: absolute;
-    top: 50%; left: 50%;
-    font-size: 2.2rem;
-    z-index: 100;
-    pointer-events: none;
-    animation: orbitContinuous var(--orbit-duration) linear infinite !important;
+    top: 50%;
+    left: 50%;
+    font-size: 1.5rem;
+    pointer-events: none; 
+    z-index: 5; 
+    transform-origin: center;
+    animation: orbit var(--orbit-duration) linear infinite;
+    margin-top: -12px; /* Ajuste para centralizar o emoji */
+    margin-left: -12px;
+}
+
+/* Verifique se a animação está definida assim: */
+@keyframes orbit {
+    from { transform: rotate(var(--start-angle)) translateX(var(--orbit-distance)) rotate(calc(var(--start-angle) * -1)); }
+    to { transform: rotate(calc(var(--start-angle) + 360deg)) translateX(var(--orbit-distance)) rotate(calc((var(--start-angle) + 360deg) * -1)); }
 }
 
 @keyframes orbitContinuous {
