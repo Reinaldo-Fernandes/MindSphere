@@ -1,47 +1,83 @@
+Seu README já tem uma base excelente e poética. Para elevar o nível para um patamar **profissional e pronto para o portfólio**, vamos estruturá-lo com seções mais técnicas, adicionar badges de tecnologias, detalhar a arquitetura do projeto e criar uma seção dedicada ao progresso mobile.
+
+Aqui está a proposta de reformulação:
+
+---
+
 # 🧠 MindSphere — Ecossistema de Produtividade Neurodivergente
-"A produtividade não é uma linha reta. Cada cérebro tem seu ritmo, suas pausas e suas cores."
 
-O MindSphere é uma solução projetada para revolucionar a forma como pessoas neurodivergentes (TDAH, Autismo, TOD e TOC) lidam com o tempo e o foco. Ao contrário de métodos tradicionais que geram pressão, o MindSphere utiliza design adaptativo, sonoridade ambiental e uma interface acolhedora para criar um ambiente de trabalho seguro.
+> **"A produtividade não é uma linha reta. Cada cérebro tem seu ritmo, suas pausas e suas cores."**
 
-🚀 O que mudou e o que melhorou?
-Recentemente, o ecossistema passou por um refinamento profundo de UX/UI e lógica de interação:
+O **MindSphere** é um hub de foco projetado especificamente para as necessidades de pessoas neurodivergentes (TDAH, Autismo, TOD e TOC). Fugindo da rigidez das ferramentas tradicionais, ele combina **design adaptativo**, **sonoridade imersiva** e **gamificação sensorial** para transformar a gestão do tempo em uma experiência de baixo estresse.
 
-Apresentação Imersiva (Onboarding): O assistente Orbit agora assume o centro da tela no início, apresentando-se e convidando o usuário ao foco antes de revelar a interface completa.
+---
 
-Interface Estilo Vitral: Implementação de um design moderno com glassmorphism (efeito de vidro fosco), utilizando backdrop-filter e bordas semitransparentes para reduzir a carga visual e aumentar a elegância.
+## 🚀 Evolução Recente & Refinamentos de UX
 
-Transições Fluidas: O botão de início agora "voa" do centro da tela para o mixer inferior ao iniciar o cronômetro, criando uma continuidade visual que guia o olhar do usuário.
+O projeto alcançou sua maturidade na versão Web com as seguintes implementações:
 
-Hierarquia de Camadas (Z-Index): Organização das camadas para que o Orbit e seus balões de fala não obstruam os controles principais e o Mixer, garantindo usabilidade total durante o uso intenso.
+* **Onboarding Imersivo:** O assistente *Orbit* centraliza-se na tela inicial, guiando o usuário através de uma transição suave para o dashboard principal.
+* **Interface Vitral (Glassmorphism):** Estética moderna utilizando `backdrop-filter` e transparências, reduzindo a poluição visual para minimizar a sobrecarga cognitiva.
+* **Arquitetura de Transições:** O botão de foco possui uma lógica de "vôo" (DOM relocation), movendo-se do centro para o *Mixer* inferior ao iniciar a sessão.
+* **Feedback Inteligente:** Balões de fala do Orbit com temporização de 8 segundos, garantindo suporte sem se tornar uma distração visual.
 
-Limpeza de Feedback: O balão de fala do Orbit agora possui um temporizador inteligente, desaparecendo após 8 segundos para manter o foco livre de distrações textuais.
+---
 
-🛸 Funcionalidades Principais
-O Orbit (Assistente IA): Atua como Body Doubling, acompanhando o usuário visualmente e oferecendo suporte com comunicação não-violenta.
+## 🛸 Funcionalidades de Destaque
 
-IA Goblin Mode: Transforma tarefas genéricas em micro-passos digeríveis, combatendo a paralisia por análise.
+| Recurso | Descrição |
+| --- | --- |
+| **Orbit (Assistente)** | Atua como *Body Doubling* visual e oferece suporte via comunicação não-violenta. |
+| **Goblin Mode 👹** | Decompõe tarefas complexas em micro-passos digeríveis através de uma lógica de *splitting*. |
+| **Lentes Neurológicas** | Alteração dinâmica da cromoterapia (Dopamina, Serenidade e Autonomia) para ajustar o humor do ambiente. |
+| **Jardim Orbitante** | O tempo de foco é convertido em itens visuais (plantas, astros) que orbitam o cronômetro central. |
+| **Mixer Sensorial** | Controle individual de camadas de áudio (chuva, fogo) para personalização do ambiente acústico. |
 
-Lentes Neurológicas: Modos de interface que alteram dinamicamente a cromoterapia do ambiente (Dopamina, Serenidade e Autonomia).
+---
 
-Jardim de Foco: O tempo de produtividade é convertido em crescimento de plantas virtuais (🌿) que orbitam o cronômetro, oferecendo recompensa visual imediata.
+## 🛠️ Stack Tecnológica
 
-Reset Sensorial (Botão de Pânico): Comando de emergência para silenciar o ambiente e reiniciar o estado mental em momentos de crise.
+* **Frontend:** HTML5 Semântico e CSS3 Moderno (Variáveis, Flexbox, Grid e Keyframe Animations).
+* **Lógica & Core:** Vanilla JavaScript com manipulação dinâmica de DOM e Web Audio API.
+* **Backend & Persistência:**
+* **Firebase Auth:** Autenticação segura de usuários.
+* **Firestore:** Sincronização em tempo real de XP, conquistas e progresso.
+* **LocalStorage:** Persistência de curto prazo para o histórico de tarefas.
 
-🛠️ Tecnologias Utilizadas
-Frontend: HTML5, CSS3 (Glassmorphism, Variáveis de Ambiente, Keyframe Animations).
 
-Lógica: JavaScript (Vanilla JS) com manipulação dinâmica de DOM para transições de elementos entre contêineres.
 
-Áudio: Web Audio API para mixagem de sons ambientais.
+---
 
-📈 Roadmap
-[x] Protótipo Funcional (Timer + Mixer).
+## 📈 Roadmap & Status do Projeto
 
-[x] Implementação do Assistente Orbit e interface vitral.
+O MindSphere está em fase de transição para a mobilidade.
 
-[x] Gamificação Sensorial (Crescimento de plantas).
+* [x] **Fase 1: Core & Timer** - Implementação da lógica Pomodoro e interface base.
+* [x] **Fase 2: Identidade Visual** - Interface Vitral e animações de órbita.
+* [x] **Fase 3: Ecossistema Firebase** - Login, Galeria de Prêmios e persistência de dados.
+* [ ] **Fase 4: Mobile First (Atual)** - Refinamento do layout responsivo para publicação (PWA/Play Store).
+* [ ] **Fase 5: Notificações Hópticas** - Integração com vibrações de Smartwatch para lembretes silenciosos.
 
-[ ] Sincronização Mobile/Cloud.
+---
 
-[ ] Integração com Smartwatch (Haptic Cues).
+## 📱 Visualização do Mobile (Em desenvolvimento)
 
+O layout mobile já conta com empilhamento dinâmico:
+
+1. **Esfera Central** (Topo para foco imediato).
+2. **Painéis de Lentes e Goblin Mode** (Scroll vertical suave).
+3. **Mixer Fixo** (Acesso rápido na base da tela).
+
+---
+
+## 📝 Licença
+
+Este projeto é desenvolvido para fins educacionais e de suporte à comunidade neurodivergente.
+
+---
+
+### Como contribuir ou testar?
+
+*(Adicione aqui os passos de `git clone` e como rodar o Firebase, se desejar abrir o código).*
+
+**Deseja que eu ajude a criar uma seção de "Guia de Instalação" ou que eu gere um script para automatizar o deploy no Firebase?**
