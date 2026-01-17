@@ -240,7 +240,7 @@ header {
     left: 50%;
     font-size: 2rem;
     pointer-events: none; 
-    z-index: 5; 
+    z-index: 1000; 
     transform-origin: center;
     animation: orbit var(--orbit-duration) linear infinite;
     margin-top: -1px; 
