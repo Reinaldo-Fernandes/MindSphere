@@ -2,6 +2,9 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, doc, setDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+// No topo, junto com os outros imports, adicione o reset:
+import { sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
 
 const firebaseConfig = {
     apiKey: "AIzaSyCvq3MnFtZKZP4QFpkOMknUnaR6tK17YPc",
@@ -26,7 +29,7 @@ const taskInput = getEl('task-input');
 const breakTaskBtn = getEl('break-task-btn');
 const clearTasksBtn = getEl('clear-tasks-btn');
 const subtasksList = getEl('subtasks-list');
-const goblinHistoryContainer = getEl('goblin-history');
+const goblinHistoryContainer = getEl('goblin-history-list');
 const authTrigger = getEl('auth-trigger');
 const userDisplayName = getEl('user-display-name');
 const logoutBtn = getEl('logout-btn');
@@ -231,10 +234,12 @@ function updateTimer() {
 const startBtn = getEl('start-btn');
 if (startBtn) {
     startBtn.onclick = () => {
-        if (document.body.classList.contains('onboarding-active')) {
-            document.body.classList.remove('onboarding-active');
-            getEl('mixer-anchor')?.appendChild(startBtn);
-        }
+    if (document.body.classList.contains('onboarding-active')) {
+        document.body.classList.remove('onboarding-active');
+        // Mover para o mixer apenas se o anchor existir
+        const anchor = getEl('mixer-anchor');
+        if(anchor) anchor.appendChild(startBtn);
+    }
 
         if (!timer) {
             getEl('audio-start')?.play().catch(() => {});
@@ -258,93 +263,56 @@ if (startBtn) {
 }
 
 /* --- 6. FIREBASE AUTH & LOGOUT --- */
+// --- GESTÃO UNIFICADA DE INTERFACE ---
 
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        if (userDisplayName) userDisplayName.innerText = user.displayName || user.email.split('@')[0];
-        onSnapshot(doc(db, "usuarios", user.uid), (docSnap) => {
-            if (docSnap.exists()) {
-                userDB = docSnap.data();
-                renderizarEstante();
-                
-                const container = document.querySelector('.sphere-wrapper');
-                if (container) {
-                    limparJardim();
-                    const totalItens = Math.floor(userDB.xp / 50);
-                    for(let i = 0; i < Math.min(totalItens, 30); i++) {
-                        criarItemJardim();
-                    }
-                }
-            }
-        });
-        authTrigger.innerText = "👤 PERFIL";
-        authTrigger.onclick = () => getEl('profile-modal')?.classList.add('active');
+// 1. Abrir Login/Perfil
+authTrigger.onclick = () => {
+    if (auth.currentUser) {
+        getEl('profile-modal').classList.add('active');
     } else {
-        authTrigger.innerText = "🔑 ENTRAR / REGISTAR";
-        authTrigger.onclick = () => {
-            getEl('auth-modal')?.classList.add('active');
-            setOrbitState('login');
-        };
+        getEl('auth-modal').classList.add('active');
+        setOrbitState('login');
     }
+};
+
+// 2. Trocas entre Modais
+getEl('go-to-register').onclick = (e) => {
+    e.preventDefault();
+    getEl('auth-modal').classList.remove('active');
+    getEl('register-modal').classList.add('active');
+    setOrbitState('cadastro');
+};
+
+getEl('go-to-login').onclick = (e) => {
+    e.preventDefault();
+    getEl('register-modal').classList.remove('active');
+    getEl('auth-modal').classList.add('active');
+    setOrbitState('login');
+};
+
+getEl('forgot-password-link').onclick = (e) => {
+    e.preventDefault();
+    getEl('auth-modal').classList.remove('active');
+    getEl('forgot-password-modal').classList.add('active');
+};
+
+// 3. Fechar tudo
+document.querySelectorAll('.close-modal, .back-to-login').forEach(btn => {
+    btn.onclick = () => {
+        document.querySelectorAll('.modal-vitral').forEach(m => m.classList.remove('active'));
+        setOrbitState('default');
+    };
 });
 
-if (logoutBtn) {
-    logoutBtn.onclick = () => {
-        auth.signOut().then(() => {
-            localStorage.removeItem('goblinHistoryData');
-            orbitTalk("Sessão encerrada. 👋");
-            setTimeout(() => { window.location.reload(); }, 1500);
-        });
-    };
-}
-
-async function salvarProgresso() {
-    const user = auth.currentUser;
-    if (user) {
-        try { await updateDoc(doc(db, "usuarios", user.uid), userDB); } 
-        catch (e) { console.error("Erro ao salvar:", e); }
+// 4. Lógica do Orbit (Garantir que ele apareça)
+function checkOrbitVisibility() {
+    const orbit = getEl('orbit-assistant');
+    if (orbit) {
+        orbit.style.opacity = "1";
+        orbit.style.visibility = "visible";
     }
 }
-
-function ganharConquista(categoria) {
-    const id = `${categoria}_${userDB[categoria] || 1}`; 
-    if (!userDB.conquistas.includes(id)) {
-        userDB.conquistas.push(id);
-        userDB.xp += 25;
-        salvarProgresso();
-        criarItemJardim();
-    }
-}
-
-function renderizarEstante() {
-    const shelf = getEl('trophy-shelf-content');
-    if (!shelf) return;
-    shelf.innerHTML = '';
-    Object.keys(configGameficacao).forEach(chave => {
-        const cat = configGameficacao[chave];
-        const section = document.createElement('div');
-        section.className = 'trophy-category';
-        section.innerHTML = `<h4>${cat.titulo}</h4><div class="trophy-grid"></div>`;
-        const grid = section.querySelector('.trophy-grid');
-        for (let i = 1; i <= cat.total; i++) {
-            const isUnlocked = userDB.conquistas.includes(`${chave}_${i}`);
-            const slot = document.createElement('div');
-            slot.className = `trophy-slot ${isUnlocked ? 'unlocked' : 'locked'}`;
-            slot.innerHTML = `<img src="./assistente/gameficação/${cat.pasta}/${i}.png">`;
-            grid.appendChild(slot);
-        }
-        shelf.appendChild(section);
-    });
-}
-
-function finalizarCicloFoco() {
-    userDB.focos++;
-    userDB.xp += 50;
-    ganharConquista('hiperfoco');
-    salvarProgresso();
-    criarItemJardim(); 
-    orbitTalk("Ciclo concluído! Algo novo brotou no jardim. 🏆");
-}
+window.onload = checkOrbitVisibility;
 
 /* --- 7. INTERFACE E MIXER --- */
 
@@ -405,3 +373,112 @@ document.addEventListener('click', () => {
         if(a) { a.play().then(() => a.pause()).catch(() => {}); }
     });
 }, { once: true });
+
+
+// --- LOGICA DE TROCA DE MODAIS E ORBIT ---
+
+// 1. Abrir Esqueci a Senha
+getEl('forgot-password-link').onclick = (e) => {
+    e.preventDefault();
+    getEl('auth-modal').classList.remove('active');
+    getEl('forgot-password-modal').classList.add('active');
+    setOrbitState('default'); // Orbit volta ao normal ou um estado de ajuda
+};
+
+// 2. Voltar para o Login
+document.querySelectorAll('.back-to-login').forEach(btn => {
+    btn.onclick = () => {
+        getEl('forgot-password-modal').classList.remove('active');
+        getEl('auth-modal').classList.add('active');
+        setOrbitState('login');
+    };
+});
+
+// 3. Abrir Login/Registro (Corrigindo o Orbit)
+getEl('auth-trigger').onclick = () => {
+    getEl('auth-modal').classList.add('active');
+    setOrbitState('login'); // Agora o Orbit vai mudar!
+    orbitTalk("Identifique-se, viajante!");
+};
+
+getEl('go-to-register').onclick = () => {
+    getEl('auth-modal').classList.remove('active');
+    getEl('register-modal').classList.add('active');
+    setOrbitState('cadastro');
+};
+
+getEl('go-to-login').onclick = () => {
+    getEl('register-modal').classList.remove('active');
+    getEl('auth-modal').classList.add('active');
+    setOrbitState('login');
+};
+
+// 4. Lógica do Envio de E-mail
+getEl('send-reset-btn').onclick = async () => {
+    const email = getEl('reset-email').value;
+    if(!email) return orbitTalk("Diga-me seu e-mail para eu te ajudar!");
+    
+    try {
+        await sendPasswordResetEmail(auth, email);
+        orbitTalk("Link enviado! Verifique seu e-mail.");
+        getEl('forgot-password-modal').classList.remove('active');
+        setOrbitState('default');
+    } catch (error) {
+        orbitTalk("Não achei esse e-mail...");
+    }
+};
+
+// 5. Clique no Orbit para ver perfil (apenas se logado)
+getEl('orbit-img').onclick = () => {
+    if (auth.currentUser) {
+        getEl('profile-modal').classList.add('active');
+    } else {
+        orbitTalk("Faça login para ver seu progresso!");
+    }
+};
+
+// --- 1. Lógica de Ver/Esconder Senha ---
+const togglePassword = getEl('toggle-password');
+const loginPassword = getEl('login-password');
+
+if (togglePassword && loginPassword) {
+    togglePassword.onclick = () => {
+        const isPassword = loginPassword.type === "password";
+        loginPassword.type = isPassword ? "text" : "password";
+        
+        // Troca a classe do FontAwesome em vez do texto
+        togglePassword.classList.toggle('fa-eye');
+        togglePassword.classList.toggle('fa-eye-slash');
+    };
+}
+
+// --- 2. Correção da abertura do Login com Orbit ---
+// Abrir Modal de Autenticação
+getEl('auth-trigger').onclick = () => {
+    getEl('auth-modal').classList.add('active');
+    setOrbitState('login'); // Orbit aparece no modo login
+};
+
+// Trocar para Esqueci a Senha
+getEl('forgot-password-link').onclick = (e) => {
+    e.preventDefault();
+    getEl('auth-modal').classList.remove('active');
+    getEl('forgot-password-modal').classList.add('active');
+    setOrbitState('login'); // Mantém o Orbit visível aqui também
+};
+
+// Trocar para Registro
+getEl('go-to-register').onclick = (e) => {
+    e.preventDefault();
+    getEl('auth-modal').classList.remove('active');
+    getEl('register-modal').classList.add('active');
+    setOrbitState('cadastro'); // Muda para o modo cadastro
+};
+
+//---- 4 Fechar modais ----
+document.querySelectorAll('.close-modal').forEach(btn => {
+    btn.onclick = () => {
+        document.querySelectorAll('.modal-vitral').forEach(m => m.classList.remove('active'));
+        setOrbitState('default'); // Orbit volta ao normal no centro ou posição original
+    };
+});

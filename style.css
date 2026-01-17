@@ -180,10 +180,17 @@ header {
    5. ORBIT E ASSISTENTE
    ========================================================================== */
 .orbit-container {
-    position: absolute; bottom: -40px; right: -40px;
-    display: flex; flex-direction: column; align-items: center;
-    z-index: 2000; transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
-    transform: translate(80px, -60px);
+    position: absolute; 
+    bottom: 30%; 
+    right: 30%;
+    display: flex;
+    flex-direction: column; 
+    align-items: center;
+    z-index: 10001 !important; 
+    transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translate(50%, 50%);
+    pointer-events: none;
+    
 }
 
 .onboarding-active .orbit-container {
@@ -194,9 +201,15 @@ header {
     width: 80px; 
     animation: float 3s ease-in-out infinite; 
     transition: 0.8s;
+    pointer-events: auto;
 }
 
 .onboarding-active .orbit-character { width: 280px; }
+#orbit-assistant {
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: flex !important;
+}
 
 .orbit-character img { 
     width: 100%; 
@@ -219,12 +232,13 @@ header {
     transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     text-align: center;
     font-size: 0.9rem;
-    z-index: 3000;
+    z-index: 3000 !important;
     box-shadow: 0 10px 25px rgba(0,0,0,0.3);
     position: relative;
 }
 
-.orbit-bubble.active { opacity: 1 !important; visibility: visible !important; transform: scale(1); }
+.orbit-bubble.active { opacity: 1 !important; visibility: visible !important; transform: scale(1); z-index:9999 !import;}
+
 
 /* ==========================================================================
    6. JARDIM E ANIMAÇÕES DE ÓRBITA
@@ -358,14 +372,35 @@ header {
    10. MODAIS E PERFIL
    ========================================================================== */
 .modal-vitral {
-    position: fixed; inset: 0;
+    position: fixed;
+    inset: 0;
     background: rgba(0, 0, 0, 0.85);
     backdrop-filter: blur(20px);
-    display: flex; justify-content: center; align-items: center;
-    z-index: 2000; opacity: 0; visibility: hidden; transition: 0.5s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 5000; 
+    opacity: 0;
+    visibility: hidden;
+    transition: 0.5s ease;
+    pointer-events: none;
 }
 
-.modal-vitral.active { opacity: 1; visibility: visible; }
+/* Ativa o modal quando tiver a classe .active */
+.modal-vitral.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+/* Ajuste específico para o card de perfil não vazar */
+.profile-scroll-area {
+    display: none; 
+}
+
+.active .profile-scroll-area {
+    display: block; 
+}
 
 .auth-card, .profile-card {
     background: var(--glass); border: 1px solid var(--glass-border);
@@ -617,4 +652,63 @@ header {
     .orbit-character {
         width: 60px;
     }
+}
+
+
+/* Garante que o container do Orbit fique acima do fundo do modal */
+.orbit-container {
+    z-index: 6000 !important; 
+}
+
+/* Garante que o conteúdo do perfil seja visível quando o modal estiver ativo */
+#profile-modal.active .profile-scroll-area {
+    display: block !important;
+}
+
+/* Ajuste para os slots de troféus não ficarem invisíveis */
+.trophy-slot img {
+    width: 80%;
+    height: 80%;
+    object-fit: contain;
+}
+
+.password-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.password-container .glass-input {
+    padding-right: 45px;
+}
+
+#toggle-password {
+    position: absolute;
+    right: 15px;
+    cursor: pointer;
+    color: var(--accent-cyan);
+    opacity: 0.6;
+    transition: 0.3s;
+}
+
+#toggle-password:hover {
+    opacity: 1;
+    text-shadow: 0 0 10px var(--accent-cyan);
+}
+
+
+.password-container {
+    position: relative;
+    width: 100%;
+}
+
+#toggle-password {
+    position: absolute;
+    right: 15px;
+    top: 40%;
+    transform: translateY(-60%);
+    cursor: pointer;
+    color: var(--accent-cyan);
+    z-index: 10;
 }
