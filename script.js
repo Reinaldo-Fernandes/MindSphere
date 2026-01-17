@@ -123,14 +123,12 @@ function criarItemJardim() {
     item.className = 'garden-item';
     item.innerText = emoji;
 
-    const distance = 230 + Math.random() * 70; 
-    const duration = 20 + Math.random() * 20;  
-    const startAngle = Math.random() * 360;    
+   const dist = 230 + Math.random() * 50;
+    const dur = 20 + Math.random() * 10; 
 
-    item.style.setProperty('--orbit-distance', `${distance}px`);
-    item.style.setProperty('--orbit-duration', `${duration}s`);
-    item.style.setProperty('--start-angle', `${startAngle}deg`);
-
+    item.style.setProperty('--orbit-distance', `${dist}px`);
+    item.style.setProperty('--orbit-duration', `${dur}s`);
+    item.style.setProperty('--start-angle', `${Math.random() * 360}deg`);
     container.appendChild(item);
 }
 

@@ -144,6 +144,7 @@ header {
     align-items: center;
     margin: 0 auto;
     z-index: 10;
+    overflow: visible;
 }
 
 .sphere-outer {
@@ -241,11 +242,12 @@ header {
     left: 50%;
     font-size: 2rem;
     pointer-events: none; 
-    z-index: 1000; 
+    z-index: 5; 
     transform-origin: center;
     animation: orbit var(--orbit-duration) linear infinite;
     margin-top: -1px; 
     margin-left: -1px;
+    display: block !important;
 }
 
 /* Verifique se a animação está definida assim: */
