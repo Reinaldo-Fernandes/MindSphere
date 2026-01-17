@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">MindSphere</string>
+    <string name="title_activity_main">MindSphere</string>
+    <string name="package_name">com.seu.nome.mindsphere</string>
+    <string name="custom_url_scheme">com.seu.nome.mindsphere</string>
+</resources>

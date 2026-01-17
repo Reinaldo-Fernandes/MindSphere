@@ -1,50 +1,43 @@
-# Arquivos grandes (Já gerenciados pelo LFS ou que devem ser ignorados)
-*.rar
-*.zip
-*.7z
-*.iso
-
-# Pasta de áudios (Opcional: se quiser ignorar arquivos específicos)
-# sons/fire.mp3
-
-# Arquivos de Sistema e IDE
-Thumbs.db
-.DS_Store
-.vscode/
-.idea/
-
-# Logs e temporários
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-# Node.js - Dependências
+# --- Dependências e Build Web ---
 node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 package-lock.json
+dist/
+build/
+.gradle/
 
-# Capacitor - Arquivos gerados automaticamente
-# (Nós ignoramos as pastas de build, mas mantemos o código nativo)
+# --- Capacitor ---
+# Ignoramos apenas os arquivos temporários e gerados do Android
 android/build/
 android/.gradle/
 android/app/build/
 android/app/src/main/assets/public/
+android/app/src/main/assets/capsync.json
 
-# Sistema Operacional
+# Se você futuramente adicionar iOS:
+ios/DerivedData/
+ios/App/App/public/
+ios/App/Pods/
+
+# --- Logs e temporários ---
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- Arquivos de Sistema e IDE ---
 .DS_Store
 Thumbs.db
-
-# IDEs (VS Code / Android Studio)
 .vscode/
 .idea/
 *.iml
 *.swp
 *.swo
 
-# Produção / Build Web
-# Se você usa uma pasta para o código final do app
-dist/
-# No seu caso, se a pasta 'www' for apenas uma cópia, pode ignorar, 
-# mas se for onde você edita o código, NÃO a coloque aqui.
+# --- Arquivos grandes (Binários) ---
+*.rar
+*.zip
+*.7z
+*.iso
+
+# --- Meus arquivos de mídia (Opcional) ---
+# sons/fire.mp3

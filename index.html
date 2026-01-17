@@ -23,54 +23,55 @@
         </select>
     </header>
 
-    <div id="auth-modal" class="modal-vitral">
-        <div class="auth-card">
-            <button class="close-modal">×</button>
-            <h2 class="panel-title">Explorador MindSphere</h2>
-            <p style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 20px;">Salve seu progresso e colecione prêmios.</p>
-            <form id="auth-form">
-                <input type="email" id="login-email" placeholder="Seu E-mail" class="glass-input" required>
-                <input type="password" id="login-pass" placeholder="Sinal de Acesso" class="glass-input" required>
-                <button type="submit" class="glass-btn start" style="width: 100%;">CONECTAR</button>
-            </form>
-            <p style="font-size: 0.7rem; margin-top: 15px;">Novo aqui? <span id="go-to-register" style="color: var(--accent-cyan); cursor: pointer; font-weight: bold;">Crie seu perfil</span></p>
-        </div>
-    </div>
-
-    <div id="register-modal" class="modal-vitral">
-        <div class="auth-card">
-            <button class="close-modal">×</button>
-            <h2 class="panel-title">Novo Explorador</h2>
-            <p style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 20px;">Comece sua jornada de foco personalizado.</p>
-            
-            <form id="register-form">
-                <input type="text" id="reg-nome" placeholder="Nome ou Nickname" class="glass-input" required>
-                <input type="email" id="reg-email" placeholder="E-mail" class="glass-input" required>
-                <input type="number" id="reg-idade" placeholder="Idade" class="glass-input" required>
+        <div id="profile-modal" class="modal-vitral">
+            <div class="shelf-card profile-main-card">
+                <button class="close-modal" id="close-profile">×</button>
                 
-                <select id="reg-neuro" class="glass-select" style="width: 100%; margin-bottom: 15px; padding: 12px;">
-                    <option value="" disabled selected>Perfil Cognitivo (Opcional)</option>
-                    <option value="tdah">TDAH</option>
-                    <option value="autismo">Autista</option>
-                    <option value="neurotipico">Neurotípico</option>
-                    <option value="outro">Outro</option>
-                </select>
+                <div class="profile-header">
+                    <h2 class="panel-title">Explorador: <span id="user-display-name">Carregando...</span></h2>
+                    <p class="subtitle">Nível de Foco: Estelar</p>
+                </div>
 
-                <button type="submit" class="glass-btn start" style="width: 100%;">CRIAR PERFIL</button>
-            </form>
-            <p style="font-size: 0.7rem; margin-top: 15px;">Já tem conta? <span id="go-to-login" style="color: var(--accent-pink); cursor: pointer; font-weight: bold;">Fazer Login</span></p>
-        </div>
-    </div>
+                <div class="profile-scroll-area">
+                    
+                    <section class="profile-section">
+                        <h3>🏆 Galeria de Prêmios</h3>
+                        <div class="trophy-grid" id="awards-list">
+                            <div class="trophy-item unlocked"><span>🌱</span><p>Primeiro Passo</p></div>
+                            <div class="trophy-item"><span>🔥</span><p>Foco Intenso</p></div>
+                            <div class="trophy-item"><span>🌌</span><p>Mestre do Tempo</p></div>
+                            <div class="trophy-item"><span>👹</span><p>Caçador de Goblins</p></div>
+                        </div>
+                    </section>
 
-    <div id="shelf-modal" class="modal-vitral">
-        <div class="shelf-card">
-            <button class="close-modal">×</button>
-            <h2 class="panel-title">Sua Coleção Vitral</h2>
-            <div class="trophy-grid" id="trophy-display"></div>
+                    <section class="profile-section">
+                        <h3>👹 Histórico Goblin (Tarefas Vencidas)</h3>
+                        <div id="goblin-history" class="history-list">
+                            <p class="empty-msg">Nenhuma tarefa esmagada ainda...</p>
+                        </div>
+                    </section>
+
+                                <div class="shelf-card">
+                <button class="close-modal">×</button>
+                <h2 class="panel-title">Seu Perfil</h2>
+                
+                <div id="goblin-history" style="margin-top: 20px; max-height: 150px; overflow-y: auto; text-align: left; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 10px;">
+                    <p class="empty-msg">Nenhuma tarefa concluída ainda.</p>
+                </div>
+                <button id="logout-btn" class="glass-btn" style="margin-top: 20px; width: 100%;">
+                    🚪 SAIR DA CONTA
+                </button>
+            </div>
+                </div>
+            </div>
         </div>
-    </div>
 
     <main class="container">
+
+        <div id="garden-container" class="interface-element">
+    <div id="plants-display"></div>
+</div>
+
         <aside class="side-panel left interface-element">
             <h3 class="panel-title">Lentes</h3>
             <button class="mode-btn" onclick="setMode('dopamina')">✨ Dopamina</button>
@@ -96,7 +97,7 @@
             <div id="orbit-assistant" class="orbit-container">
                 <div class="orbit-bubble" id="orbit-speech"></div>
                 <div class="orbit-character">
-                    <img src="./assistente/orbits/Orbit.png" alt="Orbit" id="orbit-img">
+                    <img src="./assistente/orbits/Orbit.png" alt="Orbit" id="orbit-img" style="cursor: pointer;">
                 </div>
                 <div id="start-btn-container">
                     <button id="start-btn" class="glass-btn start">INICIAR FOCO</button>
@@ -104,11 +105,14 @@
             </div>
         </div>
 
-        <aside class="side-panel right interface-element">
+                <aside class="side-panel right interface-element">
             <h3 class="panel-title">Goblin Mode 👹</h3>
             <div class="task-input-group">
                 <input type="text" id="task-input" placeholder="O que é difícil?">
-                <button id="break-task-btn">Split</button>
+                <div class="goblin-controls" style="display: flex; gap: 10px;">
+                    <button id="break-task-btn">Split</button>
+                    <button id="clear-tasks-btn" class="glass-btn" style="padding: 5px 10px; font-size: 0.6rem; background: rgba(255,0,0,0.1);">Limpar</button>
+                </div>
             </div>
             <div id="subtasks-list"></div>
         </aside>
@@ -125,17 +129,14 @@
             <input type="range" id="fire-vol" min="0" max="1" step="0.1" value="0">
         </div>
     </footer>
-    
 
-   <div hidden>
+    <div hidden>
         <audio id="audio-rain" loop src="./sons/rain.mp3"></audio>
         <audio id="audio-fire" loop src="./sons/fire.mp3"></audio>
         <audio id="audio-start" src="./sons/start.mp3"></audio>
         <audio id="audio-complete" src="./sons/complete.mp3"></audio>
     </div>
 
-    <script src="script.js">
-        
-    </script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>

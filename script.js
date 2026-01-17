@@ -1,48 +1,58 @@
-/* --- CONFIGURAÇÕES E ESTADOS --- */
-let timer = null;
-let timeLeft = 1500; 
-const totalTime = 1500;
+/* --- 0. FIREBASE CONFIG --- */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, setDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// Elementos Principais
-const body = document.body;
-const startBtn = document.getElementById('start-btn');
-const panicBtn = document.getElementById('panic-btn');
-const orbitImg = document.getElementById('orbit-img');
-const orbitSpeech = document.getElementById('orbit-speech');
-const display = document.getElementById('timer-display');
+const firebaseConfig = {
+    apiKey: "AIzaSyCvq3MnFtZKZP4QFpkOMknUnaR6tK17YPc",
+    authDomain: "mindsphere-6ec32.firebaseapp.com",
+    projectId: "mindsphere-6ec32",
+    storageBucket: "mindsphere-6ec32.firebasestorage.app",
+    messagingSenderId: "538583383443",
+    appId: "1:538583383443:web:f17b6a4cb3c703978ebc66",
+    measurementId: "G-MLKWN431SD"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// --- SELETORES GLOBAIS ---
+const getEl = (id) => document.getElementById(id);
+const display = getEl('timer-display');
 const circle = document.querySelector('.progress-ring__circle');
-const subtasksList = document.getElementById('subtasks-list');
-const taskInput = document.getElementById('task-input');
-const breakTaskBtn = document.getElementById('break-task-btn');
+const circumference = 212 * 2 * Math.PI; 
+const taskInput = getEl('task-input');
+const breakTaskBtn = getEl('break-task-btn');
+const clearTasksBtn = getEl('clear-tasks-btn');
+const subtasksList = getEl('subtasks-list');
+const goblinHistoryContainer = getEl('goblin-history');
+const authTrigger = getEl('auth-trigger');
+const userDisplayName = getEl('user-display-name');
+const logoutBtn = getEl('logout-btn');
 
-// Elementos de Áudio
-const audioRain = document.getElementById('audio-rain');
-const audioFire = document.getElementById('audio-fire');
-const audioStart = document.getElementById('audio-start');
-const audioComplete = document.getElementById('audio-complete');
+/* --- 1. ESTADOS --- */
+let timer = null;
+const totalTime = 1500; // 25 minutos
+let timeLeft = totalTime; 
+let userDB = { xp: 0, focos: 0, goblins: 0, conquistas: [] };
 
-// Elementos de Navegação/Modais
-const authModal = document.getElementById('auth-modal');
-const registerModal = document.getElementById('register-modal');
-const authTrigger = document.getElementById('auth-trigger');
+const configGameficacao = {
+    hiperfoco: { titulo: "Cristais de Hiperfoco", total: 17, pasta: "hiperfoco" },
+    reigoblin: { titulo: "Coroas do Rei Goblin", total: 17, pasta: "reigoblin" },
+    madrugada: { titulo: "Orbes da Alvorada", total: 16, pasta: "madrugada" },
+    matutino: { titulo: "Brilho Matinal", total: 16, pasta: "matutino" },
+    vespertino: { titulo: "Ocaso Sereno", total: 17, pasta: "vespertino" },
+    noturno: { titulo: "Estrelas da Noite", total: 16, pasta: "noturno" },
+    aleatorio: { titulo: "Relíquias Perdidas", total: 30, pasta: "aleatorio" }
+};
 
-// Configuração do Círculo de Progresso
-const circumference = 212 * 2 * Math.PI;
-if (circle) {
-    circle.style.strokeDasharray = `${circumference} ${circumference}`;
-    circle.style.strokeDashoffset = circumference;
-}
-
-/* --- FUNÇÕES DE INTERFACE (ORBIT & LENTES) --- */
-
-function orbitTalk(text) {
-    if (!orbitSpeech) return;
-    orbitSpeech.innerText = text;
-    orbitSpeech.classList.add('active');
-    setTimeout(() => orbitSpeech.classList.remove('active'), 5000);
-}
+/* --- 2. CORE: ESTADO DO ORBIT & LENTES --- */
 
 function setOrbitState(state) {
+    const orbitImg = getEl('orbit-img');
+    if (!orbitImg) return;
+
     const paths = {
         'default': './assistente/orbits/Orbit.png',
         'foco': './assistente/orbits/foco.png',
@@ -54,69 +64,150 @@ function setOrbitState(state) {
         'cadastro': './assistente/orbits/cadastro.png'
     };
 
-    const lowerState = state.toLowerCase();
-    if (paths[lowerState] && orbitImg) {
-        orbitImg.src = paths[lowerState];
-    }
+    const newState = state.toLowerCase();
+    const newSrc = paths[newState] || paths['default'];
+    orbitImg.src = newSrc;
+
+    orbitImg.onerror = () => {
+        if (orbitImg.src.includes('Goblin.png')) {
+            orbitImg.src = './assistente/orbits/goblin.png';
+        } else {
+            orbitImg.src = './assistente/orbits/Orbit.png';
+        }
+    };
 }
 
-// Lógica de Lentes (Mudança de Cores)
 window.setMode = (mode) => {
-    const modes = {
-        dopamina: { color: '#ff2da4', talk: "Modo Dopamina: Estímulo máximo!" },
-        serenidade: { color: '#5ef3ff', talk: "Modo Serenidade: Calma profunda." },
-        autonomia: { color: '#adff2f', talk: "Modo Autonomia: Você no controle." }
-    };
-
-    if (modes[mode]) {
-        document.documentElement.style.setProperty('--accent-cyan', modes[mode].color);
+    const colors = { dopamina: '#ff2da4', serenidade: '#5ef3ff', autonomia: '#adff2f' };
+    if (colors[mode]) {
+        document.documentElement.style.setProperty('--accent-cyan', colors[mode]);
         setOrbitState(mode);
-        orbitTalk(modes[mode].talk);
+        orbitTalk(`Lente de ${mode} ativada.`);
     }
 };
 
-function spawnGardenItem() {
-    const container = document.querySelector('.sphere-wrapper');
-    const gardenStyle = document.getElementById('garden-style');
-    
-    // Verifica se os elementos existem para não dar erro no console
-    if (!container || !gardenStyle) return;
+function orbitTalk(text) {
+    const speech = getEl('orbit-speech');
+    if (!speech) return;
+    speech.innerText = text;
+    speech.classList.add('active');
+    setTimeout(() => speech.classList.remove('active'), 5000);
+}
 
-    const style = gardenStyle.value;
-    const items = { 
-        plantas: ['🌿', '🌱', '🌸', '🍀'], 
-        espaco: ['✨', '🪐', '🌟', '☄️'], 
-        notas: ['🎵', '🎹', '🎸', '🎶'], 
-        comida: ['☕', '🍪', '🥐', '🧁'] 
+/* --- 3. JARDIM ORBITANTE --- */
+
+function limparJardim() {
+    const container = document.querySelector('.sphere-wrapper');
+    if (container) {
+        container.querySelectorAll('.garden-item').forEach(el => el.remove());
+    }
+}
+
+function criarItemJardim() {
+    const container = document.querySelector('.sphere-wrapper');
+    const gardenSelect = getEl('garden-style');
+    if (!container) return;
+
+    const style = gardenSelect ? gardenSelect.value : 'plantas';
+    const emojis = {
+        plantas: ['🌿', '🌸', '🍃', '🍄', '🍀'],
+        espaco: ['✨', '⭐', '☄️', '🌌'],
+        notas: ['🎵', '🎶', '🎼', '🎹'],
+        comida: ['☕', '🍪', '🥐', '🥯']
     };
-    
-    const selected = items[style] || items.plantas;
-    const emoji = selected[Math.floor(Math.random() * selected.length)];
+
+    const emojiList = emojis[style] || emojis['plantas'];
+    const emoji = emojiList[Math.floor(Math.random() * emojiList.length)];
     
     const item = document.createElement('div');
-    item.className = 'garden-item'; 
+    item.className = 'garden-item';
     item.innerText = emoji;
-    
-    // CONFIGURAÇÃO DA ÓRBITA (Passando para o CSS)
-    const duration = 15 + Math.random() * 20; // Velocidade aleatória
-    const radius = 220 + Math.random() * 60;  // Distância do centro
-    const startAngle = Math.random() * 360;   // Ângulo inicial
 
+    const distance = 230 + Math.random() * 70; 
+    const duration = 20 + Math.random() * 20;  
+    const startAngle = Math.random() * 360;    
+
+    item.style.setProperty('--orbit-distance', `${distance}px`);
     item.style.setProperty('--orbit-duration', `${duration}s`);
-    item.style.setProperty('--orbit-distance', `${radius}px`);
     item.style.setProperty('--start-angle', `${startAngle}deg`);
-    
+
     container.appendChild(item);
-    console.log("Ícone criado:", emoji); // Check no console (F12) para ver se rodou
 }
+
+/* --- 4. MODO GOBLIN & HISTÓRICO PERSISTENTE --- */
+
+if (goblinHistoryContainer) {
+    const savedHistory = localStorage.getItem('goblinHistoryData');
+    if (savedHistory) goblinHistoryContainer.innerHTML = savedHistory;
+}
+
+function saveToGoblinHistory(taskText) {
+    if (!goblinHistoryContainer) return;
+    const emptyMsg = goblinHistoryContainer.querySelector('.empty-msg');
+    if (emptyMsg) emptyMsg.remove();
+
+    const entry = document.createElement('div');
+    entry.className = 'history-item';
+    entry.style.cssText = "padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 0.85rem; display: flex; align-items: center; gap: 10px; animation: slideIn 0.3s ease;";
+    
+    const now = new Date();
+    const time = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
+    entry.innerHTML = `<span style="color: var(--accent-pink);">👹</span> [${time}] ${taskText} - Concluída!`;
+    
+    goblinHistoryContainer.prepend(entry);
+    localStorage.setItem('goblinHistoryData', goblinHistoryContainer.innerHTML);
+}
+
+function createSubtask(text) {
+    const div = document.createElement('div');
+    div.className = 'subtask-item';
+    div.style.cssText = "display: flex; align-items: center; gap: 10px; margin-bottom: 10px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px;";
+    div.innerHTML = `<input type="checkbox" class="goblin-checkbox"> <span>${text}</span>`;
+
+    const checkbox = div.querySelector('.goblin-checkbox');
+    checkbox.addEventListener('change', () => {
+        if (checkbox.checked) {
+            div.style.opacity = "0.5";
+            div.style.textDecoration = "line-through";
+            saveToGoblinHistory(text);
+            userDB.goblins++;
+            ganharConquista('reigoblin');
+            salvarProgresso();
+            orbitTalk("Tarefa esmagada! Salva no histórico. 👹");
+        }
+    });
+    subtasksList.appendChild(div);
+}
+
+if (breakTaskBtn) {
+    breakTaskBtn.onclick = () => {
+        const taskValue = taskInput?.value.trim();
+        if (!taskValue) return orbitTalk("Digite algo primeiro! 👹");
+        subtasksList.innerHTML = "";
+        const steps = taskValue.includes(',') ? taskValue.split(',') : [taskValue, "Preparar", "Executar", "Finalizar"];
+        steps.forEach(step => createSubtask(step.trim()));
+        setOrbitState('goblin');
+        orbitTalk("Tarefa dividida!");
+    };
+}
+
+if (clearTasksBtn) {
+    clearTasksBtn.onclick = () => {
+        subtasksList.innerHTML = "";
+        taskInput.value = "";
+        orbitTalk("Lista limpa! Suas vitórias continuam no perfil. 👹");
+    };
+}
+
+/* --- 5. TIMER & FOCO --- */
 
 function updateTimer() {
     if (timeLeft <= 0) {
         clearInterval(timer);
         timer = null;
-        if (audioComplete) audioComplete.play();
-        orbitTalk("Ciclo concluído! 🏆");
-        startBtn.innerText = "REINICIAR";
+        getEl('audio-complete')?.play();
+        finalizarCicloFoco();
+        if (startBtn) startBtn.innerText = "REINICIAR";
         setOrbitState('default');
         return;
     }
@@ -124,136 +215,186 @@ function updateTimer() {
     timeLeft--;
     const min = Math.floor(timeLeft / 60);
     const sec = timeLeft % 60;
-    display.innerText = `${min}:${sec < 10 ? '0' + sec : sec}`;
+    
+    if (display) display.innerText = `${min}:${sec < 10 ? '0' + sec : sec}`;
+
+    const marcasDeTempo = [1200, 900, 600, 300];
+    if (marcasDeTempo.includes(timeLeft)) {
+        criarItemJardim();
+        orbitTalk("O jardim está florescendo... 🌿");
+    }
 
     if (circle) {
         const offset = circumference - (timeLeft / totalTime) * circumference;
         circle.style.strokeDashoffset = offset;
     }
+}
 
-    // Florescer a cada 5 minutos (300 segundos)
-    if (timeLeft > 0 && timeLeft % 300 === 0) {
-        spawnGardenItem();
-        orbitTalk("Seu jardim está crescendo!");
+const startBtn = getEl('start-btn');
+if (startBtn) {
+    startBtn.onclick = () => {
+        if (document.body.classList.contains('onboarding-active')) {
+            document.body.classList.remove('onboarding-active');
+            getEl('mixer-anchor')?.appendChild(startBtn);
+        }
+
+        if (!timer) {
+            getEl('audio-start')?.play().catch(() => {});
+            
+            // Lógica: Se o timer estiver no início (25:00), limpa o jardim antigo e planta a nova
+            if (timeLeft === totalTime) {
+                limparJardim();
+                criarItemJardim();
+            }
+
+            timer = setInterval(updateTimer, 1000);
+            startBtn.innerText = "PAUSAR";
+            setOrbitState('foco');
+        } else {
+            clearInterval(timer);
+            timer = null;
+            startBtn.innerText = "RETOMAR";
+            setOrbitState('default');
+        }
+    };
+}
+
+/* --- 6. FIREBASE AUTH & LOGOUT --- */
+
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        if (userDisplayName) userDisplayName.innerText = user.displayName || user.email.split('@')[0];
+        onSnapshot(doc(db, "usuarios", user.uid), (docSnap) => {
+            if (docSnap.exists()) {
+                userDB = docSnap.data();
+                renderizarEstante();
+                
+                const container = document.querySelector('.sphere-wrapper');
+                if (container) {
+                    limparJardim();
+                    const totalItens = Math.floor(userDB.xp / 50);
+                    for(let i = 0; i < Math.min(totalItens, 30); i++) {
+                        criarItemJardim();
+                    }
+                }
+            }
+        });
+        authTrigger.innerText = "👤 PERFIL";
+        authTrigger.onclick = () => getEl('profile-modal')?.classList.add('active');
+    } else {
+        authTrigger.innerText = "🔑 ENTRAR / REGISTAR";
+        authTrigger.onclick = () => {
+            getEl('auth-modal')?.classList.add('active');
+            setOrbitState('login');
+        };
+    }
+});
+
+if (logoutBtn) {
+    logoutBtn.onclick = () => {
+        auth.signOut().then(() => {
+            localStorage.removeItem('goblinHistoryData');
+            orbitTalk("Sessão encerrada. 👋");
+            setTimeout(() => { window.location.reload(); }, 1500);
+        });
+    };
+}
+
+async function salvarProgresso() {
+    const user = auth.currentUser;
+    if (user) {
+        try { await updateDoc(doc(db, "usuarios", user.uid), userDB); } 
+        catch (e) { console.error("Erro ao salvar:", e); }
     }
 }
 
-/* --- BOTÕES DE CONTROLE --- */
-
-startBtn.onclick = () => {
-    // Sair do Onboarding
-    if (body.classList.contains('onboarding-active')) {
-        body.classList.remove('onboarding-active');
-        document.getElementById('mixer-anchor')?.appendChild(startBtn);
+function ganharConquista(categoria) {
+    const id = `${categoria}_${userDB[categoria] || 1}`; 
+    if (!userDB.conquistas.includes(id)) {
+        userDB.conquistas.push(id);
+        userDB.xp += 25;
+        salvarProgresso();
+        criarItemJardim();
     }
+}
 
-    if (!timer) {
-        if (audioStart) audioStart.play().catch(() => {});
-        timer = setInterval(updateTimer, 1000);
-        startBtn.innerText = "PAUSAR";
-        setOrbitState('foco');
-    } else {
-        clearInterval(timer);
-        timer = null;
-        startBtn.innerText = "RETOMAR";
+function renderizarEstante() {
+    const shelf = getEl('trophy-shelf-content');
+    if (!shelf) return;
+    shelf.innerHTML = '';
+    Object.keys(configGameficacao).forEach(chave => {
+        const cat = configGameficacao[chave];
+        const section = document.createElement('div');
+        section.className = 'trophy-category';
+        section.innerHTML = `<h4>${cat.titulo}</h4><div class="trophy-grid"></div>`;
+        const grid = section.querySelector('.trophy-grid');
+        for (let i = 1; i <= cat.total; i++) {
+            const isUnlocked = userDB.conquistas.includes(`${chave}_${i}`);
+            const slot = document.createElement('div');
+            slot.className = `trophy-slot ${isUnlocked ? 'unlocked' : 'locked'}`;
+            slot.innerHTML = `<img src="./assistente/gameficação/${cat.pasta}/${i}.png">`;
+            grid.appendChild(slot);
+        }
+        shelf.appendChild(section);
+    });
+}
+
+function finalizarCicloFoco() {
+    userDB.focos++;
+    userDB.xp += 50;
+    ganharConquista('hiperfoco');
+    salvarProgresso();
+    criarItemJardim(); 
+    orbitTalk("Ciclo concluído! Algo novo brotou no jardim. 🏆");
+}
+
+/* --- 7. INTERFACE E MIXER --- */
+
+getEl('go-to-register')?.addEventListener('click', () => {
+    getEl('auth-modal')?.classList.remove('active');
+    getEl('register-modal')?.classList.add('active');
+    setOrbitState('cadastro');
+});
+
+getEl('go-to-login')?.addEventListener('click', () => {
+    getEl('register-modal')?.classList.remove('active');
+    getEl('auth-modal')?.classList.add('active');
+    setOrbitState('login');
+});
+
+document.querySelectorAll('.close-modal').forEach(btn => {
+    btn.onclick = () => {
+        getEl('auth-modal')?.classList.remove('active');
+        getEl('register-modal')?.classList.remove('active');
+        getEl('profile-modal')?.classList.remove('active');
         setOrbitState('default');
-    }
+    };
+});
+
+getEl('rain-vol').oninput = (e) => { 
+    const v = e.target.value; 
+    const audio = getEl('audio-rain');
+    if(audio) { audio.volume = v; if (v > 0) audio.play(); else audio.pause(); }
 };
 
-panicBtn.onclick = () => {
+getEl('fire-vol').oninput = (e) => { 
+    const v = e.target.value;
+    const audio = getEl('audio-fire');
+    if(audio) { audio.volume = v; if (v > 0) audio.play(); else audio.pause(); }
+};
+
+getEl('panic-btn').onclick = () => {
     clearInterval(timer);
     timer = null;
     timeLeft = totalTime;
     display.innerText = "25:00";
     if (circle) circle.style.strokeDashoffset = circumference;
-    startBtn.innerText = "INICIAR FOCO";
-    document.querySelectorAll('.garden-item').forEach(el => el.remove());
-    orbitTalk("Sistema resetado.");
+    if (startBtn) startBtn.innerText = "INICIAR";
     setOrbitState('default');
-    orbitTalk("Sistema resetado.");
+    orbitTalk("Timer reiniciado. O jardim limpará no próximo 'Iniciar'. 🌿");
 };
 
-/* --- GOBLIN MODE --- */
-
-breakTaskBtn.onclick = () => {
-    const task = taskInput.value.trim();
-    if (!task) {
-        orbitTalk("Digite uma tarefa primeiro! 👹");
-        return;
-    }
-    
-    setOrbitState('goblin');
-    const steps = [
-        "Preparar o ambiente",
-        "Iniciar os primeiros 5 minutos",
-        "Dividir o resto em blocos",
-        "Revisar progresso"
-    ];
-    
-    subtasksList.innerHTML = "";
-    steps.forEach(step => {
-        const div = document.createElement('div');
-        div.className = 'task-item';
-        div.innerHTML = `<input type="checkbox"> <span>${step}</span>`;
-        subtasksList.appendChild(div);
-    });
-    orbitTalk("Tarefa dividida. Vamos esmagar isso!");
-};
-
-taskInput.onfocus = () => setOrbitState('goblin');
-taskInput.onblur = () => { if(!taskInput.value) setOrbitState('default'); };
-
-/* --- SISTEMA DE MODAIS (LOGIN/REGISTRO) --- */
-
-// Abrir Modal Inicial
-if (authTrigger) {
-    authTrigger.onclick = () => {
-        authModal.classList.add('active');
-        setOrbitState('login');
-    };
+if (circle) {
+    circle.style.strokeDasharray = `${circumference} ${circumference}`;
+    circle.style.strokeDashoffset = circumference;
 }
-
-// Trocar de Login para Registro
-const goToRegister = document.getElementById('go-to-register');
-if (goToRegister) {
-    goToRegister.onclick = (e) => {
-        e.preventDefault();
-        authModal.classList.remove('active');
-        registerModal.classList.add('active');
-        setOrbitState('cadastro');
-    };
-}
-
-// Trocar de Registro para Login
-const goToLogin = document.getElementById('go-to-login');
-if (goToLogin) {
-    goToLogin.onclick = (e) => {
-        e.preventDefault();
-        registerModal.classList.remove('active');
-        authModal.classList.add('active');
-        setOrbitState('login');
-    };
-}
-
-// Fechar qualquer modal
-document.querySelectorAll('.close-modal').forEach(btn => {
-    btn.onclick = () => {
-        authModal.classList.remove('active');
-        registerModal?.classList.remove('active');
-        setOrbitState('default');
-    };
-});
-
-/* --- CONTROLES DE ÁUDIO --- */
-
-document.getElementById('rain-vol').oninput = (e) => {
-    const vol = e.target.value;
-    audioRain.volume = vol;
-    if (vol > 0) audioRain.play().catch(() => {}); else audioRain.pause();
-};
-
-document.getElementById('fire-vol').oninput = (e) => {
-    const vol = e.target.value;
-    audioFire.volume = vol;
-    if (vol > 0) audioFire.play().catch(() => {}); else audioFire.pause();
-};

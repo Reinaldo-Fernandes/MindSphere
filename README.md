@@ -45,19 +45,3 @@ Lógica: JavaScript (Vanilla JS) com manipulação dinâmica de DOM para transi�
 
 [ ] Integração com Smartwatch (Haptic Cues).
 
-📦 Informações para subir no GitHub
-Ao fazer o Push para o seu repositório, utilize estas informações para profissionalizar o projeto:
-
-Sugestão de Descrição (About):
-Ecossistema de produtividade neurodivergente que une Pomodoro, Design Vitral e Assistência IA (Orbit) para combater a paralisia por análise e sobrecarga sensorial.
-
-Sugestão de Tags (Topics):
-neurodiversity pomodoro-timer productivity accessibility glassmorphism adhd-friendly javascript
-
-Commit Mensagem Sugerida:
-feat: refactor UI with glassmorphism, orbit onboarding and button transition logic
-
-
-<!--
-🌱 Integrar isso com a ideia do jardim / gamificação
--->
