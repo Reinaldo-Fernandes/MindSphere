@@ -239,7 +239,7 @@ if (startBtn) {
         }
 
         if (!timer) {
-            tocarSom('audio-start');
+            getEl('audio-start')?.play().catch(() => {});
             
             // Lógica: Se o timer estiver no início (25:00), limpa o jardim antigo e planta a nova
             if (timeLeft === totalTime) {
@@ -347,61 +347,54 @@ function finalizarCicloFoco() {
     criarItemJardim(); 
     orbitTalk("Ciclo concluído! Algo novo brotou no jardim. 🏆");
 }
-/* --- 7. INTERFACE E MIXER (VERSÃO CORRIGIDA) --- */
 
-// Função vital para "acordar" o sistema de áudio no navegador
-const despausarAudios = () => {
-    const ids = ['audio-rain', 'audio-fire', 'audio-start', 'audio-complete'];
-    ids.forEach(id => {
-        const a = getEl(id);
-        if (a) {
-            // Toca e pausa em volume 0 para ganhar permissão do sistema
-            a.play().then(() => {
-                a.pause();
-                a.currentTime = 0;
-            }).catch(() => {});
-        }
-    });
-    // Remove o evento após o primeiro clique para economizar memória
-    document.removeEventListener('click', despausarAudios);
-};
+/* --- 7. INTERFACE E MIXER --- */
 
-// Quando o usuário clicar em QUALQUER lugar da página, o som é habilitado
-document.addEventListener('click', despausarAudios);
+getEl('go-to-register')?.addEventListener('click', () => {
+    getEl('auth-modal')?.classList.remove('active');
+    getEl('register-modal')?.classList.add('active');
+    setOrbitState('cadastro');
+});
 
-// Controle de Chuva
+getEl('go-to-login')?.addEventListener('click', () => {
+    getEl('register-modal')?.classList.remove('active');
+    getEl('auth-modal')?.classList.add('active');
+    setOrbitState('login');
+});
+
+document.querySelectorAll('.close-modal').forEach(btn => {
+    btn.onclick = () => {
+        getEl('auth-modal')?.classList.remove('active');
+        getEl('register-modal')?.classList.remove('active');
+        getEl('profile-modal')?.classList.remove('active');
+        setOrbitState('default');
+    };
+});
+
 getEl('rain-vol').oninput = (e) => { 
     const v = e.target.value; 
     const audio = getEl('audio-rain');
-    if(audio) { 
-        audio.volume = v; 
-        if (v > 0) {
-            audio.play().catch(() => console.log("Aguardando interação..."));
-        } else {
-            audio.pause();
-        }
-    }
+    if(audio) { audio.volume = v; if (v > 0) audio.play(); else audio.pause(); }
 };
 
-// Controle de Fogo
 getEl('fire-vol').oninput = (e) => { 
     const v = e.target.value;
     const audio = getEl('audio-fire');
-    if(audio) { 
-        audio.volume = v; 
-        if (v > 0) {
-            audio.play().catch(() => console.log("Aguardando interação..."));
-        } else {
-            audio.pause();
-        }
-    }
+    if(audio) { audio.volume = v; if (v > 0) audio.play(); else audio.pause(); }
 };
 
-// Função para tocar sons de sistema (Start/Complete)
-function tocarSom(id) {
-    const som = getEl(id);
-    if (som) {
-        som.currentTime = 0;
-        som.play().catch(e => console.error("Erro ao tocar som:", e));
-    }
+getEl('panic-btn').onclick = () => {
+    clearInterval(timer);
+    timer = null;
+    timeLeft = totalTime;
+    display.innerText = "25:00";
+    if (circle) circle.style.strokeDashoffset = circumference;
+    if (startBtn) startBtn.innerText = "INICIAR";
+    setOrbitState('default');
+    orbitTalk("Timer reiniciado. O jardim limpará no próximo 'Iniciar'. 🌿");
+};
+
+if (circle) {
+    circle.style.strokeDasharray = `${circumference} ${circumference}`;
+    circle.style.strokeDashoffset = circumference;
 }
