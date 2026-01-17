@@ -38,3 +38,6 @@ Thumbs.db
 *.zip
 *.7z
 *.iso
+
+# --- Outros ---
+chelist.lua
