@@ -396,3 +396,12 @@ if (circle) {
     circle.style.strokeDasharray = `${circumference} ${circumference}`;
     circle.style.strokeDashoffset = circumference;
 }
+
+// Desbloqueia o áudio no primeiro clique do usuário no site
+document.addEventListener('click', () => {
+    const audios = ['audio-rain', 'audio-fire', 'audio-start', 'audio-complete'];
+    audios.forEach(id => {
+        const a = document.getElementById(id);
+        if(a) { a.play().then(() => a.pause()).catch(() => {}); }
+    });
+}, { once: true });
