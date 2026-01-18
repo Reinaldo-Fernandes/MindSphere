@@ -3,7 +3,7 @@
    ========================================================================== */
 :root {
     --bg-color: #020508;
-    --accent-cyan: #5ef3ff;
+    --accent-cyan: #f25eff;
     --accent-pink: #ff2da4;
     --glass: rgba(15, 32, 50, 0.7);
     --glass-border: rgba(255, 255, 255, 0.1);
@@ -720,4 +720,34 @@ header {
     cursor: pointer;
     color: var(--accent-cyan);
     z-index: 10;
+}
+
+/* Brilho da Imagem */
+.trophy-glow {
+    position: relative;
+    padding: 20px;
+    background: radial-gradient(circle, rgba(94, 243, 255, 0.2) 0%, transparent 70%);
+    border-radius: 50%;
+    margin: 20px auto;
+    width: fit-content;
+}
+
+.trophy-glow img {
+    max-width: 180px;
+    filter: drop-shadow(0 0 20px var(--accent-cyan));
+    animation: floating 3s ease-in-out infinite;
+}
+
+@keyframes floating {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.conquista-animacao {
+    animation: bounceIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes bounceIn {
+    0% { transform: scale(0.3); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
 }
