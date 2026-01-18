@@ -762,7 +762,8 @@ header {
         flex-direction: column;
         padding: 0 15px;
         gap: 20px;
-        margin-bottom: 140px; /* Espaço para não cobrir o mixer */
+        margin-bottom: 140px; 
+        
     }
 
     /* Esfera Central (Timer) */
