@@ -382,3 +382,99 @@ onAuthStateChanged(auth, (user) => {
         authTrigger.innerText = "🔑 ENTRAR";
     }
 });
+
+/* --- 10. GESTÃO DE NAVEGAÇÃO ENTRE MODAIS --- */
+
+// Abrir Registro a partir do Login
+getEl('go-to-register').onclick = (e) => {
+    e.preventDefault();
+    getEl('auth-modal').classList.remove('active');
+    getEl('register-modal').classList.add('active');
+    setOrbitState('cadastro');
+};
+
+// Voltar para Login a partir do Registro
+getEl('go-to-login').onclick = (e) => {
+    e.preventDefault();
+    getEl('register-modal').classList.remove('active');
+    getEl('auth-modal').classList.add('active');
+    setOrbitState('login');
+};
+
+// Abrir Esqueci Minha Senha
+/* --- RECUPERAÇÃO DE SENHA --- */
+getEl('send-reset-btn').onclick = async () => {
+    const email = getEl('reset-email').value;
+    if (!email) return orbitTalk("Digite seu e-mail primeiro!");
+
+    try {
+        await sendPasswordResetEmail(auth, email);
+        orbitTalk("E-mail de recuperação enviado! Verifique sua caixa de entrada.");
+        getEl('forgot-password-modal').classList.remove('active');
+    } catch (e) {
+        orbitTalk("Erro: Verifique se o e-mail está correto.");
+        console.error(e);
+    }
+};
+
+// Voltar para Login a partir da Recuperação
+document.querySelectorAll('.back-to-login').forEach(link => {
+    link.onclick = (e) => {
+        e.preventDefault();
+        getEl('forgot-password-modal').classList.remove('active');
+        getEl('auth-modal').classList.add('active');
+    };
+});
+
+/* --- 11. NAVEGAÇÃO ENTRE TELAS DE AUTENTICAÇÃO --- */
+
+// Abrir Recuperação de Senha (dentro do login)
+getEl('forgot-password-link').onclick = (e) => {
+    e.preventDefault();
+    getEl('auth-modal').classList.remove('active');
+    getEl('forgot-password-modal').classList.add('active');
+};
+
+// Voltar para Login (dentro da recuperação)
+document.querySelectorAll('.back-to-login').forEach(link => {
+    link.onclick = (e) => {
+        e.preventDefault();
+        getEl('forgot-password-modal').classList.remove('active');
+        getEl('auth-modal').classList.add('active');
+    };
+});
+
+// Ir para Registro (dentro do login)
+getEl('go-to-register').onclick = (e) => {
+    e.preventDefault();
+    getEl('auth-modal').classList.remove('active');
+    getEl('register-modal').classList.add('active');
+    setOrbitState('cadastro');
+};
+
+// Voltar para Login (dentro do registro)
+getEl('go-to-login').onclick = (e) => {
+    e.preventDefault();
+    getEl('register-modal').classList.remove('active');
+    getEl('auth-modal').classList.add('active');
+    setOrbitState('login');
+};
+
+/* --- ENVIO DE E-MAIL PELO FIREBASE --- */
+getEl('send-reset-btn').onclick = async (e) => {
+    e.preventDefault();
+    const email = getEl('reset-email').value.trim();
+
+    if (!email) {
+        return orbitTalk("Por favor, digite seu e-mail.");
+    }
+
+    try {
+        await sendPasswordResetEmail(auth, email);
+        orbitTalk("Link de recuperação enviado! Verifique seu e-mail.");
+        getEl('forgot-password-modal').classList.remove('active');
+    } catch (error) {
+        console.error(error);
+        orbitTalk("Erro: E-mail não encontrado ou inválido.");
+    }
+};
