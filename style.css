@@ -751,3 +751,39 @@ header {
     0% { transform: scale(0.3); opacity: 0; }
     100% { transform: scale(1); opacity: 1; }
 }
+
+/* XP Brilhante */
+.xp-number {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #ff0000; /* Vermelho */
+    text-shadow: 0 0 5px #ff0000;
+    transition: all 0.3s ease;
+}
+
+/* Classe de animação disparada via JS quando ganha ponto */
+.xp-ganho-anim {
+    text-shadow: 0 0 30px #ff0000, 0 0 60px #ff0000 !important;
+    transform: scale(1.2);
+}
+
+/* Imagens das Conquistas (Estilo Orbit) */
+.trophy-slot {
+    width: 60px; /* Tamanho do Orbit miniatura */
+    height: 60px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid white; /* Borda branca */
+    box-shadow: 0 0 15px white; /* Brilho branco */
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.trophy-slot img {
+    width: 85%;
+    height: 85%;
+    object-fit: contain;
+}
+
