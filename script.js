@@ -482,3 +482,57 @@ document.querySelectorAll('.close-modal').forEach(btn => {
         setOrbitState('default'); // Orbit volta ao normal no centro ou posição original
     };
 });
+
+/* --- 8. PERSISTÊNCIA NO FIRESTORE --- */
+
+// Escuta mudanças no estado de login
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        userDisplayName.innerText = user.displayName || "Viajante";
+        authTrigger.innerText = "👤 PERFIL";
+        
+        // Carrega dados do Firestore
+        const userDoc = doc(db, "users", user.uid);
+        onSnapshot(userDoc, (docSnap) => {
+            if (docSnap.exists()) {
+                userDB = docSnap.data();
+                atualizarInterfacePerfil();
+            } else {
+                // Se for um usuário novo, cria o documento inicial
+                setDoc(userDoc, { xp: 0, focos: 0, goblins: 0, conquistas: [] });
+            }
+        });
+    } else {
+        userDisplayName.innerText = "Viajante";
+        authTrigger.innerText = "🔑 ENTRAR / REGISTAR";
+    }
+});
+
+// Função para salvar qualquer alteração de XP ou tarefas
+async function salvarProgresso() {
+    const user = auth.currentUser;
+    if (user) {
+        const userDoc = doc(db, "users", user.uid);
+        try {
+            await updateDoc(userDoc, userDB);
+        } catch (e) {
+            console.error("Erro ao salvar no Firestore:", e);
+        }
+    }
+}
+
+// Função para atualizar visualmente os troféus no modal de perfil
+function atualizarInterfacePerfil() {
+    const shelf = getEl('trophy-shelf-content');
+    if (!shelf) return;
+    
+    // Aqui você pode expandir para renderizar os ícones conforme o userDB.conquistas
+    // Exemplo: getEl('user-xp-display').innerText = userDB.xp;
+}
+
+// Lógica de Logout
+logoutBtn.onclick = () => {
+    auth.signOut().then(() => {
+        location.reload(); // Recarrega para limpar os estados
+    });
+};
