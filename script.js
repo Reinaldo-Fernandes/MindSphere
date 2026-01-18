@@ -327,8 +327,12 @@ function setupAudio(sliderId, audioId) {
     if (s && a) {
         s.oninput = (e) => {
             a.volume = e.target.value;
-            if (a.volume > 0) a.play().catch(() => {}); 
-            else a.pause();
+            if (a.volume > 0) {
+                // O catch evita que o erro "vaze" no console se o arquivo falhar
+                a.play().catch(err => console.warn("Áudio ainda não carregado ou bloqueado:", err));
+            } else {
+                a.pause();
+            }
         };
     }
 }
