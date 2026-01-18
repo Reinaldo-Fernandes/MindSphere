@@ -3,13 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MindSphere - Ecossistema Neurodivergente</title>
+    <title>MindSphere - Ecossistema de Foco para Neurodivergentes</title>
+    
+    <meta name="description" content="Aumente sua produtividade com o MindSphere. Timer pomodoro gamificado com Modo Goblin e sons relaxantes para TDAH e neurodivergência.">
+    <meta name="keywords" content="TDAH, produtividade, neurodivergente, modo goblin, pomodoro, foco">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://mindsphere.app/">
+    <meta property="og:title" content="MindSphere | Produtividade Neurodivergente">
+    <meta property="og:description" content="Transforme paralisia de tarefa em progresso visual. Conheça o ecossistema MindSphere.">
+    <meta property="og:image" content="./assistente/orbits/Orbit.png">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="MindSphere | Produtividade Gamificada">
+    <meta name="twitter:image" content="./assistente/orbits/Orbit.png">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "MindSphere",
+      "operatingSystem": "Web",
+      "applicationCategory": "ProductivityApplication",
+      "description": "Ecossistema de produtividade para neurodivergentes com timer pomodoro e modo goblin."
+    }
+    </script>
+
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="mobile.css" media="screen and (max-width: 768px)">
-
 </head>
+
 <body class="onboarding-active">
     <div class="background-overlay"></div>
     
@@ -176,16 +200,29 @@
 
 <div id="conquista-modal" class="modal-vitral" style="display: none; z-index: 9999;">
     <div class="modal-content conquista-animacao">
-        <h2 id="conquista-titulo">NOVA RELÍQUIA!</h2>
-        <div class="trophy-glow">
-            <img id="conquista-img" src="" alt="Sua Recompensa">
+        <div id="relic-step">
+            <h2 id="conquista-titulo">NOVA RELÍQUIA!</h2>
+            <div class="trophy-glow">
+                <img id="conquista-img" src="" alt="Sua Recompensa">
+            </div>
+            <p id="conquista-desc">Você desbloqueou um novo item para sua coleção.</p>
+            <button class="close-modal" onclick="proximoPassoConquista()">COLETAR</button>
         </div>
-        <p id="conquista-desc">Você desbloqueou um novo item para sua coleção.</p>
-        <button class="close-modal" onclick="fecharConquista()">COLETAR</button>
+
+        <div id="orbit-congrats-step" style="display: none; flex-direction: column; align-items: center;">
+            <div class="orbit-character" style="width: 200px;">
+                <img src="./assistente/orbit.png" alt="Orbit">
+            </div>
+            <div class="orbit-bubble active" style="position: relative; top: 0; opacity: 1; visibility: visible; transform: scale(1); margin-top: 20px;">
+                Incrível! Você é pura produtividade! 
+            </div>
+            <button class="glass-btn start" onclick="fecharConquista()" style="margin-top: 20px; border-color: white; color: white;">DE NADA, ORBIT!</button>
+        </div>
     </div>
 </div>
 
+
 <script type="module" src="script.js"></script>
-</body>
-</body>
+            </body>
+    </body>
 </html>

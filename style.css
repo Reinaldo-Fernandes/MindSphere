@@ -525,6 +525,11 @@ header {
 }
 
 .history-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #888;
+    font-style: italic;
     animation: slideIn 0.3s ease-out;
 }
 
@@ -712,22 +717,163 @@ header {
     transform: scale(1.2);
 }
 
-/* Imagens das Conquistas (Estilo Orbit) */
-.trophy-slot {
-    width: 60px; /* Tamanho do Orbit miniatura */
+/* Container da Grade no Perfil */
+.trophy-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    padding: 10px;
+}
+
+/* O item da galeria agora é um mini "Halo" */
+.trophy-item {
+    width: 60px;
     height: 60px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+    border: 1px solid rgba(255, 255, 255, 0.4);
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
-    border: 2px solid white; /* Borda branca */
-    box-shadow: 0 0 15px white; /* Brilho branco */
-    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
 }
 
-.trophy-slot img {
-    width: 85%;
-    height: 85%;
+.trophy-item:hover {
+    transform: scale(1.1);
+    border-color: #fff;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+}
+
+.trophy-item img {
+    width: 80%;
+    height: 80%;
     object-fit: contain;
+    filter: drop-shadow(0 0 5px #fff);
+}
+
+/* Efeito de brilho giratório no fundo do troféu (opcional) */
+.trophy-item::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: conic-gradient(from 0deg, transparent, rgba(255,255,255,0.1), transparent);
+    animation: rotate 4s linear infinite;
+}
+
+/* ==========================================================================
+   12. gameficação
+   ========================================================================== */
+
+/* Container Principal do Modal de Conquista */
+#conquista-modal .modal-content {
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: none;
+}
+
+/* O Halo de Luz Branca (Circular como o Orbit) */
+.trophy-glow {
+    position: relative;
+    width: 250px;  /* Tamanho aproximado do Orbit */
+    height: 250px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px auto;
+    
+    /* Camadas de Brilho Branco */
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+    box-shadow: 
+        0 0 40px rgba(255, 255, 255, 0.3), 
+        inset 0 0 20px rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    
+    /* Animação de pulsação da aura */
+    animation: auraPulse 3s ease-in-out infinite;
+}
+
+/* A Imagem da Relíquia */
+#conquista-img {
+    width: 75%;
+    height: 75%;
+    object-fit: contain;
+    filter: drop-shadow(0 0 15px #ffffff);
+    z-index: 2;
+    animation: floatingRelic 4s ease-in-out infinite;
+}
+
+/* Título com brilho branco */
+#conquista-titulo {
+    font-size: 2.2rem;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+    margin-bottom: 10px;
+}
+
+/* Animações */
+@keyframes auraPulse {
+    0%, 100% { box-shadow: 0 0 40px rgba(255, 255, 255, 0.3); border-color: rgba(255, 255, 255, 0.4); }
+    50% { box-shadow: 0 0 70px rgba(255, 255, 255, 0.5); border-color: rgba(255, 255, 255, 0.9); }
+}
+
+@keyframes floatingRelic {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+}
+
+/* Botão de Coletar Estilizado */
+.modal-content .close-modal {
+    position: static; /* Remove do topo e coloca abaixo do texto */
+    margin-top: 25px;
+    background: white;
+    color: black;
+    padding: 12px 40px;
+    border-radius: 50px;
+    font-weight: 900;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 0 20px rgba(255,255,255,0.4);
+}
+
+.modal-content .close-modal:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 30px rgba(255,255,255,0.8);
+}
+
+.conquista-animacao {
+    animation: relicArrival 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes relicArrival {
+    0% { transform: scale(0) rotate(-45deg); opacity: 0; }
+    70% { transform: scale(1.2) rotate(5deg); }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+/* Raios de luz giratórios atrás da relíquia grande */
+.trophy-glow::before {
+    content: '';
+    position: absolute;
+    width: 150%;
+    height: 150%;
+    background: conic-gradient(from 0deg, transparent, rgba(255,255,255,0.3), transparent 30%, transparent, rgba(255,255,255,0.3), transparent);
+    animation: rotate 10s linear infinite;
+    z-index: 0;
+}
+
+/* Ajuste no Orbit dentro do modal para não herdar filtros estranhos */
+#orbit-congrats-step .orbit-character img {
+    filter: drop-shadow(0 0 20px var(--accent-cyan));
+    border-radius: 50%;
 }

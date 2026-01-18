@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Disallow: /config/
+Sitemap: https://teudominio.com/sitemap.xml
