@@ -482,3 +482,6 @@ getEl('send-reset-btn').onclick = async (e) => {
         orbitTalk("Erro: E-mail não encontrado ou inválido.");
     }
 };
+
+
+/* ---------------- Mobile version ------------- */

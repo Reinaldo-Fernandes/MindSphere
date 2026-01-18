@@ -3,13 +3,15 @@
   "version": "1.0.0",
   "description": "\"A produtividade não é uma linha reta. Cada cérebro tem seu ritmo, suas pausas e suas cores.\"",
   "main": "script.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Reinaldo-Fernandes/MindSphere.git"
   },
+
+  "scripts": {
+  "start": "serve"
+},
+
   "keywords": [],
   "author": "",
   "license": "ISC",
