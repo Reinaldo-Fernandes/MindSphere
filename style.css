@@ -23,7 +23,7 @@ body {
 .background-overlay {
     position: fixed;
     inset: 0;
-    z-index: -2;
+    z-index: -2 !important;
     background: radial-gradient(circle at center, #0d1b2a 0%, #020508 100%);
 }
 
@@ -143,8 +143,8 @@ header {
     justify-content: center; 
     align-items: center;
     margin: 0 auto;
-    z-index: 10;
-    overflow: visible;
+    z-index: 20; /* Subimos o nível de todo o conjunto */
+    overflow: visible !important; /* Permite que os emojis saiam da área quadrada */
 }
 
 .sphere-outer {
@@ -253,35 +253,53 @@ header {
    6. JARDIM E ANIMAÇÕES DE ÓRBITA
    ========================================================================== */
 .orbit-path { 
-    position: absolute; border-radius: 50%; border: 1px solid rgba(255,255,255,0.05);
+    position: absolute; border-radius: 50%; border: 1px solid hsla(0, 0%, 100%, 0.05);
     box-sizing: border-box; pointer-events: none;
 }
 .orbit-1 { width: 100%; height: 100%; border-left: 2px solid var(--accent-pink); animation: rotate 30s linear infinite; }
 .orbit-2 { width: 130%; height: 130%; border-right: 2px solid var(--accent-cyan); animation: rotate 45s linear infinite reverse; }
 
+/* Garante que os itens fiquem visíveis e orbitando o centro da esfera */
 .garden-item {
     position: absolute;
     top: 50%;
     left: 50%;
+    transform: translate(-50%, -50%); 
     font-size: 2rem;
     pointer-events: none; 
-    z-index: 1000; 
-    transform-origin: center;
-    animation: orbit var(--orbit-duration) linear infinite;
-    margin-top: -1px; 
-    margin-left: -1px;
+    z-index: 1; 
     display: block !important;
+    opacity: 1 !important;
+    transition: opacity 0.5s ease;
 }
 
-/* Verifique se a animação está definida assim: */
+/* Removemos a regra que escondia o jardim no onboarding para você conseguir testar agora */
+.onboarding-active .garden-item {
+    opacity: 0.5; /* Deixamos meio transparente durante o tutorial */
+}
+
 @keyframes orbit {
-    from { transform: rotate(var(--start-angle)) translateX(var(--orbit-distance)) rotate(calc(var(--start-angle) * -1)); }
-    to { transform: rotate(calc(var(--start-angle) + 360deg)) translateX(var(--orbit-distance)) rotate(calc((var(--start-angle) + 360deg) * -1)); }
+    from { 
+        transform: translate(-50%, -50%) 
+                   rotate(var(--start-angle)) 
+                   translateX(var(--orbit-distance)) 
+                   rotate(calc(var(--start-angle) * -1)); 
+    }
+    to { 
+        transform: translate(-50%, -50%) 
+                   rotate(calc(var(--start-angle) + 360deg)) 
+                   translateX(var(--orbit-distance)) 
+                   rotate(calc((var(--start-angle) + 360deg) * -1)); 
+    }
 }
 
 @keyframes orbitContinuous {
-    from { transform: translate(-50%, -50%) rotate(var(--start-angle)) translateX(var(--orbit-distance)) rotate(calc(-1 * var(--start-angle))); }
-    to { transform: translate(-50%, -50%) rotate(calc(var(--start-angle) + 360deg)) translateX(var(--orbit-distance)) rotate(calc(-1 * (var(--start-angle) + 360deg))); }
+    from { 
+        transform: translate(-50%, -50%) rotate(var(--start-angle)) translateX(var(--orbit-distance)) rotate(calc(-1 * var(--start-angle))); 
+    }
+    to { 
+        transform: translate(-50%, -50%) rotate(calc(var(--start-angle) + 360deg)) translateX(var(--orbit-distance)) rotate(calc(-1 * (var(--start-angle) + 360deg))); 
+    }
 }
 
 @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
