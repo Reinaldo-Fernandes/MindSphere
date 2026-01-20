@@ -5,7 +5,7 @@ import {
     onAuthStateChanged, sendPasswordResetEmail 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { 
-    getFirestore, doc, setDoc, onSnapshot 
+    getFirestore, doc, setDoc, onSnapshot, collection, query, orderBy, getDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -18,48 +18,109 @@ const firebaseConfig = {
     measurementId: "G-MLKWN431SD"
 };
 
-// Inicialização
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
-// userDB precisa estar no objeto window para que o gameficacao.js o veja
 window.userDB = { xp: 0, focos: 0, goblins: 0, conquistas: [], nome: "Viajante" };
 
-/* --- 1. FUNÇÕES DE SUPORTE INTERNAS --- */
 const getEl = (id) => document.getElementById(id);
-
-// Função simples de aviso caso o orbitTalk não esteja carregado
 const notify = (msg) => {
-    if (window.orbitTalk) window.orbitTalk(msg);
+    if (window.OrbitAI) window.OrbitAI.falar(msg);
     else alert(msg);
 };
 
-/* --- 2. FIREBASE AUTH OBSERVER --- */
-
-onAuthStateChanged(auth, (user) => {
+/* --- 1. FIREBASE AUTH OBSERVER --- */
+onAuthStateChanged(auth, async (user) => {
     const authTrigger = getEl('auth-trigger');
     const userDisplayName = getEl('user-display-name');
 
     if (user) {
         if (authTrigger) authTrigger.innerText = "👤 PERFIL";
-        
-        onSnapshot(doc(db, "users", user.uid), (snap) => { 
-            if (snap.exists()) {
-                window.userDB = snap.data();
-                if (userDisplayName) userDisplayName.innerText = window.userDB.nome || "Viajante";
-                // Atualiza a estante de troféus se a função existir
-                if (window.atualizarInterfacePerfil) window.atualizarInterfacePerfil();
+        const docRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(docRef);
+
+      /* --- Dentro de onAuthStateChanged no firebase.js --- */
+if (docSnap.exists()) {
+    window.userDB = docSnap.data();
+    const nomeUser = window.userDB.nome || "Viajante";
+    
+    if (userDisplayName) userDisplayName.innerText = nomeUser;
+    
+    // Orbit dá as boas-vindas personalizadas
+    setTimeout(() => {
+        if (window.OrbitAI) {
+            if (window.userDB.tipo === 'adm') {
+                window.OrbitAI.reagir('login_adm');
+            } else {
+                window.OrbitAI.reagir('boas_vindas', { nome: nomeUser });
             }
-        });
+        }
+    }, 1500);
+
+    if (window.userDB.tipo === 'adm') {
+        aplicarEsteticaGlobalADM();
+    }
+}
+
     } else {
-        if (authTrigger) authTrigger.innerText = "🔑 ENTRAR / REGISTAR";
+        if (authTrigger) authTrigger.innerText = "🔑 LOGIN";
+        document.body.classList.remove('admin-mode');
     }
 });
 
-/* --- 3. EVENTOS DE INTERFACE --- */
+/* --- 2. FUNÇÕES ADMINISTRATIVAS --- */
+function aplicarEsteticaGlobalADM() {
+    document.body.classList.add('admin-mode');
+    const mainOrbit = document.querySelector('.orbit-character img') || getEl('orbit-img');
+    if (mainOrbit) mainOrbit.src = "./assistente/orbits/adm.png";
+    ativarModoAdmin(); 
+}
 
-// Abrir Modal de Perfil ou Login
+function ativarModoAdmin() {
+    const profileScroll = document.querySelector('.profile-scroll-area');
+    if (profileScroll && !getEl('adm-panel')) {
+        profileScroll.innerHTML = `
+            <div id="adm-panel" class="adm-dashboard-content">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div class="adm-metric-card"><label>Viajantes</label><span id="stat-users">0</span></div>
+                    <div class="adm-metric-card"><label>Feedbacks</label><span id="stat-fb">0</span></div>
+                </div>
+                <div class="adm-metric-card"><label>Energia Total (XP Global)</label><span id="stat-xp">0</span></div>
+                <h4 style="color:#00ff41; font-size:0.7rem; margin: 15px 0 5px 0; border-bottom: 1px solid rgba(0,255,65,0.2);">MURAL DE FEEDBACKS</h4>
+                <div id="feedback-wall-perfil" style="max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;"></div>
+            </div>
+        `;
+        conectarDadosDashboard();
+    }
+}
+
+function conectarDadosDashboard() {
+    onSnapshot(collection(db, "users"), (snap) => {
+        if(getEl('stat-users')) getEl('stat-users').innerText = snap.size;
+        let xpAcumulado = 0;
+        snap.forEach(d => xpAcumulado += (d.data().xp || 0));
+        if(getEl('stat-xp')) getEl('stat-xp').innerText = xpAcumulado;
+    });
+
+    const q = query(collection(db, "feedbacks"), orderBy("data", "desc"));
+    onSnapshot(q, (snap) => {
+        if(getEl('stat-fb')) getEl('stat-fb').innerText = snap.size;
+        const wall = getEl('feedback-wall-perfil');
+        if (wall) {
+            wall.innerHTML = "";
+            snap.forEach(doc => {
+                const f = doc.data();
+                const item = document.createElement('div');
+                item.style = "background: rgba(255,255,255,0.03); padding: 8px; border-radius: 8px; border-left: 3px solid #00ff41; margin-bottom: 5px; font-size: 0.8rem;";
+                item.innerHTML = `<b>${f.nome || 'Anônimo'}:</b> ${f.mensagem}`;
+                wall.appendChild(item);
+            });
+        }
+    });
+}
+
+/* --- 3. EVENTOS DE INTERFACE --- */
 const authTrigger = getEl('auth-trigger');
 if (authTrigger) {
     authTrigger.onclick = () => {
@@ -72,7 +133,6 @@ if (authTrigger) {
     };
 }
 
-// Botão de Login
 getEl('login-btn').onclick = async () => {
     const email = getEl('login-email').value;
     const pass = getEl('login-password').value;
@@ -82,28 +142,18 @@ getEl('login-btn').onclick = async () => {
     } catch (e) { notify("Erro no login: Verifique e-mail e senha."); }
 };
 
-// Botão de Registro
 getEl('register-confirm-btn').onclick = async () => {
     const nome = getEl('reg-name').value;
     const email = getEl('reg-email').value;
     const pass = getEl('reg-password').value;
-    
     if (!nome) return notify("Digite um nome de viajante.");
-
     try {
         const res = await createUserWithEmailAndPassword(auth, email, pass);
-        await setDoc(doc(db, "users", res.user.uid), { 
-            nome: nome, 
-            xp: 0, 
-            focos: 0, 
-            goblins: 0, 
-            conquistas: [] 
-        });
+        await setDoc(doc(db, "users", res.user.uid), { nome, xp: 0, focos: 0, goblins: 0, conquistas: [] });
         getEl('register-modal').classList.remove('active');
     } catch (e) { notify("Erro no cadastro."); }
 };
 
-// Reset de Senha
 const resetBtn = getEl('send-reset-btn');
 if (resetBtn) {
     resetBtn.onclick = async () => {
@@ -113,13 +163,23 @@ if (resetBtn) {
             await sendPasswordResetEmail(auth, email);
             notify("Link enviado ao seu e-mail!");
             getEl('forgot-password-modal').classList.remove('active');
-            getEl('auth-modal').classList.add('active');
         } catch (e) { notify("E-mail não encontrado."); }
     };
 }
 
-// Logout
-getEl('logout-btn').onclick = () => auth.signOut().then(() => location.reload());
+const logoutBtn = getEl('logout-btn');
+if (logoutBtn) {
+    logoutBtn.onclick = () => auth.signOut().then(() => location.reload());
+}
 
-// Exportando para outros módulos usarem
+// GATILHO DO TIMER (Protegido contra erro de ReferenceError)
+const btnStart = getEl('timer-start'); 
+if (btnStart) {
+    btnStart.addEventListener('click', () => {
+        if (window.iniciarTimer) window.iniciarTimer();
+        if (window.OrbitAI) window.OrbitAI.reagir('timer_start');
+    });
+}
+
+// Exportação ÚNICA
 export { sendPasswordResetEmail };
