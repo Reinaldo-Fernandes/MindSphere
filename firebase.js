@@ -1,4 +1,4 @@
-/* --- 0. FIREBASE CONFIG & MODULES --- */
+/* --- 0. CONFIGURAÇÃO --- */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { 
     getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, 
@@ -25,51 +25,82 @@ export const db = getFirestore(app);
 window.userDB = { xp: 0, focos: 0, goblins: 0, conquistas: [], nome: "Viajante" };
 
 const getEl = (id) => document.getElementById(id);
+
 const notify = (msg) => {
     if (window.OrbitAI) window.OrbitAI.falar(msg);
     else alert(msg);
 };
 
-/* --- 1. FIREBASE AUTH OBSERVER --- */
+/* --- 1. LOGIN (REFEITO PARA SER À PROVA DE FALHAS) --- */
+const realizarLogin = async () => {
+    const email = getEl('login-email')?.value;
+    const pass = getEl('login-password')?.value;
+
+    if (!email || !pass) return notify("Preencha e-mail e senha.");
+
+    try {
+        console.log("Tentando logar...");
+        await signInWithEmailAndPassword(auth, email, pass);
+        console.log("Logado com sucesso!");
+        getEl('auth-modal')?.classList.remove('active');
+    } catch (e) {
+        console.error("Erro no login:", e);
+        notify("Dados inválidos ou erro de conexão.");
+    }
+};
+
+// Vincula o botão de login (usando listener que é mais seguro que onclick direto)
+getEl('login-btn')?.addEventListener('click', realizarLogin);
+
+/* --- 2. REGISTRO --- */
+getEl('register-confirm-btn')?.addEventListener('click', async () => {
+    const nome = getEl('reg-name')?.value;
+    const email = getEl('reg-email')?.value;
+    const pass = getEl('reg-password')?.value;
+    
+    if (!nome || !email || !pass) return notify("Preencha todos os campos.");
+
+    try {
+        const res = await createUserWithEmailAndPassword(auth, email, pass);
+        await setDoc(doc(db, "users", res.user.uid), { 
+            nome, xp: 0, focos: 0, goblins: 0, conquistas: [], tipo: 'user' 
+        });
+        getEl('register-modal')?.classList.remove('active');
+        notify("Bem-vindo ao MindSphere!");
+    } catch (e) { notify("Erro ao criar conta."); }
+});
+
+/* --- 3. OBSERVAR MUDANÇA DE USUÁRIO --- */
 onAuthStateChanged(auth, async (user) => {
     const authTrigger = getEl('auth-trigger');
     const userDisplayName = getEl('user-display-name');
 
     if (user) {
         if (authTrigger) authTrigger.innerText = "👤 PERFIL";
-        const docRef = doc(db, "users", user.uid);
-        const docSnap = await getDoc(docRef);
+        const docSnap = await getDoc(doc(db, "users", user.uid));
 
-      /* --- Dentro de onAuthStateChanged no firebase.js --- */
-if (docSnap.exists()) {
-    window.userDB = docSnap.data();
-    const nomeUser = window.userDB.nome || "Viajante";
-    
-    if (userDisplayName) userDisplayName.innerText = nomeUser;
-    
-    // Orbit dá as boas-vindas personalizadas
-    setTimeout(() => {
-        if (window.OrbitAI) {
+        if (docSnap.exists()) {
+            window.userDB = docSnap.data();
+            const nomeUser = window.userDB.nome || "Viajante";
+            if (userDisplayName) userDisplayName.innerText = nomeUser;
+
             if (window.userDB.tipo === 'adm') {
-                window.OrbitAI.reagir('login_adm');
+                aplicarEsteticaGlobalADM();
+                setTimeout(() => {
+                    conectarDadosDashboard();
+                    window.OrbitAI?.reagir('login_adm');
+                }, 1000);
             } else {
-                window.OrbitAI.reagir('boas_vindas', { nome: nomeUser });
+                window.OrbitAI?.verificarAusencia();
             }
         }
-    }, 1500);
-
-    if (window.userDB.tipo === 'adm') {
-        aplicarEsteticaGlobalADM();
-    }
-}
-
     } else {
         if (authTrigger) authTrigger.innerText = "🔑 LOGIN";
         document.body.classList.remove('admin-mode');
     }
 });
 
-/* --- 2. FUNÇÕES ADMINISTRATIVAS --- */
+/* --- 4. FUNÇÕES ADM --- */
 function aplicarEsteticaGlobalADM() {
     document.body.classList.add('admin-mode');
     const mainOrbit = document.querySelector('.orbit-character img') || getEl('orbit-img');
@@ -101,7 +132,7 @@ function conectarDadosDashboard() {
         let xpAcumulado = 0;
         snap.forEach(d => xpAcumulado += (d.data().xp || 0));
         if(getEl('stat-xp')) getEl('stat-xp').innerText = xpAcumulado;
-    });
+    }, (err) => console.log("Aguardando permissão ADM..."));
 
     const q = query(collection(db, "feedbacks"), orderBy("data", "desc"));
     onSnapshot(q, (snap) => {
@@ -117,69 +148,24 @@ function conectarDadosDashboard() {
                 wall.appendChild(item);
             });
         }
-    });
+    }, (err) => console.log("Aguardando permissão ADM..."));
 }
 
-/* --- 3. EVENTOS DE INTERFACE --- */
-const authTrigger = getEl('auth-trigger');
-if (authTrigger) {
-    authTrigger.onclick = () => {
-        if (auth.currentUser) {
-            getEl('profile-modal')?.classList.add('active');
-            if (window.atualizarInterfacePerfil) window.atualizarInterfacePerfil();
-        } else {
-            getEl('auth-modal')?.classList.add('active');
-        }
-    };
-}
+/* --- 5. INTERFACE --- */
+getEl('auth-trigger')?.addEventListener('click', () => {
+    if (auth.currentUser) {
+        getEl('profile-modal')?.classList.add('active');
+    } else {
+        getEl('auth-modal')?.classList.add('active');
+    }
+});
 
-getEl('login-btn').onclick = async () => {
-    const email = getEl('login-email').value;
-    const pass = getEl('login-password').value;
-    try {
-        await signInWithEmailAndPassword(auth, email, pass);
-        getEl('auth-modal').classList.remove('active');
-    } catch (e) { notify("Erro no login: Verifique e-mail e senha."); }
-};
+getEl('logout-btn')?.addEventListener('click', () => auth.signOut().then(() => location.reload()));
 
-getEl('register-confirm-btn').onclick = async () => {
-    const nome = getEl('reg-name').value;
-    const email = getEl('reg-email').value;
-    const pass = getEl('reg-password').value;
-    if (!nome) return notify("Digite um nome de viajante.");
-    try {
-        const res = await createUserWithEmailAndPassword(auth, email, pass);
-        await setDoc(doc(db, "users", res.user.uid), { nome, xp: 0, focos: 0, goblins: 0, conquistas: [] });
-        getEl('register-modal').classList.remove('active');
-    } catch (e) { notify("Erro no cadastro."); }
-};
-
-const resetBtn = getEl('send-reset-btn');
-if (resetBtn) {
-    resetBtn.onclick = async () => {
-        const email = getEl('reset-email').value;
-        if (!email) return notify("Digite seu e-mail.");
-        try {
-            await sendPasswordResetEmail(auth, email);
-            notify("Link enviado ao seu e-mail!");
-            getEl('forgot-password-modal').classList.remove('active');
-        } catch (e) { notify("E-mail não encontrado."); }
-    };
-}
-
-const logoutBtn = getEl('logout-btn');
-if (logoutBtn) {
-    logoutBtn.onclick = () => auth.signOut().then(() => location.reload());
-}
-
-// GATILHO DO TIMER (Protegido contra erro de ReferenceError)
 const btnStart = getEl('timer-start'); 
-if (btnStart) {
-    btnStart.addEventListener('click', () => {
-        if (window.iniciarTimer) window.iniciarTimer();
-        if (window.OrbitAI) window.OrbitAI.reagir('timer_start');
-    });
-}
+btnStart?.addEventListener('click', () => {
+    if (window.iniciarTimer) window.iniciarTimer();
+    window.OrbitAI?.reagir('timer_start');
+});
 
-// Exportação ÚNICA
 export { sendPasswordResetEmail };
