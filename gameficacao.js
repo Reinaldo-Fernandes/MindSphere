@@ -88,20 +88,6 @@ function atualizarInterfacePerfil() {
                 </div>`;
         }).join('');
     }
-
-    const historyList = getEl('goblin-history-list');
-    if (historyList) {
-        if (userDB.historicoGoblin && userDB.historicoGoblin.length > 0) {
-            historyList.innerHTML = userDB.historicoGoblin.map(item => `
-                <div class="history-item" style="border-left: 2px solid var(--accent-pink); margin-bottom: 8px; padding-left: 10px;">
-                    <span style="display: block; font-size: 0.8rem; color: #fff;">${item.texto}</span>
-                    <small style="font-size: 0.6rem; opacity: 0.5;">${item.data}</small>
-                </div>
-            `).join('');
-        } else {
-            historyList.innerHTML = '<p class="empty-msg">Nenhuma tarefa concluída ainda.</p>';
-        }
-    }
 }
 
 /* --- EXPOSIÇÃO GLOBAL --- */
