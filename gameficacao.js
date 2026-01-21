@@ -1,104 +1,140 @@
 import { auth, db } from './firebase.js';
-import { doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const getEl = (id) => document.getElementById(id);
-
-// Configuração de Nível: Cada nível precisa de 1000 XP
-const XP_PER_LEVEL = 1000;
 
 async function adicionarProgresso(tipo, quantidade, detalheTarefa = "") {
     if (!auth.currentUser) return;
     
-    let userDB = window.userDB || { xp: 0, focos: 0, goblins: 0, conquistas: [], historicoGoblin: [] };
+    const userRef = doc(db, "users", auth.currentUser.uid);
     
-    // 1. Atualiza XP e Goblins
-    userDB.xp = (userDB.xp || 0) + quantidade;
+    try {
+        const docSnap = await getDoc(userRef);
+        let userDB = docSnap.exists() ? docSnap.data() : { xp: 0, focos: 0, goblins: 0, conquistas: [] };
 
-    if (tipo === 'goblin') {
-        userDB.goblins = (userDB.goblins || 0) + 1;
+        const valorXP = Number(quantidade) || 0;
+        const xpAtual = Number(userDB.xp) || 0;
+        const nivelAnterior = Math.floor(xpAtual / 1000) + 1;
         
-        // Salva no histórico com data
-        if (detalheTarefa) {
-            if (!userDB.historicoGoblin) userDB.historicoGoblin = [];
-            userDB.historicoGoblin.unshift({
-                texto: detalheTarefa,
-                data: new Date().toLocaleDateString('pt-BR')
-            });
-            if (userDB.historicoGoblin.length > 15) userDB.historicoGoblin.pop();
+        userDB.xp = xpAtual + valorXP;
+        const nivelAtual = Math.floor(userDB.xp / 1000) + 1;
+
+        // --- LÓGICA DE PREMIAÇÃO: APENAS SE SUBIU DE NÍVEL ---
+        if (nivelAtual > nivelAnterior) {
+            // Prêmio Aleatório (Pasta Aleatorio, arquivos de 1 a 30)
+            const numAleatorio = Math.floor(Math.random() * 30) + 1;
+            verificarEPremiar("Aleatorio", numAleatorio.toString(), `EVOLUÇÃO: NÍVEL ${nivelAtual}`, userDB);
+        }
+        
+        // --- MODO GOBLIN ---
+        if (tipo === 'goblin') {
+            userDB.goblins = (Number(userDB.goblins) || 0) + 1;
+            
+            if (detalheTarefa) {
+                // Inicializa o array se ele não existir
+                if (!userDB.historicoGoblin) userDB.historicoGoblin = [];
+                
+                // Adiciona a nova tarefa no topo da lista
+                userDB.historicoGoblin.unshift({ 
+                    texto: detalheTarefa, 
+                    data: new Date().toLocaleDateString('pt-BR') 
+                });
+
+                // Mantém apenas as últimas 15 tarefas
+                if (userDB.historicoGoblin.length > 15) userDB.historicoGoblin.pop();
+                
+                console.log("Histórico atualizado:", detalheTarefa);
+            }
         }
 
-        // Prêmio a cada 10 tarefas do Modo Goblin
-        if (userDB.goblins % 10 === 0) {
-            const numEspecial = userDB.goblins / 10;
-            verificarEPremiar("especial_goblin", numEspecial.toString(), `Mestre Goblin: ${userDB.goblins} Tarefas`);
+        if (tipo === 'foco') {
+            userDB.focos = (Number(userDB.focos) || 0) + 1;
         }
 
-        const numRei = Math.min(Math.ceil(userDB.goblins / 2), 17);
-        verificarEPremiar("reigoblin", numRei.toString(), `Rei Goblin Nível ${numRei}`);
+        // SALVAR NO FIREBASE
+        await updateDoc(userRef, userDB);
+        window.userDB = userDB;
+        atualizarInterfacePerfil();
+        
+    } catch (error) {
+        console.error("Erro ao progredir:", error);
     }
-
-    if (tipo === 'foco') {
-        userDB.focos = (userDB.focos || 0) + 1;
-        verificarEPremiar("hiperfoco", Math.min(userDB.focos, 17).toString(), `Hiperfoco #${userDB.focos}`);
-    }
-
-    // 2. Salva no Firebase
-    await updateDoc(doc(db, "users", auth.currentUser.uid), userDB);
-    window.userDB = userDB;
-    atualizarInterfacePerfil();
 }
 
+// Interface atualizada com o texto de XP (id="xp-text")
 function atualizarInterfacePerfil() {
     const userDB = window.userDB;
     if (!userDB) return;
 
-    // Lógica de Nível e XP
-    const nivel = Math.floor(userDB.xp / 1000) + 1;
-    const xpNoNivel = userDB.xp % 1000;
+    const nivel = Math.floor((userDB.xp || 0) / 1000) + 1;
+    const xpNoNivel = (userDB.xp || 0) % 1000;
 
     const nivelBadge = getEl('user-level-badge');
     const xpFill = getEl('xp-bar-fill');
+    const xpText = getEl('xp-text'); // O texto <small> do seu HTML
 
-    if (nivelBadge) {
-        nivelBadge.innerText = `Nível ${nivel}`;
-        // Adiciona a classe de brilho vermelho
-        nivelBadge.classList.add('xp-ganho-anim');
-        setTimeout(() => nivelBadge.classList.remove('xp-ganho-anim'), 1000);
-    }
-    
+    if (nivelBadge) nivelBadge.innerText = `Nível ${nivel}`;
     if (xpFill) xpFill.style.width = `${(xpNoNivel / 1000) * 100}%`;
+    if (xpText) xpText.innerText = `${xpNoNivel} / 1000 XP`;
 
-    // --- Estante de Troféus ---
     const shelf = getEl('trophy-shelf-content');
     if (shelf) {
-        shelf.innerHTML = userDB.conquistas.map(id => {
-            const [p, a] = id.split('_');
-            return `<div class="trophy-item"><img src="./assistente/gameficação/${p}/${a}.png" onerror="this.src='./assistente/orbits/Orbit.png'"></div>`;
+        shelf.innerHTML = (userDB.conquistas || []).map(id => {
+            const [pasta, arquivo] = id.split('_');
+            return `
+                <div class="trophy-item" title="${pasta}: ${arquivo}">
+                    <img src="./assistente/gameficação/${pasta}/${arquivo}.png" 
+                         onerror="this.src='./assistente/orbits/Orbit.png'">
+                </div>`;
         }).join('');
     }
 
-    // --- Histórico Goblin ---
     const historyList = getEl('goblin-history-list');
     if (historyList) {
-        if (!userDB.historicoGoblin || userDB.historicoGoblin.length === 0) {
-            historyList.innerHTML = '<p class="empty-msg">Nenhuma tarefa concluída.</p>';
-        } else {
-            historyList.innerHTML = userDB.historicoGoblin.map(t => `
-                <div class="history-item">
-                    <span>${t.texto}</span>
-                    <small>${t.data}</small>
+        if (userDB.historicoGoblin && userDB.historicoGoblin.length > 0) {
+            historyList.innerHTML = userDB.historicoGoblin.map(item => `
+                <div class="history-item" style="border-left: 2px solid var(--accent-pink); margin-bottom: 8px; padding-left: 10px;">
+                    <span style="display: block; font-size: 0.8rem; color: #fff;">${item.texto}</span>
+                    <small style="font-size: 0.6rem; opacity: 0.5;">${item.data}</small>
                 </div>
             `).join('');
+        } else {
+            historyList.innerHTML = '<p class="empty-msg">Nenhuma tarefa concluída ainda.</p>';
         }
     }
 }
 
-// Funções globais
+/* --- EXPOSIÇÃO GLOBAL --- */
 window.adicionarProgresso = adicionarProgresso;
 window.atualizarInterfacePerfil = atualizarInterfacePerfil;
-window.verificarEPremiar = (pasta, arquivo, titulo) => {
-    if (!window.userDB.conquistas.includes(`${pasta}_${arquivo}`)) {
-        window.userDB.conquistas.push(`${pasta}_${arquivo}`);
-        window.mostrarConquista(pasta, arquivo, titulo);
+
+window.verificarEPremiar = (pasta, arquivo, titulo, userDB) => {
+    const target = userDB || window.userDB;
+    if (!target.conquistas) target.conquistas = [];
+    
+    const idConquista = `${pasta}_${arquivo}`;
+    if (!target.conquistas.includes(idConquista)) {
+        target.conquistas.push(idConquista);
+        if (window.mostrarPopUpConquista) {
+            window.mostrarPopUpConquista(pasta, arquivo, titulo);
+        }
     }
+};
+
+window.mostrarPopUpConquista = (pasta, arquivo, titulo) => {
+    const popup = getEl('conquista-popup');
+    const imgTag = getEl('conquista-img');
+    const tituloTag = getEl('conquista-nome-item');
+
+    if (imgTag) imgTag.src = `./assistente/gameficação/${pasta}/${arquivo}.png`;
+    if (tituloTag) tituloTag.innerText = titulo;
+
+    popup.classList.add('active');
+    if (window.OrbitAI) {
+        window.OrbitAI.falar(`Incrível! Você desbloqueou: ${titulo}!`);
+    }
+};
+
+window.fecharConquista = () => {
+    getEl('conquista-popup').classList.remove('active');
 };

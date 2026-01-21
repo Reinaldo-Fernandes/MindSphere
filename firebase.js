@@ -44,30 +44,57 @@ const realizarLogin = async () => {
         console.log("Logado com sucesso!");
         getEl('auth-modal')?.classList.remove('active');
     } catch (e) {
-        console.error("Erro no login:", e);
-        notify("Dados inválidos ou erro de conexão.");
+        console.error("Erro no login:", e.code);
+        
+        if (e.code === 'auth/user-not-found') {
+            notify("Viajante não encontrado! Verifique seu e-mail.");
+        } else if (e.code === 'auth/wrong-password') {
+            notify("Senha incorreta! Tente novamente.");
+        } else if (e.code === 'auth/invalid-email') {
+            notify("E-mail inválido.");
+        } else {
+            notify("Erro ao fazer login: " + e.code);
+        }
     }
 };
-
 // Vincula o botão de login (usando listener que é mais seguro que onclick direto)
 getEl('login-btn')?.addEventListener('click', realizarLogin);
 
 /* --- 2. REGISTRO --- */
+/* --- Registro Blindado --- */
 getEl('register-confirm-btn')?.addEventListener('click', async () => {
     const nome = getEl('reg-name')?.value;
     const email = getEl('reg-email')?.value;
     const pass = getEl('reg-password')?.value;
     
     if (!nome || !email || !pass) return notify("Preencha todos os campos.");
+    if (pass.length < 6) return notify("A senha deve ter no mínimo 6 caracteres.");
 
     try {
+        console.log("Tentando cadastrar...");
         const res = await createUserWithEmailAndPassword(auth, email, pass);
+        
+        // Criar o documento do usuário no Firestore
         await setDoc(doc(db, "users", res.user.uid), { 
-            nome, xp: 0, focos: 0, goblins: 0, conquistas: [], tipo: 'user' 
+            nome: nome,
+            xp: 0, 
+            focos: 0, 
+            goblins: 0, 
+            conquistas: [],
+            tipo: 'user', // Defina como 'adm' manualmente no console se precisar
+            dataCriacao: new Date()
         });
+
+        console.log("Usuário criado com sucesso!");
         getEl('register-modal')?.classList.remove('active');
-        notify("Bem-vindo ao MindSphere!");
-    } catch (e) { notify("Erro ao criar conta."); }
+        notify(`Bem-vindo, ${nome}!`);
+
+    } catch (e) {
+        console.error("Erro no cadastro:", e.code);
+        if (e.code === 'auth/email-already-in-use') notify("Este e-mail já está sendo usado.");
+        else if (e.code === 'auth/invalid-email') notify("E-mail inválido.");
+        else notify("Erro ao criar conta. Tente novamente.");
+    }
 });
 
 /* --- 3. OBSERVAR MUDANÇA DE USUÁRIO --- */
@@ -84,14 +111,26 @@ onAuthStateChanged(auth, async (user) => {
             const nomeUser = window.userDB.nome || "Viajante";
             if (userDisplayName) userDisplayName.innerText = nomeUser;
 
+            if (typeof atualizarInterfacePerfil === 'function') {
+                atualizarInterfacePerfil();
+            }
+            
             if (window.userDB.tipo === 'adm') {
                 aplicarEsteticaGlobalADM();
                 setTimeout(() => {
                     conectarDadosDashboard();
-                    window.OrbitAI?.reagir('login_adm');
+                    // Verifica se a função existe antes de chamar
+                    if (typeof window.OrbitAI?.reagir === 'function') {
+                        window.OrbitAI.reagir('login_adm');
+                    }
                 }, 1000);
             } else {
-                window.OrbitAI?.verificarAusencia();
+                // Correção aqui: Verifica se a função existe
+                if (typeof window.OrbitAI?.verificarAusencia === 'function') {
+                    window.OrbitAI.verificarAusencia();
+                } else {
+                    console.log("Orbit ainda carregando...");
+                }
             }
         }
     } else {
@@ -169,3 +208,42 @@ btnStart?.addEventListener('click', () => {
 });
 
 export { sendPasswordResetEmail };
+
+/* --- Recuperação de Senha --- */
+const resetBtn = getEl('send-reset-btn');
+
+if (resetBtn) {
+    resetBtn.onclick = async () => {
+        // Captura o e-mail do campo específico do modal de "Esqueci a Senha"
+        const email = getEl('reset-email')?.value;
+
+        if (!email) {
+            notify("Por favor, digite seu e-mail para recuperar a senha.");
+            return;
+        }
+
+        try {
+            console.log("Enviando e-mail de recuperação para:", email);
+            await sendPasswordResetEmail(auth, email);
+            
+            notify("E-mail enviado! Verifique sua caixa de entrada e spam.");
+            
+            // Fecha o modal de recuperação se ele estiver aberto
+            getEl('forgot-password-modal')?.classList.remove('active');
+            
+            if (window.OrbitAI) {
+                window.OrbitAI.falar("Enviei um corvo eletrônico com sua nova chave de acesso. Olhe seu e-mail!");
+            }
+        } catch (error) {
+            console.error("Erro ao enviar reset:", error.code);
+            
+            if (error.code === 'auth/user-not-found') {
+                notify("Este e-mail não está cadastrado no sistema.");
+            } else if (error.code === 'auth/invalid-email') {
+                notify("O formato do e-mail é inválido.");
+            } else {
+                notify("Ocorreu um erro. Tente novamente em instantes.");
+            }
+        }
+    };
+}

@@ -430,3 +430,20 @@ if (togglePass) {
         }
     };
 }
+
+/* --- LOGICA DO BOTÃO LIMPAR (MODO GOBLIN) --- */
+const clearTasksBtn = getEl('clear-tasks-btn');
+
+if (clearTasksBtn) {
+    clearTasksBtn.onclick = () => {
+        const list = getEl('subtasks-list');
+        
+        // Verifica se há algo para limpar
+        if (list.children.length > 0) {
+            list.innerHTML = ""; // Remove todas as subtarefas
+            orbitTalk("Lista limpa! Vamos começar do zero? 🧼");
+        } else {
+            orbitTalk("A lista já está vazia!");
+        }
+    };
+}
