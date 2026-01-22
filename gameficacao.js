@@ -83,7 +83,7 @@ function atualizarInterfacePerfil() {
             const [pasta, arquivo] = id.split('_');
             return `
                 <div class="trophy-item" title="${pasta}: ${arquivo}">
-                    <img src="./assistente/gameficação/${pasta}/${arquivo}.png" 
+                    <img src="./assistente/gameficacao/${pasta}/${arquivo}.png" 
                          onerror="this.src='./assistente/orbits/Orbit.png'">
                 </div>`;
         }).join('');
