@@ -71,28 +71,29 @@ function atualizarInterfacePerfil() {
 
     const nivelBadge = getEl('user-level-badge');
     const xpFill = getEl('xp-bar-fill');
-    const xpText = getEl('xp-text'); // O texto <small> do seu HTML
+    const xpText = getEl('xp-text');
 
     if (nivelBadge) nivelBadge.innerText = `Nível ${nivel}`;
     if (xpFill) xpFill.style.width = `${(xpNoNivel / 1000) * 100}%`;
     if (xpText) xpText.innerText = `${xpNoNivel} / 1000 XP`;
 
-    helf = getEl('trophy-shelf-content');
+    // CORREÇÃO AQUI: Removemos a linha "helf" e limpamos a constante shelf
     const shelf = getEl('trophy-shelf-content');
-if (shelf) {
-    shelf.innerHTML = (userDB.conquistas || []).map(id => {
-        const partes = id.split('_');
-        if (partes.length < 2) return ''; // Segurança contra IDs mal formados
-        const [pasta, arquivo] = partes;
-        
-        // Caminho absoluto começando com / para a Vercel não se perder
-        return `
-            <div class="trophy-item" title="${pasta}: ${arquivo}">
-                <img src="/assistente/gameficacao/${pasta}/${arquivo}.png" 
-                     onerror="this.src='/assistente/orbits/Orbit.png'">
-            </div>`;
-    }).join('');
-
+    
+    if (shelf) {
+        shelf.innerHTML = (userDB.conquistas || []).map(id => {
+            const partes = id.split('_');
+            if (partes.length < 2) return ''; 
+            
+            const [pasta, arquivo] = partes;
+            
+            // Usando caminhos absolutos (começando com /) para garantir funcionamento na Vercel
+            return `
+                <div class="trophy-item" title="${pasta}: ${arquivo}">
+                    <img src="/assistente/gameficacao/${pasta}/${arquivo}.png" 
+                         onerror="this.src='/assistente/orbits/Orbit.png'">
+                </div>`;
+        }).join('');
     }
 }
 
