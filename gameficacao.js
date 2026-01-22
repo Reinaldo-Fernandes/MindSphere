@@ -19,28 +19,47 @@ async function adicionarProgresso(tipo, quantidade, detalheTarefa = "") {
         userDB.xp = xpAtual + valorXP;
         const nivelAtual = Math.floor(userDB.xp / 1000) + 1;
 
- // --- DENTRO DE adicionarProgresso ---
-if (nivelAtual > nivelAnterior) {
-    // 1. Pasta correta: "aleatorios" (minúsculo e com S no final)
-    const numAleatorio = Math.floor(Math.random() * 30) + 1;
-    verificarEPremiar("aleatorios", numAleatorio.toString(), `EVOLUÇÃO: NÍVEL ${nivelAtual}`, userDB);
-    
-    if (tipo === 'goblin') {
-        // 2. Pasta correta: "reigoblin" (minúsculo e sem espaço)
-        const numRei = Math.min((userDB.goblins || 0) + 1, 17);
-        verificarEPremiar("reigoblin", numRei.toString(), `REI GOBLIN LVL ${nivelAtual}`, userDB);
-    }
-}
+        // --- PREMIAÇÃO NO LEVEL UP ---
+        if (nivelAtual > nivelAnterior) {
+            const numAleatorio = Math.floor(Math.random() * 30) + 1;
+            verificarEPremiar("aleatorios", numAleatorio.toString(), `EVOLUÇÃO: NÍVEL ${nivelAtual}`, userDB);
+            
+            if (tipo === 'goblin') {
+                const numRei = Math.min((Number(userDB.goblins) || 0) + 1, 17);
+                verificarEPremiar("reigoblin", numRei.toString(), `REI GOBLIN LVL ${nivelAtual}`, userDB);
+            }
+        }
 
-if (tipo === 'foco') {
-    userDB.focos = (Number(userDB.focos) || 0) + 1;
-    // 3. Pasta correta: "hiperfoco" (minúsculo)
-    // Se quiser dar prêmio de foco no level up, use:
-    // const numFoco = Math.min(userDB.focos, 17);
-    // verificarEPremiar("hiperfoco", numFoco.toString(), `HIPERFOCO #${userDB.focos}`, userDB);
-}
+        // --- LÓGICA GOBLIN (Histórico e Contador) ---
+        if (tipo === 'goblin') {
+            userDB.goblins = (Number(userDB.goblins) || 0) + 1;
+            
+            if (detalheTarefa) {
+                if (!userDB.historicoGoblin) userDB.historicoGoblin = [];
+                userDB.historicoGoblin.unshift({ 
+                    texto: detalheTarefa, 
+                    data: new Date().toLocaleDateString('pt-BR') 
+                });
+                if (userDB.historicoGoblin.length > 15) userDB.historicoGoblin.pop();
+            }
+        }
+
+        // --- LÓGICA FOCO ---
+        if (tipo === 'foco') {
+            userDB.focos = (Number(userDB.focos) || 0) + 1;
+        }
+
+        // --- SALVAMENTO NO FIREBASE (Faltava isso no seu!) ---
+        await updateDoc(userRef, userDB);
+        
+        // Atualiza a variável global e a tela
+        window.userDB = userDB;
+        atualizarInterfacePerfil();
+        
+        console.log(`Sucesso! Nível: ${nivelAtual} | XP: ${userDB.xp}`);
+
     } catch (error) {
-        console.error("Erro ao adicionar progresso:", error);
+        console.error("Erro crítico ao adicionar progresso:", error);
     }
 }
 
