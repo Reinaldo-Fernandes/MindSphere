@@ -128,7 +128,7 @@ window.mostrarPopUpConquista = (pasta, arquivo, titulo) => {
     const tituloTag = getEl('conquista-nome-item');
 
     // 2. Caminho Absoluto (o "/" no início é vital na Vercel)
-    const caminhoFinal = `/assistente/gameficacao/${pasta}/${arquivo}.png`;
+    const caminhoFinal = `/assistente/${pasta}/${arquivo}.png`;
     
     imgTag.src = caminhoFinal;
     
