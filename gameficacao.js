@@ -19,45 +19,28 @@ async function adicionarProgresso(tipo, quantidade, detalheTarefa = "") {
         userDB.xp = xpAtual + valorXP;
         const nivelAtual = Math.floor(userDB.xp / 1000) + 1;
 
-        // --- LÓGICA DE PREMIAÇÃO: APENAS SE SUBIU DE NÍVEL ---
-        if (nivelAtual > nivelAnterior) {
-            // Prêmio Aleatório (Pasta Aleatorio, arquivos de 1 a 30)
-            const numAleatorio = Math.floor(Math.random() * 30) + 1;
-            verificarEPremiar("Aleatorio", numAleatorio.toString(), `EVOLUÇÃO: NÍVEL ${nivelAtual}`, userDB);
-        }
-        
-        // --- MODO GOBLIN ---
-        if (tipo === 'goblin') {
-            userDB.goblins = (Number(userDB.goblins) || 0) + 1;
-            
-            if (detalheTarefa) {
-                // Inicializa o array se ele não existir
-                if (!userDB.historicoGoblin) userDB.historicoGoblin = [];
-                
-                // Adiciona a nova tarefa no topo da lista
-                userDB.historicoGoblin.unshift({ 
-                    texto: detalheTarefa, 
-                    data: new Date().toLocaleDateString('pt-BR') 
-                });
+ // --- DENTRO DE adicionarProgresso ---
+if (nivelAtual > nivelAnterior) {
+    // 1. Pasta correta: "aleatorios" (minúsculo e com S no final)
+    const numAleatorio = Math.floor(Math.random() * 30) + 1;
+    verificarEPremiar("aleatorios", numAleatorio.toString(), `EVOLUÇÃO: NÍVEL ${nivelAtual}`, userDB);
+    
+    if (tipo === 'goblin') {
+        // 2. Pasta correta: "reigoblin" (minúsculo e sem espaço)
+        const numRei = Math.min((userDB.goblins || 0) + 1, 17);
+        verificarEPremiar("reigoblin", numRei.toString(), `REI GOBLIN LVL ${nivelAtual}`, userDB);
+    }
+}
 
-                // Mantém apenas as últimas 15 tarefas
-                if (userDB.historicoGoblin.length > 15) userDB.historicoGoblin.pop();
-                
-                console.log("Histórico atualizado:", detalheTarefa);
-            }
-        }
-
-        if (tipo === 'foco') {
-            userDB.focos = (Number(userDB.focos) || 0) + 1;
-        }
-
-        // SALVAR NO FIREBASE
-        await updateDoc(userRef, userDB);
-        window.userDB = userDB;
-        atualizarInterfacePerfil();
-        
+if (tipo === 'foco') {
+    userDB.focos = (Number(userDB.focos) || 0) + 1;
+    // 3. Pasta correta: "hiperfoco" (minúsculo)
+    // Se quiser dar prêmio de foco no level up, use:
+    // const numFoco = Math.min(userDB.focos, 17);
+    // verificarEPremiar("hiperfoco", numFoco.toString(), `HIPERFOCO #${userDB.focos}`, userDB);
+}
     } catch (error) {
-        console.error("Erro ao progredir:", error);
+        console.error("Erro ao adicionar progresso:", error);
     }
 }
 
@@ -142,4 +125,4 @@ window.mostrarPopUpConquista = (pasta, arquivo, titulo) => {
     if (window.OrbitAI) {
         window.OrbitAI.falar(`Incrível! Você desbloqueou: ${titulo}!`);
     }
-};
+}
