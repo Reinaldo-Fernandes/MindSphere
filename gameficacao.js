@@ -147,22 +147,20 @@ function aplicarEsteticaGlobalADM() {
     ativarModoAdmin(); 
 }
 
-function ativarModoAdmin() {
-    const profileScroll = document.querySelector('.profile-scroll-area');
-    if (profileScroll && !getEl('adm-panel')) {
-        profileScroll.innerHTML = `
-            <div id="adm-panel" class="adm-dashboard-content">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <div class="adm-metric-card"><label>Viajantes</label><span id="stat-users">0</span></div>
-                    <div class="adm-metric-card"><label>Feedbacks</label><span id="stat-fb">0</span></div>
-                </div>
-                <div class="adm-metric-card"><label>Energia Total (XP Global)</label><span id="stat-xp">0</span></div>
-                <h4 style="color:#00ff41; font-size:0.7rem; margin: 15px 0 5px 0; border-bottom: 1px solid rgba(0,255,65,0.2);">MURAL DE FEEDBACKS</h4>
-                <div id="feedback-wall-perfil" style="max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;"></div>
-            </div>
-        `;
-        conectarDadosDashboard();
+function aplicarEsteticaGlobalADM() {
+    document.body.classList.add('admin-mode');
+    const mainOrbit = document.querySelector('.orbit-character img') || getEl('orbit-img');
+    if (mainOrbit) {
+        // Mudamos de "./" para "/" para ser absoluto
+        mainOrbit.src = "/assistente/orbits/adm.png";
+        
+        // Fallback caso a imagem de ADM também não seja encontrada
+        mainOrbit.onerror = () => {
+            console.warn("Imagem de ADM não encontrada, usando padrão.");
+            mainOrbit.src = "/assistente/orbits/Orbit.png"; 
+        };
     }
+    ativarModoAdmin(); 
 }
 
 function conectarDadosDashboard() {
