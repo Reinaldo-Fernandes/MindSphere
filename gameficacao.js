@@ -112,22 +112,12 @@ window.mostrarPopUpConquista = (pasta, arquivo, titulo) => {
     const imgTag = getEl('conquista-img');
     const tituloTag = getEl('conquista-nome-item');
 
-    // CORREÇÃO: Caminho direto em /assistente/
-    const caminhoFinal = `/assistente/${pasta}/${arquivo}.png`;
-    
-    if (imgTag) {
-        imgTag.src = caminhoFinal;
-        imgTag.onerror = () => { imgTag.src = '/assistente/orbits/Orbit.png'; };
-    }
+    const BASE_URL_IMG = "/assistente";
+    const caminhoFinal = `${BASE_URL_IMG}/${pasta}/${arquivo}.png`;
+    const fallbackPopup = `${BASE_URL_IMG}/orbits/Orbit.png`;
 
+    if (imgTag) imgTag.src = caminhoFinal;
+    if (imgTag) imgTag.onerror = () => { imgTag.src = fallbackPopup; };
     if (tituloTag) tituloTag.innerText = titulo;
-    popup.classList.add('active');
-
-    if (window.OrbitAI) {
-        window.OrbitAI.falar(`Incrível! Você desbloqueou: ${titulo}!`);
-    }
-};
-
-window.fecharConquista = () => {
-    getEl('conquista-popup').classList.remove('active');
+    if (popup) popup.style.display = 'flex';
 };
