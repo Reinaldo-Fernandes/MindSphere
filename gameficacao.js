@@ -20,14 +20,9 @@ async function adicionarProgresso(tipo, quantidade, detalheTarefa = "") {
 
         if (nivelAtual > nivelAnterior) {
             const numAleatorio = Math.floor(Math.random() * 30) + 1;
-            verificarEPremiar("aleatorios", numAleatorio.toString(), `EVOLUÇÃO: NÍVEL ${nivelAtual}`, userDB);
-            
-            if (tipo === 'goblin') {
-                const numRei = Math.min((Number(userDB.goblins) || 0) + 1, 17);
-                verificarEPremiar("reigoblin", numRei.toString(), `REI GOBLIN LVL ${nivelAtual}`, userDB);
-            }
+            verificarEPremiar("Aleatorio", numAleatorio.toString(), `EVOLUÇÃO: NÍVEL ${nivelAtual}`, userDB);
         }
-
+        
         if (tipo === 'goblin') {
             userDB.goblins = (Number(userDB.goblins) || 0) + 1;
             if (detalheTarefa) {
@@ -49,7 +44,7 @@ async function adicionarProgresso(tipo, quantidade, detalheTarefa = "") {
         atualizarInterfacePerfil();
         
     } catch (error) {
-        console.error("Erro crítico ao adicionar progresso:", error);
+        console.error("Erro ao progredir:", error);
     }
 }
 
@@ -68,23 +63,31 @@ function atualizarInterfacePerfil() {
     if (xpFill) xpFill.style.width = `${(xpNoNivel / 1000) * 100}%`;
     if (xpText) xpText.innerText = `${xpNoNivel} / 1000 XP`;
 
+    // ATUALIZAÇÃO DO HISTÓRICO VISUAL
+    const historyList = getEl('goblin-history-list');
+    if (historyList && userDB.historicoGoblin) {
+        historyList.innerHTML = userDB.historicoGoblin.map(item => `
+            <div class="history-item" style="border-left: 2px solid var(--accent-pink); padding: 5px 10px; margin-bottom: 5px; background: rgba(255,255,255,0.05)">
+                <div style="font-size: 0.8rem;">${item.texto}</div>
+                <small style="opacity: 0.5; font-size: 0.6rem;">${item.data}</small>
+            </div>
+        `).join('');
+    }
+
     const shelf = getEl('trophy-shelf-content');
     if (shelf) {
         shelf.innerHTML = (userDB.conquistas || []).map(id => {
-            const partes = id.split('_');
-            if (partes.length < 2) return ''; 
-            const [pasta, arquivo] = partes;
-            
-            // AJUSTADO: Removido "gameficacao" do caminho da estante
+            const [pasta, arquivo] = id.split('_');
             return `
-                <div class="trophy-item" title="${pasta}: ${arquivo}">
-                    <img src="/assistente/${pasta}/${arquivo}.png" 
-                         onerror="this.src='/assistente/orbits/Orbit.png'">
+                <div class="trophy-item">
+                    <img src="./assistente/gameficacao/${pasta}/${arquivo}.png" 
+                         onerror="this.src='./assistente/orbits/Orbit.png'">
                 </div>`;
         }).join('');
     }
 }
 
+/* --- EXPOSIÇÃO GLOBAL --- */
 window.adicionarProgresso = adicionarProgresso;
 window.atualizarInterfacePerfil = atualizarInterfacePerfil;
 
@@ -94,29 +97,27 @@ window.verificarEPremiar = (pasta, arquivo, titulo, userDB) => {
     const idConquista = `${pasta}_${arquivo}`;
     if (!target.conquistas.includes(idConquista)) {
         target.conquistas.push(idConquista);
-        if (window.mostrarPopUpConquista) {
-            window.mostrarPopUpConquista(pasta, arquivo, titulo);
-        }
+        window.mostrarPopUpConquista(pasta, arquivo, titulo);
     }
 };
 
 window.mostrarPopUpConquista = (pasta, arquivo, titulo) => {
-    if (!pasta || !arquivo || pasta === "undefined" || arquivo === "undefined") return;
-
     const popup = getEl('conquista-popup');
-    const imgTag = getEl('conquista-img');
-    const tituloTag = getEl('conquista-nome-item');
+    const imgTag = popup.querySelector('#conquista-img');
+    const tituloTag = popup.querySelector('#conquista-nome-item');
 
-    // AJUSTADO: Caminho direto na assistente
-    const caminhoFinal = `/assistente/${pasta}/${arquivo}.png`;
-    
-    imgTag.src = caminhoFinal;
-    imgTag.onerror = () => { imgTag.src = '/assistente/orbits/Orbit.png'; };
+    if (imgTag) {
+        imgTag.src = `./assistente/gameficacao/${pasta}/${arquivo}.png`;
+        imgTag.onerror = () => { imgTag.src = './assistente/orbits/Orbit.png'; };
+    }
+    if (tituloTag) tituloTag.innerText = titulo;
 
-    tituloTag.innerText = titulo;
     popup.classList.add('active');
-
     if (window.OrbitAI) {
         window.OrbitAI.falar(`Incrível! Você desbloqueou: ${titulo}!`);
     }
-}
+};
+
+window.fecharConquista = () => {
+    getEl('conquista-popup').classList.remove('active');
+};
