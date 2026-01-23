@@ -18,10 +18,8 @@ async function adicionarProgresso(tipo, quantidade, detalheTarefa = "") {
         userDB.xp = xpAtual + valorXP;
         const nivelAtual = Math.floor(userDB.xp / 1000) + 1;
 
-        // --- PREMIAÇÃO NO LEVEL UP ---
         if (nivelAtual > nivelAnterior) {
             const numAleatorio = Math.floor(Math.random() * 30) + 1;
-            // Usando nomes de pastas minúsculos conforme sua lista
             verificarEPremiar("aleatorios", numAleatorio.toString(), `EVOLUÇÃO: NÍVEL ${nivelAtual}`, userDB);
             
             if (tipo === 'goblin') {
@@ -77,12 +75,10 @@ function atualizarInterfacePerfil() {
             if (partes.length < 2) return ''; 
             const [pasta, arquivo] = partes;
             
-            // CORREÇÃO: Removido "gameficacao" do link da imagem
-            const srcFinal = `/assistente/${pasta}/${arquivo}.png`;
-            
+            // AJUSTADO: Removido "gameficacao" do caminho da estante
             return `
                 <div class="trophy-item" title="${pasta}: ${arquivo}">
-                    <img src="${srcFinal}" 
+                    <img src="/assistente/${pasta}/${arquivo}.png" 
                          onerror="this.src='/assistente/orbits/Orbit.png'">
                 </div>`;
         }).join('');
@@ -95,7 +91,6 @@ window.atualizarInterfacePerfil = atualizarInterfacePerfil;
 window.verificarEPremiar = (pasta, arquivo, titulo, userDB) => {
     const target = userDB || window.userDB;
     if (!target.conquistas) target.conquistas = [];
-    
     const idConquista = `${pasta}_${arquivo}`;
     if (!target.conquistas.includes(idConquista)) {
         target.conquistas.push(idConquista);
@@ -112,22 +107,16 @@ window.mostrarPopUpConquista = (pasta, arquivo, titulo) => {
     const imgTag = getEl('conquista-img');
     const tituloTag = getEl('conquista-nome-item');
 
-    // CORREÇÃO: Caminho direto em /assistente/
+    // AJUSTADO: Caminho direto na assistente
     const caminhoFinal = `/assistente/${pasta}/${arquivo}.png`;
     
-    if (imgTag) {
-        imgTag.src = caminhoFinal;
-        imgTag.onerror = () => { imgTag.src = '/assistente/orbits/Orbit.png'; };
-    }
+    imgTag.src = caminhoFinal;
+    imgTag.onerror = () => { imgTag.src = '/assistente/orbits/Orbit.png'; };
 
-    if (tituloTag) tituloTag.innerText = titulo;
+    tituloTag.innerText = titulo;
     popup.classList.add('active');
 
     if (window.OrbitAI) {
         window.OrbitAI.falar(`Incrível! Você desbloqueou: ${titulo}!`);
     }
-};
-
-window.fecharConquista = () => {
-    getEl('conquista-popup').classList.remove('active');
-};
+}
