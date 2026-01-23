@@ -72,20 +72,23 @@ function atualizarInterfacePerfil() {
 
     const shelf = getEl('trophy-shelf-content');
     if (shelf) {
-        shelf.innerHTML = (userDB.conquistas || []).map(id => {
-            const partes = id.split('_');
-            if (partes.length < 2) return ''; 
-            const [pasta, arquivo] = partes;
-            
-            // CORREÇÃO: Removido "gameficacao" do link da imagem
-            const srcFinal = `/assistente/${pasta}/${arquivo}.png`;
-            
-            return `
-                <div class="trophy-item" title="${pasta}: ${arquivo}">
-                    <img src="${srcFinal}" 
-                         onerror="this.src='/assistente/orbits/Orbit.png'">
-                </div>`;
-        }).join('');
+        // Substitua o mapeamento da shelf por este:
+shelf.innerHTML = (userDB.conquistas || []).map(id => {
+    const partes = id.split('_');
+    if (partes.length < 2) return ''; 
+    const [pasta, arquivo] = partes;
+
+    // Filtro para ignorar registros antigos que continham "gameficacao"
+    if (pasta === "gameficacao") return ''; 
+
+    const srcFinal = `/assistente/${pasta}/${arquivo}.png`;
+    
+    return `
+        <div class="trophy-item" title="${pasta}: ${arquivo}">
+            <img src="${srcFinal}" 
+                 onerror="this.src='/assistente/orbits/Orbit.png'">
+        </div>`;
+}).join('');
     }
 }
 
