@@ -247,3 +247,127 @@ if (resetBtn) {
         }
     };
 }
+
+/* --- 6. CONFIGURAÇÃO DE CAMINHOS E IMAGENS --- */
+const BASE_PATH = "C:/Users/Usuário/OneDrive/Desktop/Reinaldo/MindSphere/assistente/";
+
+const IMAGENS_CONFIG = {
+    // Recompensas comuns (Aleatórias por micro-marcos)
+    comuns: {
+        aleatorios: { path: "aleatorios/", total: 30 },
+        matutino:   { path: "matutino/",   total: 12 },
+        vespertino: { path: "vespertino/", total: 17 },
+        noturno:    { path: "noturno/",    total: 16 },
+        madrugada:  { path: "madrugada/",  total: 16 }
+    },
+    // Recompensas Especiais (Únicas por grandes marcos)
+    especiais: {
+        estacoes:   { path: "estacoes/",   total: 4 },
+        meses:      { path: "meses/",      total: 12 },
+        hiperfoco:  { path: "hiperfoco/",  total: 17 },
+        reigoblin:  { path: "reigoblin/",  total: 17 }
+    }
+};
+
+/* --- 7. LÓGICA DE EXIBIÇÃO E FILA (ANTI-BUG) --- */
+window.recompensaPendentes = [];
+let exibindoPremio = false;
+
+/**
+ * Função principal para processar conquistas e evitar sobreposição
+ */
+const processarRecompensa = async (tipoPasta, index = null) => {
+    if (exibindoPremio) {
+        console.log("Aguardando prêmio atual terminar...");
+        window.recompensaPendentes.push({ tipoPasta, index });
+        return;
+    }
+
+    exibindoPremio = true;
+    
+    // Se index for null, pegamos uma aleatória daquela pasta
+    const config = IMAGENS_CONFIG.comuns[tipoPasta] || IMAGENS_CONFIG.especiais[tipoPasta];
+    const imgIndex = index !== null ? index : Math.floor(Math.random() * config.total) + 1;
+    const caminhoFinal = `${BASE_PATH}${config.path}${imgIndex}.png`;
+
+    // Lógica de exibição na UI
+    exibirNaTela(caminhoFinal);
+
+    // Espera 5 segundos para liberar a próxima
+    setTimeout(() => {
+        exibindoPremio = false;
+        if (window.recompensaPendentes.length > 0) {
+            const proximo = window.recompensaPendentes.shift();
+            processarRecompensa(proximo.tipoPasta, proximo.index);
+        }
+    }, 8000); 
+};
+
+const exibirNaTela = (src) => {
+    const container = getEl('display-recompensa') || criarContainerRecompensa();
+    container.innerHTML = `<img src="${src}" class="fade-in-award">`;
+    container.classList.add('active');
+    notify("🏆 Nova Conquista Desbloqueada!");
+    
+    setTimeout(() => container.classList.remove('active'), 7000);
+};
+
+/* --- 8. SISTEMA DE MARCOS (MILESTONES) --- */
+const verificarConquistas = () => {
+    const u = window.userDB;
+
+    // --- MARCOS NORMAIS (PASTAS COMUNS) ---
+    if (u.chuva_count === 5) processarRecompensa('aleatorios');
+    if (u.goblins === 3) processarRecompensa('aleatorios');
+    
+    // --- MARCOS ESPECIAIS (PASTAS ESPECÍFICAS) ---
+    // Ex: 30 dias de uso libera uma imagem aleatória de 'meses'
+    if (u.diasUso === 30 && !u.conquistas.includes('trinta_dias')) {
+        registrarConquista('trinta_dias', 'meses');
+    }
+
+    // Ex: 50 horas de foco libera 'hiperfoco'
+    if (u.horasFoco >= 50 && !u.conquistas.includes('mestre_foco')) {
+        registrarConquista('mestre_foco', 'hiperfoco');
+    }
+
+    // Ex: 10 investidas Goblin Mode libera 'reigoblin'
+    if (u.goblins >= 10 && !u.conquistas.includes('rei_goblin_vencido')) {
+        registrarConquista('rei_goblin_vencido', 'reigoblin');
+    }
+};
+
+const registrarConquista = async (id, pasta) => {
+    window.userDB.conquistas.push(id);
+    processarRecompensa(pasta);
+    // Atualiza Firebase
+    const userRef = doc(db, "users", auth.currentUser.uid);
+    await setDoc(userRef, { conquistas: window.userDB.conquistas }, { merge: true });
+};
+
+/* --- 9. AJUSTES DE PERFIL E TÍTULOS --- */
+function atualizarInterfacePerfil() {
+    const u = window.userDB;
+    const xpBase = u.xp || 0;
+    
+    // Cálculo de Nível/Módulo
+    const nivel = Math.floor(xpBase / 1000) + 1;
+    const modulo = nivel <= 5 ? "Viagem Iniciante" : nivel <= 15 ? "Exploração Profunda" : "Mestre do Espaço";
+    
+    const titulo = u.tipo === 'adm' ? "MASTER ADMIN" : `Viajante Nvl ${nivel}`;
+    
+    if (getEl('user-title')) getEl('user-title').innerText = titulo;
+    if (getEl('user-module')) getEl('user-module').innerText = `Módulo: ${modulo}`;
+    
+    // Verifica se há prêmios para disparar
+    verificarConquistas();
+}
+
+// Helper para criar o container de imagem se não existir
+function criarContainerRecompensa() {
+    const div = document.createElement('div');
+    div.id = 'display-recompensa';
+    div.className = 'recompensa-overlay';
+    document.body.appendChild(div);
+    return div;
+}
