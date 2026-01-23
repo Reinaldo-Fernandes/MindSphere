@@ -5,7 +5,6 @@ const getEl = (id) => document.getElementById(id);
 
 async function adicionarProgresso(tipo, quantidade, detalheTarefa = "") {
     if (!auth.currentUser) return;
-    
     const userRef = doc(db, "users", auth.currentUser.uid);
     
     try {
@@ -22,6 +21,7 @@ async function adicionarProgresso(tipo, quantidade, detalheTarefa = "") {
         // --- PREMIAÇÃO NO LEVEL UP ---
         if (nivelAtual > nivelAnterior) {
             const numAleatorio = Math.floor(Math.random() * 30) + 1;
+            // Usando nomes de pastas minúsculos conforme sua lista
             verificarEPremiar("aleatorios", numAleatorio.toString(), `EVOLUÇÃO: NÍVEL ${nivelAtual}`, userDB);
             
             if (tipo === 'goblin') {
@@ -30,10 +30,8 @@ async function adicionarProgresso(tipo, quantidade, detalheTarefa = "") {
             }
         }
 
-        // --- LÓGICA GOBLIN (Histórico e Contador) ---
         if (tipo === 'goblin') {
             userDB.goblins = (Number(userDB.goblins) || 0) + 1;
-            
             if (detalheTarefa) {
                 if (!userDB.historicoGoblin) userDB.historicoGoblin = [];
                 userDB.historicoGoblin.unshift({ 
@@ -44,26 +42,19 @@ async function adicionarProgresso(tipo, quantidade, detalheTarefa = "") {
             }
         }
 
-        // --- LÓGICA FOCO ---
         if (tipo === 'foco') {
             userDB.focos = (Number(userDB.focos) || 0) + 1;
         }
 
-        // --- SALVAMENTO NO FIREBASE (Faltava isso no seu!) ---
         await updateDoc(userRef, userDB);
-        
-        // Atualiza a variável global e a tela
         window.userDB = userDB;
         atualizarInterfacePerfil();
         
-        console.log(`Sucesso! Nível: ${nivelAtual} | XP: ${userDB.xp}`);
-
     } catch (error) {
         console.error("Erro crítico ao adicionar progresso:", error);
     }
 }
 
-// Interface atualizada com o texto de XP (id="xp-text")
 function atualizarInterfacePerfil() {
     const userDB = window.userDB;
     if (!userDB) return;
@@ -79,27 +70,25 @@ function atualizarInterfacePerfil() {
     if (xpFill) xpFill.style.width = `${(xpNoNivel / 1000) * 100}%`;
     if (xpText) xpText.innerText = `${xpNoNivel} / 1000 XP`;
 
-    // CORREÇÃO AQUI: Removemos a linha "helf" e limpamos a constante shelf
     const shelf = getEl('trophy-shelf-content');
-    
     if (shelf) {
         shelf.innerHTML = (userDB.conquistas || []).map(id => {
             const partes = id.split('_');
             if (partes.length < 2) return ''; 
-            
             const [pasta, arquivo] = partes;
             
-            // Usando caminhos absolutos (começando com /) para garantir funcionamento na Vercel
+            // CORREÇÃO: Removido "gameficacao" do link da imagem
+            const srcFinal = `/assistente/${pasta}/${arquivo}.png`;
+            
             return `
                 <div class="trophy-item" title="${pasta}: ${arquivo}">
-                    <img src="/assistente/gameficacao/${pasta}/${arquivo}.png" 
+                    <img src="${srcFinal}" 
                          onerror="this.src='/assistente/orbits/Orbit.png'">
                 </div>`;
         }).join('');
     }
 }
 
-/* --- EXPOSIÇÃO GLOBAL --- */
 window.adicionarProgresso = adicionarProgresso;
 window.atualizarInterfacePerfil = atualizarInterfacePerfil;
 
@@ -117,31 +106,28 @@ window.verificarEPremiar = (pasta, arquivo, titulo, userDB) => {
 };
 
 window.mostrarPopUpConquista = (pasta, arquivo, titulo) => {
-    // 1. Validação: Se não tiver pasta ou arquivo, para aqui mesmo
-    if (!pasta || !arquivo || pasta === "undefined" || arquivo === "undefined") {
-        console.error("Erro: Dados de conquista inválidos:", pasta, arquivo);
-        return;
-    }
+    if (!pasta || !arquivo || pasta === "undefined" || arquivo === "undefined") return;
 
     const popup = getEl('conquista-popup');
     const imgTag = getEl('conquista-img');
     const tituloTag = getEl('conquista-nome-item');
 
-    // 2. Caminho Absoluto (o "/" no início é vital na Vercel)
+    // CORREÇÃO: Caminho direto em /assistente/
     const caminhoFinal = `/assistente/${pasta}/${arquivo}.png`;
     
-    imgTag.src = caminhoFinal;
-    
-    // 3. Fallback: se a imagem não existir, não mostra erro 404 vazio
-    imgTag.onerror = () => { 
-        console.warn("Imagem não encontrada no caminho:", caminhoFinal);
-        imgTag.src = '/assistente/orbits/Orbit.png'; 
-    };
+    if (imgTag) {
+        imgTag.src = caminhoFinal;
+        imgTag.onerror = () => { imgTag.src = '/assistente/orbits/Orbit.png'; };
+    }
 
-    tituloTag.innerText = titulo;
+    if (tituloTag) tituloTag.innerText = titulo;
     popup.classList.add('active');
 
     if (window.OrbitAI) {
         window.OrbitAI.falar(`Incrível! Você desbloqueou: ${titulo}!`);
     }
-}
+};
+
+window.fecharConquista = () => {
+    getEl('conquista-popup').classList.remove('active');
+};
