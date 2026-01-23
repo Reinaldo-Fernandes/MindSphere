@@ -142,22 +142,17 @@ onAuthStateChanged(auth, async (user) => {
 /* --- 4. FUNÇÕES ADM --- */
 function aplicarEsteticaGlobalADM() {
     document.body.classList.add('admin-mode');
+    // Busca a imagem do Orbit na tela
     const mainOrbit = document.querySelector('.orbit-character img') || getEl('orbit-img');
-    if (mainOrbit) mainOrbit.src = "./assistente/orbits/adm.png";
-    ativarModoAdmin(); 
-}
-
-function aplicarEsteticaGlobalADM() {
-    document.body.classList.add('admin-mode');
-    const mainOrbit = document.querySelector('.orbit-character img') || getEl('orbit-img');
+    
     if (mainOrbit) {
-        // Mudamos de "./" para "/" para ser absoluto
+        // Usando caminho absoluto sem o "."
         mainOrbit.src = "/assistente/orbits/adm.png";
         
-        // Fallback caso a imagem de ADM também não seja encontrada
+        // Se a imagem de ADM falhar, tenta a padrão
         mainOrbit.onerror = () => {
-            console.warn("Imagem de ADM não encontrada, usando padrão.");
-            mainOrbit.src = "/assistente/orbits/Orbit.png"; 
+            console.warn("Imagem de ADM não encontrada em /assistente/orbits/adm.png");
+            mainOrbit.src = "/assistente/orbits/Orbit.png";
         };
     }
     ativarModoAdmin(); 
