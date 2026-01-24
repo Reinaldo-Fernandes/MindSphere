@@ -143,7 +143,7 @@ onAuthStateChanged(auth, async (user) => {
 function aplicarEsteticaGlobalADM() {
     document.body.classList.add('admin-mode');
     const mainOrbit = document.querySelector('.orbit-character img') || getEl('orbit-img');
-    if (mainOrbit) mainOrbit.src = "./assistente/orbits/adm.png";
+    if (mainOrbit) mainOrbit.src = "./assistente/orbits/orbits.png";
     ativarModoAdmin(); 
 }
 
