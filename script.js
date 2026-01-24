@@ -36,13 +36,13 @@ function setOrbitState(state) {
     if (!orbitImg) return;
    const paths = {
     // Note o 'O' maiúsculo em Orbit e Goblin
-    'default': './assistente/orbits/error.png', 
-    'foco': './assistente/orbits/foco.png',
-    'goblin': './assistente/orbits/Goblin.png',
-    'dopamina': './assistente/orbits/dopamina.png',
-    'serenidade': './assistente/orbits/serenidade.png',
-    'autonomia': './assistente/orbits/autonomia.png',
-    'adm': './assistente/orbits/adm.png'
+    'default': './components/orbits/error.png', 
+    'foco': './components/orbits/foco.png',
+    'goblin': './components/orbits/Goblin.png',
+    'dopamina': './components/orbits/dopamina.png',
+    'serenidade': './components/orbits/serenidade.png',
+    'autonomia': './components/orbits/autonomia.png',
+    'adm': './components/orbits/adm.png'
 };
     orbitImg.src = paths[state.toLowerCase()] || paths['default'];
 }

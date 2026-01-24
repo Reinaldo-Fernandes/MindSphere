@@ -1,5 +1,5 @@
 /* --- 0. CONFIGURAÇÃO --- */
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { 
     getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, 
     onAuthStateChanged, sendPasswordResetEmail 
@@ -18,9 +18,14 @@ const firebaseConfig = {
     measurementId: "G-MLKWN431SD"
 };
 
-const app = initializeApp(firebaseConfig);
+// Inicialização Única e Segura
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+
+// Global para facilitar acesso rápido em outros scripts se necessário
+window.auth = auth;
+window.db = db;
 
 window.userDB = { xp: 0, focos: 0, goblins: 0, conquistas: [], nome: "Viajante" };
 
@@ -143,7 +148,7 @@ onAuthStateChanged(auth, async (user) => {
 function aplicarEsteticaGlobalADM() {
     document.body.classList.add('admin-mode');
     const mainOrbit = document.querySelector('.orbit-character img') || getEl('orbit-img');
-    if (mainOrbit) mainOrbit.src = "./assistente/orbits/adm.png";
+    if (mainOrbit) mainOrbit.src = "./components/orbits/adm.png";
     ativarModoAdmin(); 
 }
 
