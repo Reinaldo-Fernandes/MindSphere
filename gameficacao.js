@@ -1,148 +1,130 @@
-/* --- gameficacao.js --- */
 import { auth, db } from './firebase.js'; 
-import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { doc, onSnapshot, updateDoc, arrayUnion, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
-/* --- 1. CONFIGURAÇÕES GLOBAIS --- */
-// Removida a barra inicial para evitar conflito de diretório raiz no Live Server
-const BASE_PATH = 'components/';
-
-const IMAGENS_CONFIG = {
-    comuns: {
-        aleatorios: { folder: "aleatorios", total: 30 },
-        matutino:   { folder: "matutino",   total: 12 },
-        vespertino: { folder: "vespertino", total: 17 },
-        noturno:    { folder: "noturno",    total: 16 },
-        madrugada:  { folder: "madrugada",  total: 16 }
-    },
-    especiais: {
-        estacoes:   { folder: "estacoes",   total: 4 },
-        meses:      { folder: "meses",      total: 12 },
-        hiperfoco:  { folder: "hiperfoco",  total: 17 },
-        reigoblin:  { folder: "reigoblin",  total: 17 }
-    }
-};
 
 const getEl = (id) => document.getElementById(id);
 
-/* --- 2. GESTÃO DE INTERFACE (UI) --- */
+/* --- 1. CONFIGURAÇÕES DE CAMINHO --- */
+// AJUSTE AQUI: Se não funcionar com ./assistente, tente apenas ./gameficacao
+const FOLDER_BASE = "./assistente/gameficacao"; 
+
+const IMAGENS_CONFIG = {
+    aleatorios: { folder: `${FOLDER_BASE}/aleatorios`, total: 30 },
+    matutino:   { folder: `${FOLDER_BASE}/matutino`,   total: 12 },
+    vespertino: { folder: `${FOLDER_BASE}/vespertino`, total: 17 },
+    noturno:    { folder: `${FOLDER_BASE}/noturno`,    total: 16 },
+    madrugada:  { folder: `${FOLDER_BASE}/madrugada`,  total: 16 },
+    reigoblin:  { folder: `${FOLDER_BASE}/reigoblin`,  total: 17 },
+    hiperfoco:  { folder: `${FOLDER_BASE}/hiperfoco`,  total: 17 },
+    meses:      { folder: `${FOLDER_BASE}/meses`,      total: 12 }
+};
+
+/* --- 2. LÓGICA DE FIREBASE (Ação) --- */
+
+async function processarEGravarRecompensa(cat) {
+    const config = IMAGENS_CONFIG[cat.toLowerCase()];
+    if (!config || !auth.currentUser) return;
+
+    const sorteio = Math.floor(Math.random() * config.total) + 1;
+    const novoID = `${cat.toLowerCase()}_${sorteio}`;
+    const caminhoFinal = `${config.folder}/${sorteio}.png`;
+
+    // Modal
+    const modal = getEl('conquista-modal');
+    const img = getEl('conquista-img');
+    if (modal && img) {
+        img.src = caminhoFinal;
+        modal.style.display = 'flex';
+    }
+
+    // Salva no Banco
+    await updateDoc(doc(db, "users", auth.currentUser.uid), {
+        conquistas: arrayUnion(novoID)
+    });
+}
+
+// Chame esta função window.registrarProgressoGoblin() no seu botão de completar tarefa
+window.registrarProgressoGoblin = async () => {
+    if (!auth.currentUser) return;
+    console.log("Registrando progresso..."); // Verifique se isso aparece no console ao clicar
+    
+    const userRef = doc(db, "users", auth.currentUser.uid);
+    const u = window.userDB || { subtarefas_progresso: 0, goblins: 0 };
+    
+    let novoSub = (u.subtarefas_progresso || 0) + 1;
+    let updates = { xp: increment(50) };
+
+    if (novoSub >= 2) {
+        updates.subtarefas_progresso = 0;
+        updates.goblins = increment(1);
+    } else {
+        updates.subtarefas_progresso = novoSub;
+    }
+
+    await updateDoc(userRef, updates);
+};
+
+/* --- 3. INTERFACE (Visual) --- */
 
 const atualizarInterfacePerfil = () => {
     const u = window.userDB;
     if (!u) return;
 
-    if (getEl('user-display-name')) getEl('user-display-name').innerText = u.nome || "Viajante";
-    
-    if (getEl('user-title')) {
-        const nivel = Math.floor((u.xp || 0) / 1000) + 1;
-        getEl('user-title').innerText = u.tipo === 'adm' ? "MASTER ADMIN" : `Viajante Nvl ${nivel}`;
-    }
+    // Atualiza Nível e XP
+    const xp = u.xp || 0;
+    const nivel = Math.floor(xp / 1000) + 1;
+    if (getEl('user-level-badge')) getEl('user-level-badge').innerText = `Nível ${nivel}`;
+    if (getEl('xp-text')) getEl('xp-text').innerText = `${xp % 1000} / 1000 XP`;
+    if (getEl('xp-bar-fill')) getEl('xp-bar-fill').style.width = `${(xp % 1000) / 10}%`;
 
+    // Mural de Goblins
+    const mural = getEl('goblin-history-list');
+    if (mural) {
+        mural.innerHTML = (u.goblins || 0) > 0 
+            ? `<div class="history-item" style="color:#ff4d4d; font-weight:bold; font-size:1.2rem; text-align:center;">👹 ${u.goblins} Goblins Derrotados!</div>`
+            : `<p class="empty-msg">Nenhum goblin avistado ainda.</p>`;
+    }
     renderizarGaleria();
-    renderizarHistoricoGoblin();
 };
 
 const renderizarGaleria = () => {
-    const container = document.getElementById('trophy-shelf-content');
+    const container = getEl('trophy-shelf-content');
     if (!container || !window.userDB?.conquistas) return;
 
     container.innerHTML = window.userDB.conquistas.map(id => {
-        if (!id) return '';
-
-        let pasta = "aleatorios";
-        let fileName = "";
-        const idLower = id.toLowerCase();
-
-        // 1. LÓGICA DE PASTAS
-        if (idLower.includes("goblin")) pasta = "reigoblin";
-        else if (idLower.includes("matutino")) pasta = "matutino";
-        else if (idLower.includes("vespertino")) pasta = "vespertino";
-        else if (idLower.includes("noturno")) pasta = "noturno";
-        else if (idLower.includes("madrugada")) pasta = "madrugada";
-        else if (idLower.includes("hiperfoco")) pasta = "hiperfoco";
-        
-        // 2. DEFINIR SE É NÚMERO OU NOME (ESTAÇÕES)
-        const nomesFixos = ["primavera", "verao", "outono", "inverno", "estacao"];
-        const ehNomeFixo = nomesFixos.some(n => idLower.includes(n));
-
-        if (ehNomeFixo) {
-            pasta = "estacoes";
-            fileName = id; // Ex: "Inverno"
-        } else {
-            // SEGREDO: Se não tiver número no ID (ex: "ReiGoblin"), ele força o "1"
-            fileName = id.includes('_') ? id.split('_').pop() : "1";
-        }
-
-        const url = `${BASE_PATH}${pasta}/${fileName}.png`;
+        const parts = id.split('_');
+        if (parts.length < 2) return '';
+        const cat = parts[0];
+        const val = parts[1];
+        const config = IMAGENS_CONFIG[cat];
+        if (!config) return '';
 
         return `
             <div class="trophy-item unlocked">
-                <img src="${url}" 
+                <img src="${config.folder}/${val}.png" 
                      alt="${id}"
-                     onerror="this.onerror=null; this.src='${BASE_PATH}aleatorios/1.png';">
+                     onerror="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/512/610/610333.png';">
             </div>
         `;
     }).join('');
 };
 
-const renderizarHistoricoGoblin = () => {
-    const mural = getEl('goblin-history-list') || getEl('goblin-history');
-    if (!mural) return;
-    const total = window.userDB?.goblins || 0;
-    mural.innerHTML = total > 0 ? `👹 ${total} Goblins derrotados!` : "Nenhum goblin avistado.";
-};
+/* --- 4. INICIALIZAÇÃO --- */
 
-/* --- 3. LÓGICA DE RECOMPENSAS --- */
-let statusExibindo = false;
-
-window.processarRecompensa = (categoria) => {
-    if (statusExibindo) return;
-    statusExibindo = true;
-
-    const config = IMAGENS_CONFIG.comuns[categoria] || IMAGENS_CONFIG.especiais[categoria];
-    if (!config) {
-        statusExibindo = false;
-        return;
-    }
-
-    // CORREÇÃO: Definindo as variáveis que faltavam
-    const sorteio = Math.floor(Math.random() * config.total) + 1;
-    const pasta = config.folder;
-    const urlFinal = `${BASE_PATH}${pasta}/${sorteio}.png`;
-
-    const modal = getEl('conquista-modal');
-    const imgElement = getEl('conquista-img');
-
-    if (modal && imgElement) {
-        imgElement.src = urlFinal;
-        modal.style.display = 'flex';
-        if (getEl('relic-step')) getEl('relic-step').style.display = 'block';
-        if (getEl('orbit-congrats-step')) getEl('orbit-congrats-step').style.display = 'none';
-    }
-
-    setTimeout(() => { statusExibindo = false; }, 3000);
-};
-
-/* --- 4. SINCRONIZAÇÃO FIREBASE --- */
 onAuthStateChanged(auth, (user) => {
     if (user) {
         onSnapshot(doc(db, "users", user.uid), (snap) => {
             if (snap.exists()) {
-                window.userDB = snap.data();
+                const data = snap.data();
+                
+                // Lógica Rei Goblin: Se o número de goblins aumentou e é múltiplo de 10
+                if (window.userDB && data.goblins > (window.userDB.goblins || 0)) {
+                    if (data.goblins % 10 === 0) processarEGravarRecompensa('reigoblin');
+                }
+
+                window.userDB = data;
                 atualizarInterfacePerfil();
             }
         });
-    } else {
-        window.userDB = null;
     }
 });
-
-/* --- 5. EVENTOS GLOBAIS --- */
-window.proximoPassoConquista = () => {
-    if (getEl('relic-step')) getEl('relic-step').style.display = 'none';
-    if (getEl('orbit-congrats-step')) getEl('orbit-congrats-step').style.display = 'flex';
-};
-
-window.fecharConquista = () => {
-    if (getEl('conquista-modal')) getEl('conquista-modal').style.display = 'none';
-};
