@@ -1,64 +1,51 @@
-/* --- 0. IMPORTS (Devem ficar sempre no topo) --- */
-import { auth, db } from './firebase.js'; // Certifique-se que seu arquivo de config chama firebase.js
+/* --- 0. IMPORTS --- */
+import { auth, db } from './firebase.js';
 import { 
     collection, addDoc, query, orderBy, onSnapshot, doc, getDoc 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { iniciarObservadorGamificacao } from "./gameficacao.js";
 
-// No seu observador de auth:
-auth.onAuthStateChanged(user => {
-    if (user) {
-        iniciarObservadorGamificacao(user.uid);
-    }
-});
+/* --- 1. ESTADOS GLOBAIS (Declarar apenas UMA vez) --- */
+let timer = null;
+let totalTime = 1500; 
+let timeLeft = totalTime; 
+let lastBreakTime = 0;
+const circumference = 212 * 2 * Math.PI;
+window.getEl = (id) => document.getElementById(id);
 
-/* --- 1. SELETORES GLOBAIS --- */
-function getEl(id) {
-    return document.getElementById(id);
-}
+/* --- 2. SELETORES --- */
+function getEl(id) { return document.getElementById(id); }
 const display = getEl('timer-display');
 const circle = document.querySelector('.progress-ring__circle');
-const circumference = 212 * 2 * Math.PI;
-
 const taskInput = getEl('task-input');
 const subtasksList = getEl('subtasks-list');
 const startBtn = getEl('start-btn');
 
+/* --- 3. OBSERVADOR DE LOGIN --- */
+auth.onAuthStateChanged(user => {
+    const opt1h = getEl('opt-1h');
+    const opt2h = getEl('opt-2h');
+    
+    if (user) {
+        iniciarObservadorGamificacao(user.uid);
+        if(opt1h) { opt1h.disabled = false; opt1h.innerText = "1 Hora (Premium)"; }
+        if(opt2h) { opt2h.disabled = false; opt2h.innerText = "2 Horas (Premium)"; }
+    } else {
+        if(opt1h) { opt1h.disabled = true; opt1h.innerText = "1 Hora (Bloqueado 🔒)"; }
+        if(opt2h) { opt2h.disabled = true; opt2h.innerText = "2 Horas (Bloqueado 🔒)"; }
+    }
+});
 
-/* --- 2. ESTADOS DO TIMER --- */
-let timer = null;
-const totalTime = 1500; 
-let timeLeft = totalTime; 
-
-/* --- 3. FUNÇÕES DE INTERFACE (ORBIT) --- */
-
-function orbitTalk(text) {
-    const speech = getEl('orbit-speech');
-    if (!speech) return;
-    speech.innerText = text;
-    speech.classList.add('active');
-    setTimeout(() => speech.classList.remove('active'), 5000);
-}
-
-function setOrbitState(state) {
-    const orbitImg = getEl('orbit-img');
-    if (!orbitImg) return;
-   const paths = {
-    // Note o 'O' maiúsculo em Orbit e Goblin
-    'default': './components/orbits/error.png', 
-    'foco': './components/orbits/foco.png',
-    'goblin': './components/orbits/Goblin.png',
-    'dopamina': './components/orbits/dopamina.png',
-    'serenidade': './components/orbits/serenidade.png',
-    'autonomia': './components/orbits/autonomia.png',
-    'adm': './components/orbits/adm.png'
-};
-    orbitImg.src = paths[state.toLowerCase()] || paths['default'];
-}
-
+/* --- FUNÇÕES DE INTERFACE (Lentes) --- */
 window.setMode = (mode) => {
-    const colors = { dopamina: '#ff2da4', serenidade: '#5ef3ff', autonomia: '#adff2f' };
+    const colors = { 
+        dopamina: '#ff2da4', 
+        serenidade: '#5ef3ff', 
+        autonomia: '#adff2f',
+        goblin: '#ff4d4d' // Cor para o modo goblin
+    };
+
     if (colors[mode]) {
         document.documentElement.style.setProperty('--accent-cyan', colors[mode]);
         setOrbitState(mode);
@@ -75,17 +62,26 @@ function updateTimer() {
     }
 
     timeLeft--;
+    const elapsed = totalTime - timeLeft; 
+    
+    // Jardim cresce a cada 5 min (300s)
+    if (elapsed > 0 && elapsed % 300 === 0) {
+        criarItemJardim();
+        orbitTalk("O jardim está se expandindo... 🌿");
+    }
+
+    // Pausa sugerida a cada 30 min (1800s)
+    if (elapsed > 0 && elapsed % 1800 === 0) {
+        pausarParaDescanso();
+    }
+
+    atualizarDisplayVisual();
+}
+
+function atualizarDisplayVisual() {
     const min = Math.floor(timeLeft / 60);
     const sec = timeLeft % 60;
-    
     if (display) display.innerText = `${min}:${sec < 10 ? '0' + sec : sec}`;
-
-    // Nasce item no jardim a cada 5 minutos
-    const marcasDeTempo = [1200, 900, 600, 300];
-    if (marcasDeTempo.includes(timeLeft) && sec === 0) {
-        criarItemJardim();
-        orbitTalk("O jardim está crescendo... 🌿");
-    }
 
     if (circle) {
         const offset = circumference - (timeLeft / totalTime) * circumference;
@@ -93,95 +89,126 @@ function updateTimer() {
     }
 }
 
+function pausarParaDescanso() {
+    clearInterval(timer);
+    timer = null;
+    if (startBtn) startBtn.innerText = "RETOMAR";
+    setOrbitState('default');
+    orbitTalk("Hora de esticar as costas! Pausa de 5 min recomendada. ☕");
+    getEl('audio-complete')?.play();
+}
+
 function finalizarCicloFoco() {
     clearInterval(timer);
     timer = null;
     timeLeft = totalTime;
-    display.innerText = "25:00";
-    circle.style.strokeDashoffset = circumference;
-    startBtn.innerText = "REINICIAR";
+    atualizarDisplayVisual();
+    if (startBtn) startBtn.innerText = "REINICIAR";
     getEl('audio-complete')?.play();
     
-    // Chama a função global que estará no gameficacao.js
     if (window.adicionarProgresso) {
         window.adicionarProgresso('foco', 100);
     }
-    
     setOrbitState('default');
 }
 
-/* --- 5. JARDIM (SISTEMA DE EMOJIS) --- */
+/* --- 5. INTERFACE & ORBIT --- */
 
-function criarItemJardim() {
-    const container = document.querySelector('.sphere-wrapper');
-    const gardenSelect = document.getElementById('garden-style');
-    if (!container) return;
-
-    const style = gardenSelect ? gardenSelect.value : 'plantas';
-    const emojis = {
-        plantas: ['🌿', '🌸', '🍃', '🍄', '🍀'],
-        espaco: ['✨', '⭐', '☄️', '🌌'],
-        notas: ['🎵', '🎶', '🎼', '🎹'],
-        comida: ['☕', '🍪', '🥐', '🥯']
-    };
-
-    const emojiList = emojis[style] || emojis['plantas'];
-    const emoji = emojiList[Math.floor(Math.random() * emojiList.length)];
-    
-    const item = document.createElement('div');
-    item.className = 'garden-item';
-    item.innerText = emoji;
-
-    const dist = 240 + Math.random() * 30;
-    const dur = 25 + Math.random() * 5; 
-
-    item.style.setProperty('--orbit-distance', `${dist}px`);
-    item.style.setProperty('--orbit-duration', `${dur}s`);
-    item.style.setProperty('--start-angle', `${Math.random() * 360}deg`);
-    item.style.animation = `orbitContinuous var(--orbit-duration) linear infinite`;
-
-    container.appendChild(item);
+function orbitTalk(text) {
+    const speech = getEl('orbit-speech');
+    if (!speech) return;
+    speech.innerText = text;
+    speech.classList.add('active');
+    setTimeout(() => speech.classList.remove('active'), 5000);
 }
 
-/* --- 6. MODO GOBLIN (SUBTAREFAS) --- */
+function setOrbitState(state) {
+    const orbitImg = getEl('orbit-img');
+    if (!orbitImg) return;
+    const paths = {
+        'default': './components/orbits/error.png', 
+        'foco': './components/orbits/foco.png',
+        'goblin': './components/orbits/Goblin.png',
+        'dopamina': './components/orbits/dopamina.png',
+        'serenidade': './components/orbits/serenidade.png',
+        'autonomia': './components/orbits/autonomia.png',
+        'adm': './components/orbits/adm.png'
+    };
+    orbitImg.src = paths[state.toLowerCase()] || paths['default'];
+}
 
-getEl('break-task-btn').onclick = () => {
-    const text = taskInput.value.trim();
-    if (!text) return;
-    
-    // Divide em duas partes simples (Pode ser personalizado)
-    const parts = [`Começar: ${text}`, `Finalizar: ${text}`];
-    
-    parts.forEach(t => {
-        const div = document.createElement('div');
-        div.className = 'subtask-item';
-        div.innerHTML = `<input type="checkbox"> <span>${t}</span>`;
-        
-        div.querySelector('input').onchange = (e) => {
-            if (e.target.checked) {
-                // CAPTURA O TEXTO: Importante para o histórico
-                const textoDaTarefa = div.querySelector('span').innerText;
+/* --- 6. BOTÕES PRINCIPAIS --- */
 
-                // ENVIA PARA A GAMIFICAÇÃO: 
-                // Passamos o tipo 'goblin', o XP (25) e o TEXTO da tarefa
-                if (window.adicionarProgresso) {
-                    window.adicionarProgresso('goblin', 25, textoDaTarefa);
-                }
+if (startBtn) {
+    startBtn.onclick = () => {
+        if (document.body.classList.contains('onboarding-active')) {
+            document.body.classList.remove('onboarding-active');
+            getEl('mixer-anchor')?.appendChild(startBtn);
+        }
 
-                // Efeito visual de conclusão
-                div.style.opacity = "0.5";
-                div.style.textDecoration = "line-through";
+        if (!timer) {
+            getEl('audio-start')?.play().catch(() => {});
+            
+            // Configura o tempo se for um início novo
+            if (timeLeft === totalTime || timeLeft <= 0) {
+                const durationSelect = getEl('timer-duration');
+                totalTime = durationSelect ? parseInt(durationSelect.value) : 1500;
+                timeLeft = totalTime;
                 
-                setTimeout(() => div.remove(), 800);
+                // Limpa o jardim
+                const container = document.querySelector('.sphere-wrapper');
+                if (container) container.querySelectorAll('.garden-item').forEach(el => el.remove());
             }
-        };
-        subtasksList.appendChild(div);
-    });
-    
-    taskInput.value = "";
-    setOrbitState('goblin');
-    orbitTalk("Tarefas divididas! Um passo de cada vez. 👹");
-};
+
+            timer = setInterval(updateTimer, 1000);
+            startBtn.innerText = "PAUSAR";
+            setOrbitState('foco');
+        } else {
+            clearInterval(timer);
+            timer = null;
+            startBtn.innerText = "RETOMAR";
+            setOrbitState('default');
+        }
+    };
+}
+
+/* --- MODO GOBLIN (SUBTAREFAS / SPLIT) --- */
+const breakBtn = getEl('break-task-btn');
+if (breakBtn) {
+    breakBtn.onclick = () => {
+        const text = taskInput.value.trim();
+        if (!text) {
+            orbitTalk("Escreva uma tarefa para eu dividir! 👹");
+            return;
+        }
+        
+        // Divide a tarefa em subtarefas simples
+        const parts = [`Preparar: ${text}`, `Executar: ${text}`, `Finalizar: ${text}`];
+        
+        parts.forEach(t => {
+            const div = document.createElement('div');
+            div.className = 'subtask-item';
+            div.innerHTML = `<input type="checkbox"> <span>${t}</span>`;
+            
+            div.querySelector('input').onchange = (e) => {
+                if (e.target.checked) {
+                    const textoDaTarefa = div.querySelector('span').innerText;
+                    // Chama a gamificação
+                    if (window.adicionarProgresso) {
+                        window.adicionarProgresso('goblin', 25, textoDaTarefa);
+                    }
+                    div.style.opacity = "0.5";
+                    div.style.textDecoration = "line-through";
+                    setTimeout(() => div.remove(), 800);
+                }
+            };
+            subtasksList.appendChild(div);
+        });
+        
+        taskInput.value = "";
+        setMode('goblin'); // Ativa a lente goblin automaticamente
+    };
+}
 
 /* --- 7. CONTROLES DE ÁUDIO --- */
 
@@ -197,6 +224,8 @@ setupAudio('fire-vol', 'audio-fire');
 
 /* --- 8. INICIALIZAÇÃO E BOTÕES PRINCIPAIS --- */
 
+/* --- 8. INICIALIZAÇÃO E BOTÕES PRINCIPAIS --- */
+
 if (startBtn) {
     startBtn.onclick = () => {
         if (document.body.classList.contains('onboarding-active')) {
@@ -207,12 +236,18 @@ if (startBtn) {
         if (!timer) {
             getEl('audio-start')?.play().catch(() => {});
             
-            if (timeLeft === totalTime) {
+            // Se o timer estiver no início, pega o valor do seletor
+            if (timeLeft === totalTime || timeLeft <= 0) {
+                const durationSelect = getEl('timer-duration');
+                // Se o seletor existir, usa o valor dele, senão usa 1500
+                totalTime = durationSelect ? parseInt(durationSelect.value) : 1500;
+                timeLeft = totalTime;
+                
+                // Limpa o jardim ao começar nova sessão longa
                 const container = document.querySelector('.sphere-wrapper');
                 if (container) {
                     container.querySelectorAll('.garden-item').forEach(el => el.remove());
                 }
-                criarItemJardim();
             }
 
             timer = setInterval(updateTimer, 1000);
@@ -226,34 +261,6 @@ if (startBtn) {
         }
     };
 }
-
-getEl('panic-btn').onclick = () => {
-    clearInterval(timer);
-    timer = null;
-    timeLeft = totalTime;
-    if (display) display.innerText = "25:00";
-    if (circle) circle.style.strokeDashoffset = circumference;
-
-    const container = document.querySelector('.sphere-wrapper');
-    if (container) {
-        container.querySelectorAll('.garden-item').forEach(el => el.remove());
-    }
-
-    setOrbitState('default');
-    if (startBtn) startBtn.innerText = "INICIAR";
-    orbitTalk("Tudo limpo! Vamos recomeçar? 🌿");
-};
-
-// Configuração inicial do círculo
-if (circle) {
-    circle.style.strokeDasharray = `${circumference} ${circumference}`;
-    circle.style.strokeDashoffset = circumference;
-}
-
-// Fechar modais genéricos
-document.querySelectorAll('.close-modal').forEach(b => {
-    b.onclick = () => document.querySelectorAll('.modal-vitral').forEach(m => m.classList.remove('active'));
-});
 
 /* --- 9. ADM --- */
 // Adicione esta função ao final do seu script.js
@@ -457,3 +464,35 @@ if (clearTasksBtn) {
         }
     };
 }
+
+// Faz o display atualizar assim que o usuário muda a opção no seletor
+
+const durationSelect = getEl('timer-duration');
+if (durationSelect) {
+    durationSelect.onchange = (e) => {
+        if (!timer) { 
+            totalTime = parseInt(e.target.value);
+            timeLeft = totalTime;
+            // ESSA LINHA ABAIXO É A CHAVE:
+            atualizarDisplayVisual(); 
+            orbitTalk(`Tempo ajustado para ${totalTime/60} minutos.`);
+        } else {
+            orbitTalk("Pare o timer antes de mudar o tempo!");
+            // Volta o seletor para o valor anterior se o timer estiver rodando
+            durationSelect.value = totalTime.toString();
+        }
+    };
+}
+
+// Fechar modais ao clicar no X ou no botão de fechar
+document.querySelectorAll('.close-modal, .btn-close').forEach(button => {
+    button.onclick = () => {
+        // Isso fecha qualquer modal que tenha a classe 'active'
+        document.querySelectorAll('.modal-vitral, .modal').forEach(modal => {
+            modal.classList.remove('active');
+            // Se você usa display: flex/none em vez de classes, use:
+            if(modal.id === 'feedback-modal') modal.style.display = 'none';
+        });
+    };
+});
+
