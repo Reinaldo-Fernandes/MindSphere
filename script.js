@@ -4,9 +4,19 @@ import {
     collection, addDoc, query, orderBy, onSnapshot, doc, getDoc 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { iniciarObservadorGamificacao } from "./gameficacao.js";
+
+// No seu observador de auth:
+auth.onAuthStateChanged(user => {
+    if (user) {
+        iniciarObservadorGamificacao(user.uid);
+    }
+});
 
 /* --- 1. SELETORES GLOBAIS --- */
-const getEl = (id) => document.getElementById(id);
+function getEl(id) {
+    return document.getElementById(id);
+}
 const display = getEl('timer-display');
 const circle = document.querySelector('.progress-ring__circle');
 const circumference = 212 * 2 * Math.PI;

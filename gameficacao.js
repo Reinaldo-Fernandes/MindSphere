@@ -1,130 +1,130 @@
-import { auth, db } from './firebase.js'; 
-import { doc, onSnapshot, updateDoc, arrayUnion, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { db, auth } from "./firebase.js";
+import { 
+    doc, updateDoc, arrayUnion, increment, onSnapshot 
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const getEl = (id) => document.getElementById(id);
 
-/* --- 1. CONFIGURAÇÕES DE CAMINHO --- */
-// AJUSTE AQUI: Se não funcionar com ./assistente, tente apenas ./gameficacao
-const FOLDER_BASE = "./assistente/gameficacao"; 
-
-const IMAGENS_CONFIG = {
-    aleatorios: { folder: `${FOLDER_BASE}/aleatorios`, total: 30 },
-    matutino:   { folder: `${FOLDER_BASE}/matutino`,   total: 12 },
-    vespertino: { folder: `${FOLDER_BASE}/vespertino`, total: 17 },
-    noturno:    { folder: `${FOLDER_BASE}/noturno`,    total: 16 },
-    madrugada:  { folder: `${FOLDER_BASE}/madrugada`,  total: 16 },
-    reigoblin:  { folder: `${FOLDER_BASE}/reigoblin`,  total: 17 },
-    hiperfoco:  { folder: `${FOLDER_BASE}/hiperfoco`,  total: 17 },
-    meses:      { folder: `${FOLDER_BASE}/meses`,      total: 12 }
+const RELIC_CONFIG = {
+    aleatorios: 30, estacoes: 4, hiperfoco: 17, madrugada: 16, 
+    matutino: 12, meses: 12, noturno: 16, reigoblin: 17, vespertino: 17 
 };
 
-/* --- 2. LÓGICA DE FIREBASE (Ação) --- */
-
-async function processarEGravarRecompensa(cat) {
-    const config = IMAGENS_CONFIG[cat.toLowerCase()];
-    if (!config || !auth.currentUser) return;
-
-    const sorteio = Math.floor(Math.random() * config.total) + 1;
-    const novoID = `${cat.toLowerCase()}_${sorteio}`;
-    const caminhoFinal = `${config.folder}/${sorteio}.png`;
-
-    // Modal
-    const modal = getEl('conquista-modal');
-    const img = getEl('conquista-img');
-    if (modal && img) {
-        img.src = caminhoFinal;
-        modal.style.display = 'flex';
-    }
-
-    // Salva no Banco
-    await updateDoc(doc(db, "users", auth.currentUser.uid), {
-        conquistas: arrayUnion(novoID)
+export function iniciarObservadorGamificacao(uid) {
+    if (!uid) return;
+    onSnapshot(doc(db, "users", uid), (docSnap) => {
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            window.userDB = data; 
+            atualizarInterface(data);
+        }
     });
 }
 
-// Chame esta função window.registrarProgressoGoblin() no seu botão de completar tarefa
-window.registrarProgressoGoblin = async () => {
-    if (!auth.currentUser) return;
-    console.log("Registrando progresso..."); // Verifique se isso aparece no console ao clicar
-    
-    const userRef = doc(db, "users", auth.currentUser.uid);
-    const u = window.userDB || { subtarefas_progresso: 0, goblins: 0 };
-    
-    let novoSub = (u.subtarefas_progresso || 0) + 1;
-    let updates = { xp: increment(50) };
+function atualizarInterface(data) {
+    const xpTotal = data.xp || 0;
+    const nivel = Math.floor(xpTotal / 1000) + 1;
+    const xpNoNivel = xpTotal % 1000;
+    const porcentagem = (xpNoNivel / 1000) * 100;
 
-    if (novoSub >= 2) {
-        updates.subtarefas_progresso = 0;
-        updates.goblins = increment(1);
-    } else {
-        updates.subtarefas_progresso = novoSub;
-    }
-
-    await updateDoc(userRef, updates);
-};
-
-/* --- 3. INTERFACE (Visual) --- */
-
-const atualizarInterfacePerfil = () => {
-    const u = window.userDB;
-    if (!u) return;
-
-    // Atualiza Nível e XP
-    const xp = u.xp || 0;
-    const nivel = Math.floor(xp / 1000) + 1;
     if (getEl('user-level-badge')) getEl('user-level-badge').innerText = `Nível ${nivel}`;
-    if (getEl('xp-text')) getEl('xp-text').innerText = `${xp % 1000} / 1000 XP`;
-    if (getEl('xp-bar-fill')) getEl('xp-bar-fill').style.width = `${(xp % 1000) / 10}%`;
+    if (getEl('xp-text')) getEl('xp-text').innerText = `${xpNoNivel}/1000 XP`;
+    const fill = getEl('xp-bar-fill');
+    if (fill) fill.style.width = `${porcentagem}%`;
 
-    // Mural de Goblins
-    const mural = getEl('goblin-history-list');
-    if (mural) {
-        mural.innerHTML = (u.goblins || 0) > 0 
-            ? `<div class="history-item" style="color:#ff4d4d; font-weight:bold; font-size:1.2rem; text-align:center;">👹 ${u.goblins} Goblins Derrotados!</div>`
-            : `<p class="empty-msg">Nenhum goblin avistado ainda.</p>`;
-    }
-    renderizarGaleria();
-};
-
-const renderizarGaleria = () => {
-    const container = getEl('trophy-shelf-content');
-    if (!container || !window.userDB?.conquistas) return;
-
-    container.innerHTML = window.userDB.conquistas.map(id => {
-        const parts = id.split('_');
-        if (parts.length < 2) return '';
-        const cat = parts[0];
-        const val = parts[1];
-        const config = IMAGENS_CONFIG[cat];
-        if (!config) return '';
-
-        return `
-            <div class="trophy-item unlocked">
-                <img src="${config.folder}/${val}.png" 
-                     alt="${id}"
-                     onerror="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/512/610/610333.png';">
+    const histList = getEl('goblin-history-list');
+    if (histList && data.historicoGoblin) {
+        histList.innerHTML = data.historicoGoblin.slice(-5).reverse().map(item => `
+            <div class="history-item">
+                <span style="color:var(--accent-pink)">👹</span>
+                <span>${item.tarefa}</span>
+                <small>${item.data}</small>
             </div>
-        `;
-    }).join('');
-};
+        `).join('');
+    }
 
-/* --- 4. INICIALIZAÇÃO --- */
-
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        onSnapshot(doc(db, "users", user.uid), (snap) => {
-            if (snap.exists()) {
-                const data = snap.data();
-                
-                // Lógica Rei Goblin: Se o número de goblins aumentou e é múltiplo de 10
-                if (window.userDB && data.goblins > (window.userDB.goblins || 0)) {
-                    if (data.goblins % 10 === 0) processarEGravarRecompensa('reigoblin');
-                }
-
-                window.userDB = data;
-                atualizarInterfacePerfil();
-            }
+    const shelf = getEl('trophy-shelf-content');
+    if (shelf && data.conquistas) {
+        shelf.innerHTML = ""; 
+        data.conquistas.forEach(id => {
+            if (!id || !id.includes('_')) return;
+            const [cat, num] = id.split('_');
+            const catClean = cat.toLowerCase().trim();
+            
+            const div = document.createElement('div');
+            div.className = 'trophy-item';
+            const img = document.createElement('img');
+            img.src = `./components/${catClean}/${num}.png`;
+            img.onerror = () => div.remove();
+            
+            div.appendChild(img);
+            shelf.appendChild(div);
         });
     }
-});
+}
+
+// ÚNICA DEFINIÇÃO DA FUNÇÃO
+function mostrarModalConquista(cat, num) {
+    const modal = getEl('conquista-modal');
+    const img = getEl('conquista-img');
+    if (modal && img) {
+        img.src = `./components/${cat.toLowerCase()}/${num}.png`;
+        modal.classList.add('active');
+        getEl('audio-complete')?.play().catch(()=>{});
+    }
+}
+
+window.adicionarProgresso = async (tipo, xpGanho, nomeTarefa = "") => {
+    const user = auth.currentUser;
+    if (!user || !window.userDB) return;
+
+    const userRef = doc(db, "users", user.uid);
+    const agora = new Date();
+    const hora = agora.getHours();
+    const conquistasAtuais = window.userDB.conquistas || [];
+
+    let categoria = 'aleatorios';
+    if (tipo === 'foco') categoria = 'hiperfoco';
+    else if (hora >= 0 && hora < 6) categoria = 'madrugada';
+    else if (hora >= 6 && hora < 12) categoria = 'matutino';
+    else if (hora >= 12 && hora < 18) categoria = 'vespertino';
+    else categoria = 'noturno';
+
+    categoria = categoria.toLowerCase();
+    const maxImg = RELIC_CONFIG[categoria] || 10;
+    let disponiveis = [];
+    
+    for (let i = 1; i <= maxImg; i++) {
+        const id = `${categoria}_${i}`;
+        if (!conquistasAtuais.includes(id)) disponiveis.push(i);
+    }
+
+    if (disponiveis.length === 0 && categoria !== 'aleatorios') {
+        categoria = 'aleatorios';
+        for (let i = 1; i <= RELIC_CONFIG.aleatorios; i++) {
+            if (!conquistasAtuais.includes(`aleatorios_${i}`)) disponiveis.push(i);
+        }
+    }
+
+    let idFinal = null, numSorteado = null;
+    if (disponiveis.length > 0) {
+        numSorteado = disponiveis[Math.floor(Math.random() * disponiveis.length)];
+        idFinal = `${categoria}_${numSorteado}`;
+    }
+
+    const up = { xp: increment(xpGanho) };
+    if (idFinal) up.conquistas = arrayUnion(idFinal);
+    if (tipo === 'goblin' && nomeTarefa) {
+        up.historicoGoblin = arrayUnion({
+            tarefa: nomeTarefa,
+            data: agora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})
+        });
+    }
+
+    try {
+        await updateDoc(userRef, up);
+        if (idFinal) mostrarModalConquista(categoria, numSorteado);
+    } catch (e) { console.error(e); }
+};
+
+window.fecharConquista = () => getEl('conquista-modal')?.classList.remove('active');

@@ -467,11 +467,48 @@ header {
     margin: 20px 0 10px; border-bottom: 1px solid var(--glass-border); padding-bottom: 5px;
 }
 
+/* --- GRADE DE TROFÉUS (ESTANTE) CORRIGIDA --- */
 .trophy-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); /* Responsivo */
-    gap: 12px;
-    padding: 10px 0;
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    gap: 15px;
+    padding: 15px;
+    justify-items: center;
+}
+
+.trophy-item {
+    width: 65px;
+    height: 65px;
+    background: var(--glass); /* Usa o mesmo fundo semi-transparente do sistema */
+    border: 2px solid var(--glass-border);
+    border-radius: 50%; /* TORNA CIRCULAR COMO O ORBIT */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    backdrop-filter: blur(10px);
+    overflow: hidden; /* Garante que a imagem não saia do círculo */
+}
+
+.trophy-item:hover {
+    transform: scale(1.15) translateY(-5px);
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 20px rgba(242, 94, 255, 0.4); /* Brilho neon ao redor do círculo */
+    background: rgba(242, 94, 255, 0.05);
+}
+
+.trophy-item img {
+    width: 80%; /* Reduzido um pouco para dar respiro dentro do círculo */
+    height: 80%;
+    object-fit: contain;
+    border-radius: 50%; /* Garante que a imagem também siga a curvatura se for quadrada */
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3));
+    transition: filter 0.3s ease;
+}
+
+.trophy-item:hover img {
+    filter: drop-shadow(0 0 10px var(--accent-cyan));
 }
 
 .trophy-slot {
@@ -657,12 +694,17 @@ header {
      font-size: 1.5rem;
 }
 
-@media (min-width: 769px) {
+@media (max-width: 768px) {
     .garden-item {
-        --orbit-distance: 230px; 
-        font-size: 2rem;
+        --orbit-distance: 130px !important; /* Aproxima os itens do centro no celular */
+        font-size: 1.2rem !important;
+    }
+    
+    #timer-display {
+        font-size: 4rem;
     }
 }
+
 .orbit-container {
     z-index: 6000 !important; 
 }
@@ -765,50 +807,60 @@ header {
 }
 
 .xp-bar-container {
-    width: 100%; height: 12px; background: rgba(255,255,255,0.1);
-    border-radius: 10px; overflow: hidden; margin: 8px 0;
-    border: 1px solid rgba(255,255,255,0.1);
+    width: 100%;
+    height: 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    border: 1px solid var(--glass-border);
+    overflow: hidden;
+    margin: 10px 0;
+    position: relative;
 }
 
 #xp-bar-fill {
-    height: 100%; background: linear-gradient(90deg, #ff0000, var(--accent-pink));
-    transition: width 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-pink), var(--accent-cyan));
+    box-shadow: 0 0 15px var(--accent-cyan);
+    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* --- GRADE DE TROFÉUS (ESTANTE) --- */
+/* Substitua ou adicione ao final do seu CSS */
+
 .trophy-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); /* Responsivo e organizado */
     gap: 15px;
     padding: 15px;
+    justify-items: center;
 }
 
 .trophy-item {
-    width: 60px;
-     height: 60px;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    border-radius: 50%;
+    width: 65px;
+    height: 65px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 80%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px; /* Estilo mais moderno que o círculo total */
     display: flex;
-     align-items: center; 
-     justify-content: center;
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
-    transition: all 0.3s ease;
-    position: relative; 
-    overflow: hidden;
-    margin: 0 auto;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    backdrop-filter: blur(5px);
 }
 
 .trophy-item:hover {
-    transform: scale(1.1);
-    border-color: #fff;
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+    transform: scale(1.15) translateY(-5px);
+    border-color: var(--accent-cyan);
+    box-shadow: 0 10px 20px rgba(242, 94, 255, 0.3); /* Usando sua cor accent-cyan */
+    background: rgba(242, 94, 255, 0.1);
 }
 
 .trophy-item img {
-    width: 80%; height: 80%; object-fit: contain;
-    filter: drop-shadow(0 0 5px #fff);
-    z-index: 1;
+    width: 85%;
+    height: 85%;
+    object-fit: contain;
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.4));
 }
 
 /* --- MODAL DE CONQUISTA (ANIMAÇÕES) --- */
@@ -827,10 +879,35 @@ header {
     animation: auraPulse 3s ease-in-out infinite;
 }
 
+/* Efeito de Aura Rotativa atrás do troféu no Modal */
 .trophy-glow::before {
-    content: ''; position: absolute; width: 150%; height: 150%;
-    background: conic-gradient(from 0deg, transparent, rgba(255,255,255,0.3), transparent 30%, transparent, rgba(255,255,255,0.3), transparent);
-    animation: rotate 10s linear infinite;
+    content: '';
+    position: absolute;
+    width: 140%;
+    height: 140%;
+    background: conic-gradient(from 0deg, 
+        transparent, 
+        var(--accent-cyan), 
+        transparent 30%, 
+        transparent, 
+        var(--accent-pink), 
+        transparent);
+    animation: rotateAura 6s linear infinite;
+    opacity: 0.4;
+    border-radius: 50%;
+}
+
+@keyframes rotateAura {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+#conquista-modal .modal-content {
+    padding: 40px;
+    border-radius: 40px;
+    background: radial-gradient(circle at center, rgba(15, 32, 50, 0.95), #020508);
+    border: 2px solid var(--accent-cyan);
+    box-shadow: 0 0 50px rgba(242, 94, 255, 0.2);
 }
 
 #conquista-img {
@@ -1110,7 +1187,7 @@ body.admin-mode #goblin-history {
 
 .conquista-card {
     background: #1a1a1a;
-    border: 2px solid #00ff41;
+    border: 2px solid #c3fdd2;
     padding: 30px;
     border-radius: 20px;
     text-align: center;
@@ -1123,7 +1200,7 @@ body.admin-mode #goblin-history {
     position: absolute;
     top: 50%; left: 50%;
     width: 200px; height: 200px;
-    background: radial-gradient(circle, rgba(0,255,65,0.2) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
     transform: translate(-50%, -50%);
     animation: girarBrilho 4s linear infinite;
 }
@@ -1140,7 +1217,7 @@ body.admin-mode #goblin-history {
 
 .conquista-moldura img { width: 90%; height: auto; }
 
-#conquista-titulo { color: #00ff41; font-family: 'Courier New', monospace; letter-spacing: 2px; }
+#conquista-titulo { color: #fdfffe; font-family: 'Courier New', monospace; letter-spacing: 2px; }
 
 @keyframes girarBrilho {
     from { transform: translate(-50%, -50%) rotate(0deg); }
@@ -1172,7 +1249,7 @@ body.admin-mode #goblin-history {
     max-width: min(500px, 80%);
     max-height: 70vh;
     border: 2px solid var(--accent-cyan); /* Usa a cor do seu sistema */
-    box-shadow: 0 0 30px rgba(94, 243, 255, 0.3), inset 0 0 20px rgba(94, 243, 255, 0.2);
+    box-shadow: 0 0 30px rgba(246, 247, 195, 0.3), inset 0 0 20px rgba(240, 241, 241, 0.2);
     border-radius: 24px;
     background: #000;
     padding: 10px;
@@ -1185,7 +1262,7 @@ body.admin-mode #goblin-history {
     position: absolute;
     width: 600px;
     height: 600px;
-    background: radial-gradient(circle, rgba(94, 243, 255, 0.15) 0%, transparent 70%);
+    background: radial-gradient(circle, rgb(253, 253, 253) 0%, transparent 70%);
     animation: pulseGlow 2s infinite ease-in-out;
     z-index: -1;
 }
