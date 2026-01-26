@@ -476,19 +476,19 @@ header {
     justify-items: center;
 }
 
-.trophy-item {
-    width: 65px;
-    height: 65px;
-    background: var(--glass); /* Usa o mesmo fundo semi-transparente do sistema */
-    border: 2px solid var(--glass-border);
-    border-radius: 50%; /* TORNA CIRCULAR COMO O ORBIT */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    position: relative;
-    backdrop-filter: blur(10px);
-    overflow: hidden; /* Garante que a imagem não saia do círculo */
+/* Classes de Cores Dinâmicas para Troféus */
+.trophy-item.hiperfoco { border-color: #00f2ff; box-shadow: 0 0 15px rgba(0, 242, 255, 0.4); }
+.trophy-item.madrugada { border-color: #bc13fe; box-shadow: 0 0 15px rgba(188, 19, 254, 0.4); }
+.trophy-item.matutino  { border-color: #ffaa00; box-shadow: 0 0 15px rgba(255, 170, 0, 0.4); }
+.trophy-item.vespertino { border-color: #ff4500; box-shadow: 0 0 15px rgba(255, 69, 0, 0.4); }
+.trophy-item.noturno    { border-color: #4444ff; box-shadow: 0 0 15px rgba(68, 68, 255, 0.4); }
+.trophy-item.reigoblin  { border-color: #00ff41; box-shadow: 0 0 15px rgba(0, 255, 65, 0.4); }
+.trophy-item.aleatorios { border-color: var(--accent-pink); box-shadow: 0 0 15px rgba(242, 94, 255, 0.4); }
+
+/* Ajuste na imagem para herdar o brilho no hover */
+.trophy-item:hover img {
+    filter: drop-shadow(0 0 10px currentColor);
+    transform: scale(1.1);
 }
 
 .trophy-item:hover {
@@ -505,10 +505,6 @@ header {
     border-radius: 50%; /* Garante que a imagem também siga a curvatura se for quadrada */
     filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3));
     transition: filter 0.3s ease;
-}
-
-.trophy-item:hover img {
-    filter: drop-shadow(0 0 10px var(--accent-cyan));
 }
 
 .trophy-slot {
@@ -1206,13 +1202,17 @@ body.admin-mode #goblin-history {
 }
 
 .conquista-moldura {
-    width: 150px; height: 150px;
+    width: 180px; 
+    height: 180px;
     margin: 20px auto;
-    border: 4px solid #333;
-    border-radius: 15px;
+    border: 4px solid var(--accent-cyan);
+    border-radius: 50%; /* Mudar aqui para circular */
     background: #000;
-    display: flex; align-items: center; justify-content: center;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
     overflow: hidden;
+    box-shadow: 0 0 30px var(--accent-cyan);
 }
 
 .conquista-moldura img { width: 90%; height: auto; }

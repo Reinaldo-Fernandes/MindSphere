@@ -43,7 +43,7 @@ function atualizarInterface(data) {
         `).join('');
     }
 
-    const shelf = getEl('trophy-shelf-content');
+  const shelf = getEl('trophy-shelf-content');
     if (shelf && data.conquistas) {
         shelf.innerHTML = ""; 
         data.conquistas.forEach(id => {
@@ -52,7 +52,9 @@ function atualizarInterface(data) {
             const catClean = cat.toLowerCase().trim();
             
             const div = document.createElement('div');
-            div.className = 'trophy-item';
+            // MUDANÇA AQUI: Adicionamos 'catClean' como classe
+            div.className = `trophy-item ${catClean}`; 
+            
             const img = document.createElement('img');
             img.src = `./components/${catClean}/${num}.png`;
             img.onerror = () => div.remove();
