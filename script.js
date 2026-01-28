@@ -64,18 +64,63 @@ function updateTimer() {
     timeLeft--;
     const elapsed = totalTime - timeLeft; 
     
-    // Jardim cresce a cada 5 min (300s)
-    if (elapsed > 0 && elapsed % 300 === 0) {
-        criarItemJardim();
+    // 5 MINUTOS = 300 segundos
+    const intervaloCrescimento = 300; 
+
+    // REMOVEMOS o "elapsed === 1". 
+    // Agora ele só cria itens nos intervalos de 5 minutos (300, 600, 900...)
+    if (elapsed > 0 && elapsed % intervaloCrescimento === 0) {
+        spawnGardenItem(); 
         orbitTalk("O jardim está se expandindo... 🌿");
     }
 
-    // Pausa sugerida a cada 30 min (1800s)
+    // Pausa sugerida (a cada 30 min)
     if (elapsed > 0 && elapsed % 1800 === 0) {
         pausarParaDescanso();
     }
 
     atualizarDisplayVisual();
+}
+
+/* No topo do seu script.js, junto com os outros estados globais */
+let gardenItemCount = 0; 
+
+function spawnGardenItem() {
+    console.log("Criando item no jardim..."); 
+    const container = document.querySelector('.sphere-wrapper');
+    const gardenStyle = getEl('garden-style');
+    
+    if (!container) return;
+
+    const style = gardenStyle ? gardenStyle.value : 'plantas';
+    const items = { 
+        plantas: ['🌿', '🌱', '🌸', '🍀', '🌻', '🍃'], 
+        espaco: ['✨', '🪐', '🌟', '☄️', '🌙', '🛰️'], 
+        notas: ['🎵', '🎹', '🎸', '🎶', '🎷', '🎻'], 
+        comida: ['☕', '🍪', '🥐', '🧁', '🍎', '🍓'] 
+    };
+    
+    const selected = items[style] || items.plantas;
+    const emoji = selected[Math.floor(Math.random() * selected.length)];
+    
+    const item = document.createElement('div');
+    item.className = 'garden-item'; 
+    item.innerText = emoji;
+    
+    // --- LÓGICA DE DISTÂNCIA FIXA E NÃO SOBREPOSIÇÃO ---
+    const duration = 25; // Todos na mesma velocidade (em segundos)
+    const radius = 170;  // Distância fixa do centro (em pixels)
+    
+    // Cada novo item surge 45 graus à frente do anterior (evita sobrepor)
+    const angleStep = 45; 
+    const startAngle = gardenItemCount * angleStep;
+
+    item.style.setProperty('--orbit-duration', `${duration}s`);
+    item.style.setProperty('--orbit-distance', `${radius}px`);
+    item.style.setProperty('--start-angle', `${startAngle}deg`);
+    
+    container.appendChild(item);
+    gardenItemCount++; // Incrementa para o próximo item
 }
 
 function atualizarDisplayVisual() {
@@ -137,8 +182,7 @@ function setOrbitState(state) {
     orbitImg.src = paths[state.toLowerCase()] || paths['default'];
 }
 
-/* --- 6. BOTÕES PRINCIPAIS --- */
-
+/* --- 6. CONTROLE UNIFICADO DO TIMER E JARDIM --- */
 if (startBtn) {
     startBtn.onclick = () => {
         if (document.body.classList.contains('onboarding-active')) {
@@ -148,16 +192,19 @@ if (startBtn) {
 
         if (!timer) {
             getEl('audio-start')?.play().catch(() => {});
-            
-            // Configura o tempo se for um início novo
+
+            // Se for um novo ciclo (início total)
             if (timeLeft === totalTime || timeLeft <= 0) {
                 const durationSelect = getEl('timer-duration');
                 totalTime = durationSelect ? parseInt(durationSelect.value) : 1500;
                 timeLeft = totalTime;
-                
-                // Limpa o jardim
+
                 const container = document.querySelector('.sphere-wrapper');
-                if (container) container.querySelectorAll('.garden-item').forEach(el => el.remove());
+                if (container) {
+                    container.querySelectorAll('.garden-item').forEach(el => el.remove());
+                    gardenItemCount = 0; // Reseta o contador de posições
+                    spawnGardenItem();   // CRIA APENAS O PRIMEIRO AQUI
+                }
             }
 
             timer = setInterval(updateTimer, 1000);
@@ -224,29 +271,29 @@ setupAudio('fire-vol', 'audio-fire');
 
 /* --- 8. INICIALIZAÇÃO E BOTÕES PRINCIPAIS --- */
 
-/* --- 8. INICIALIZAÇÃO E BOTÕES PRINCIPAIS --- */
-
 if (startBtn) {
     startBtn.onclick = () => {
+        // 1. Tratamento de Onboarding
         if (document.body.classList.contains('onboarding-active')) {
             document.body.classList.remove('onboarding-active');
             getEl('mixer-anchor')?.appendChild(startBtn);
         }
 
         if (!timer) {
+            // --- INICIAR OU RETOMAR ---
             getEl('audio-start')?.play().catch(() => {});
-            
-            // Se o timer estiver no início, pega o valor do seletor
+
+            // Se for um novo ciclo (início ou após terminar)
             if (timeLeft === totalTime || timeLeft <= 0) {
                 const durationSelect = getEl('timer-duration');
-                // Se o seletor existir, usa o valor dele, senão usa 1500
                 totalTime = durationSelect ? parseInt(durationSelect.value) : 1500;
                 timeLeft = totalTime;
-                
-                // Limpa o jardim ao começar nova sessão longa
+
+                // Limpa o jardim e cria o PRIMEIRO item imediatamente
                 const container = document.querySelector('.sphere-wrapper');
                 if (container) {
                     container.querySelectorAll('.garden-item').forEach(el => el.remove());
+                    spawnGardenItem(); // <--- Agora ele vai aparecer!
                 }
             }
 
@@ -254,6 +301,7 @@ if (startBtn) {
             startBtn.innerText = "PAUSAR";
             setOrbitState('foco');
         } else {
+            // --- PAUSAR ---
             clearInterval(timer);
             timer = null;
             startBtn.innerText = "RETOMAR";
@@ -389,22 +437,17 @@ function ativarModoAdmin() {
 
 /* --- 10. LÓGICA DE TRANSIÇÃO DE MODAIS (AUTH) --- */
 
-// Abrir Modal de Login (botão da Header)
-getEl('auth-trigger').onclick = () => {
-    getEl('auth-modal').classList.add('active');
-};
+getEl('auth-trigger').onclick = () => getEl('auth-modal').classList.add('active');
 
-// Ir para tela de Cadastro
 const linkIrCadastro = getEl('go-to-register');
 if (linkIrCadastro) {
     linkIrCadastro.onclick = (e) => {
         e.preventDefault();
-        getEl('auth-modal').classList.remove('active'); // Fecha login
-        getEl('register-modal').classList.add('active'); // Abre cadastro
+        getEl('auth-modal').classList.remove('active');
+        getEl('register-modal').classList.add('active');
     };
 }
 
-// Voltar para tela de Login (dentro do cadastro)
 const linkVoltarLogin = getEl('go-to-login');
 if (linkVoltarLogin) {
     linkVoltarLogin.onclick = (e) => {
@@ -414,85 +457,74 @@ if (linkVoltarLogin) {
     };
 }
 
-// Ir para Esqueci a Senha
-const linkEsqueciSenha = getEl('forgot-password-link');
-if (linkEsqueciSenha) {
-    linkEsqueciSenha.onclick = (e) => {
-        e.preventDefault();
-        getEl('auth-modal').classList.remove('active');
-        getEl('forgot-password-modal').classList.add('active');
+/* --- 11. AGENDA, JOGOS E LEMBRETES (CORRIGIDO) --- */
+
+const agendaDateInput = getEl('agenda-date');
+const agendaTextArea = getEl('agenda-notes');
+
+function atualizarCardLembrete(texto) {
+    const card = getEl('quick-reminder-card');
+    const p = getEl('reminder-text');
+    if (!card || !p) return;
+    
+    if (texto && texto.trim() !== "") {
+        card.style.display = 'block';
+        p.innerText = texto.length > 100 ? texto.substring(0, 100) + "..." : texto;
+    } else {
+        card.style.display = 'none';
+    }
+}
+
+// Abrir Agenda
+const agendaTrigger = getEl('agenda-trigger');
+if (agendaTrigger) {
+    agendaTrigger.onclick = () => {
+        const hoje = new Date().toISOString().split('T')[0];
+        if (agendaDateInput) {
+            agendaDateInput.value = hoje;
+            const notaSalva = localStorage.getItem(`note_${hoje}`);
+            if (agendaTextArea) agendaTextArea.value = notaSalva || "";
+        }
+        getEl('agenda-modal').classList.add('active');
     };
 }
 
-// Voltar do Esqueci a Senha para o Login
-document.querySelectorAll('.back-to-login').forEach(link => {
-    link.onclick = (e) => {
-        e.preventDefault();
-        getEl('forgot-password-modal').classList.remove('active');
-        getEl('auth-modal').classList.add('active');
+// Salvar Agenda
+const saveAgendaBtn = getEl('save-agenda');
+if (saveAgendaBtn) {
+    saveAgendaBtn.onclick = () => {
+        const dataSelecionada = agendaDateInput?.value;
+        const texto = agendaTextArea?.value;
+        const hoje = new Date().toISOString().split('T')[0];
+
+        if (dataSelecionada) {
+            localStorage.setItem(`note_${dataSelecionada}`, texto);
+            if (dataSelecionada === hoje) atualizarCardLembrete(texto);
+            
+            orbitTalk(`Lembrete guardado! 💾`);
+            setTimeout(() => getEl('agenda-modal').classList.remove('active'), 1000);
+        }
+    };
+}
+
+// Modal de Jogo
+const gameTrigger = getEl('game-trigger');
+if (gameTrigger) {
+    gameTrigger.onclick = () => getEl('game-modal').classList.add('active');
+}
+
+// Fechamento Universal de Modais
+document.querySelectorAll('.close-modal').forEach(btn => {
+    btn.onclick = () => {
+        document.querySelectorAll('.modal-vitral').forEach(m => m.classList.remove('active'));
+        const fbModal = getEl('feedback-modal');
+        if (fbModal) fbModal.style.display = 'none';
     };
 });
 
-/* --- VER SENHA (OLHINHO) --- */
-const togglePass = getEl('toggle-password');
-if (togglePass) {
-    togglePass.onclick = function() {
-        const inputSenha = getEl('login-password');
-        if (inputSenha.type === 'password') {
-            inputSenha.type = 'text';
-            this.classList.replace('fa-eye', 'fa-eye-slash'); // Muda ícone FontAwesome
-        } else {
-            inputSenha.type = 'password';
-            this.classList.replace('fa-eye-slash', 'fa-eye');
-        }
-    };
-}
-
-/* --- LOGICA DO BOTÃO LIMPAR (MODO GOBLIN) --- */
-const clearTasksBtn = getEl('clear-tasks-btn');
-
-if (clearTasksBtn) {
-    clearTasksBtn.onclick = () => {
-        const list = getEl('subtasks-list');
-        
-        // Verifica se há algo para limpar
-        if (list.children.length > 0) {
-            list.innerHTML = ""; // Remove todas as subtarefas
-            orbitTalk("Lista limpa! Vamos começar do zero? 🧼");
-        } else {
-            orbitTalk("A lista já está vazia!");
-        }
-    };
-}
-
-// Faz o display atualizar assim que o usuário muda a opção no seletor
-
-const durationSelect = getEl('timer-duration');
-if (durationSelect) {
-    durationSelect.onchange = (e) => {
-        if (!timer) { 
-            totalTime = parseInt(e.target.value);
-            timeLeft = totalTime;
-            // ESSA LINHA ABAIXO É A CHAVE:
-            atualizarDisplayVisual(); 
-            orbitTalk(`Tempo ajustado para ${totalTime/60} minutos.`);
-        } else {
-            orbitTalk("Pare o timer antes de mudar o tempo!");
-            // Volta o seletor para o valor anterior se o timer estiver rodando
-            durationSelect.value = totalTime.toString();
-        }
-    };
-}
-
-// Fechar modais ao clicar no X ou no botão de fechar
-document.querySelectorAll('.close-modal, .btn-close').forEach(button => {
-    button.onclick = () => {
-        // Isso fecha qualquer modal que tenha a classe 'active'
-        document.querySelectorAll('.modal-vitral, .modal').forEach(modal => {
-            modal.classList.remove('active');
-            // Se você usa display: flex/none em vez de classes, use:
-            if(modal.id === 'feedback-modal') modal.style.display = 'none';
-        });
-    };
+// Carregar ao iniciar
+window.addEventListener('load', () => {
+    const hoje = new Date().toISOString().split('T')[0];
+    const notaHoje = localStorage.getItem(`note_${hoje}`);
+    if (notaHoje) atualizarCardLembrete(notaHoje);
 });
-

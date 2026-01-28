@@ -41,12 +41,39 @@
 
         </div>
         <h1 class="logo">MindSphere</h1>
+       <div class="header-right" style="display: flex; gap: 10px; align-items: center;">
         <select id="garden-style" class="glass-select">
             <option value="plantas">🌿 Jardim</option>
             <option value="espaco">✨ Galáxia</option>
             <option value="notas">🎵 Musical</option>
             <option value="comida">☕ Café</option>
         </select>
+        
+        <button id="agenda-trigger" class="glass-btn circle-btn" title="Agenda"><i class="fas fa-calendar-day"></i></button>
+        <button id="game-trigger" class="glass-btn circle-btn" title="Relaxar"><i class="fas fa-gamepad"></i></button>
+    </div>
+
+    <div id="agenda-modal" class="modal-vitral">
+        <div class="auth-card agenda-card">
+            <button class="close-modal">×</button>
+            <h2 class="panel-title">📅 Agenda Diária</h2>
+            
+            <div class="agenda-controls">
+                <label for="agenda-date" style="font-size: 0.8rem; display: block; margin-bottom: 5px;">Escolha o dia:</label>
+                <input type="date" id="agenda-date" class="glass-input">
+            </div>
+
+            <textarea id="agenda-notes" class="glass-input" placeholder="O que temos para hoje?" rows="8"></textarea>
+            
+            <button id="save-agenda" class="glass-btn start" style="width: 100%;">GUARDAR MEMÓRIA</button>
+        </div>
+    </div>
+
+        <div id="quick-reminder-card" class="glass-card" style="display: none; position: fixed; top: 85px; right: 20px; z-index: 90; padding: 10px; max-width: 200px; border-left: 4px solid var(--accent-cyan);">
+        <small style="opacity: 0.6; font-size: 0.6rem; text-transform: uppercase;">📌 Lembrete de Hoje:</small>
+        <p id="reminder-text" style="font-size: 0.8rem; margin: 5px 0; line-height: 1.2;"></p>
+        <button onclick="this.parentElement.style.display='none'" style="background:none; border:none; color:white; cursor:pointer; font-size: 0.7rem; opacity: 0.5;">[ fechar ]</button>
+    </div>
 
     </header>
 
