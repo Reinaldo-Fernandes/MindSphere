@@ -268,13 +268,13 @@ header {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-150%, -150%); 
-    font-size: 1rem;
+    /* Aumente aqui: */
+    font-size: 2.8rem; 
+    
     pointer-events: none; 
     z-index: 10; 
     display: block !important;
     opacity: 1 !important;
-    transition: opacity 0.5s ease;
     animation: orbitMove var(--orbit-duration, 20s) linear infinite;
 }
 
@@ -1399,4 +1399,21 @@ body.admin-mode #user-title {
     text-transform: uppercase;
     letter-spacing: 5px;
     margin-bottom: 10px;
+}
+
+/* Efeito de brilho para itens de ciclos longos */
+.premium-item {
+    filter: drop-shadow(0 0 8px var(--accent-cyan)) drop-shadow(0 0 12px var(--accent-cyan));
+    transition: filter 0.3s ease;
+}
+
+/* Opcional: Animação de pulso para o brilho */
+@keyframes premium-pulse {
+    0% { filter: drop-shadow(0 0 5px var(--accent-cyan)); }
+    50% { filter: drop-shadow(0 0 15px var(--accent-cyan)); }
+    100% { filter: drop-shadow(0 0 5px var(--accent-cyan)); }
+}
+
+.premium-item {
+    animation: orbitMove var(--orbit-duration, 20s) linear infinite, premium-pulse 3s ease-in-out infinite;
 }
