@@ -254,8 +254,11 @@ header {
    6. JARDIM E ANIMAÇÕES DE ÓRBITA
    ========================================================================== */
 .orbit-path { 
-    position: absolute; border-radius: 50%; border: 1px solid hsla(0, 0%, 100%, 0.05);
-    box-sizing: border-box; pointer-events: none;
+    position: absolute;
+     border-radius: 50%;
+      border: 1px solid hsla(0, 0%, 100%, 0.05);
+    box-sizing: border-box;
+     pointer-events: none;
 }
 .orbit-1 { width: 100%; height: 100%; border-left: 2px solid var(--accent-pink); animation: rotate 30s linear infinite; }
 .orbit-2 { width: 130%; height: 130%; border-right: 2px solid var(--accent-cyan); animation: rotate 45s linear infinite reverse; }
@@ -265,21 +268,18 @@ header {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%); 
-    font-size: 2rem;
+    transform: translate(-150%, -150%); 
+    font-size: 1rem;
     pointer-events: none; 
     z-index: 10; 
     display: block !important;
     opacity: 1 !important;
     transition: opacity 0.5s ease;
-    font-size: 4rem;
     animation: orbitMove var(--orbit-duration, 20s) linear infinite;
 }
 
-
-/* Removemos a regra que escondia o jardim no onboarding para você conseguir testar agora */
 .onboarding-active .garden-item {
-    opacity: 0.5; /* Deixamos meio transparente durante o tutorial */
+    opacity: 0.5; 
 }
 
 @keyframes orbitMove {
