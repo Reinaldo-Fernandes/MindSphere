@@ -1420,7 +1420,7 @@ body.admin-mode #user-title {
 /** ==========================================================================
   17. Botão de horas 
    ========================================================================== */
-   .glass-select {
+   #timer-duration {
     background: var(--glass);
     color: white;
     border: 1px solid var(--glass-border);

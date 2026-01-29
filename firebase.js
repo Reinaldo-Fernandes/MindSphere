@@ -18,6 +18,43 @@ const firebaseConfig = {
     measurementId: "G-MLKWN431SD"
 };
 
+/* --- NOVA FUNÇÃO DE SINCRONIZAÇÃO EM LOTE --- */
+import { updateDoc, arrayUnion, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+window.sincronizarTudoFinal = async (xpTotal, listaTarefas) => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const userRef = doc(db, "users", user.uid);
+    
+    // Prepara o objeto de atualização
+    const updates = {
+        xp: increment(xpTotal),
+        focos: increment(1)
+    };
+
+    // Se houver tarefas, adiciona ao histórico de uma vez só
+    if (listaTarefas.length > 0) {
+        const novosItens = listaTarefas.map(t => ({
+            tarefa: t,
+            data: new Date().toLocaleTimeString('pt-BR')
+        }));
+        updates.historicoGoblin = arrayUnion(...novosItens);
+    }
+
+    try {
+        await updateDoc(userRef, updates);
+        notify(`Ciclo completo! +${xpTotal} XP sincronizado.`);
+        
+        // Sorteia uma conquista apenas no final do ciclo
+        if (window.adicionarProgresso) {
+            window.adicionarProgresso('foco', 0); // XP já foi somado, aqui é só para o sorteio
+        }
+    } catch (e) {
+        console.error("Erro ao sincronizar:", e);
+    }
+};
+
 // Inicialização Única e Segura
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 export const auth = getAuth(app);
