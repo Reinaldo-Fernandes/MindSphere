@@ -1003,10 +1003,9 @@ body.admin-mode #goblin-history {
     border-color: var(--accent-cyan);
 }
 
-/* style.css */
 
 .profile-layout {
-    position: relative; /* Necessário para o botão se orientar por este container */
+    position: relative; 
 }
 
 .profile-corner-btn {
@@ -1029,7 +1028,7 @@ body.admin-mode #goblin-history {
 
 .profile-corner-btn:hover {
     background: rgba(255, 255, 255, 0.15);
-    transform: rotate(90deg); /* Efeito visual ao passar o mouse */
+    transform: rotate(90deg);
     box-shadow: 0 0 10px var(--accent-cyan);
 }
 
@@ -1061,7 +1060,7 @@ body.admin-mode #goblin-history {
     background: rgba(255, 255, 255, 0.1);
 }
 
-/* Adicione isso ao seu style.css */
+/* feedback */
 #feedback-trigger {
     transition: all 0.3s ease;
     text-transform: uppercase;
@@ -1416,4 +1415,40 @@ body.admin-mode #user-title {
 
 .premium-item {
     animation: orbitMove var(--orbit-duration, 20s) linear infinite, premium-pulse 3s ease-in-out infinite;
+}
+
+/** ==========================================================================
+  17. Feedback e Avaliações
+   ========================================================================== */
+   .glass-select {
+    background: var(--glass);
+    color: white;
+    border: 1px solid var(--glass-border);
+    padding: 6px 12px;   
+    font-size: 0.8rem;
+    border-radius: 8px;    
+    max-width: 180px;      
+    margin-left: 110px;
+    margin-top:-38px;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    appearance: none;
+    -webkit-appearance: none;
+    
+
+    /* Seta customizada ajustada para o novo tamanho */
+    background-image: linear-gradient(45deg, transparent 50%, var(--accent-cyan) 50%),
+                      linear-gradient(135deg, var(--accent-cyan) 50%, transparent 50%);
+    background-position: calc(100% - 15px) center;
+    background-size: 4px 4px;
+    background-repeat: no-repeat;
+    padding-right: 30px;
+}
+
+/* Efeito de hover mais sutil para o botão menor */
+.glass-select:hover {
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 10px rgba(94, 243, 255, 0.15);
 }
