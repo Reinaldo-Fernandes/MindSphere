@@ -410,6 +410,7 @@ header {
 .modal-vitral.active {
     opacity: 1;
     visibility: visible;
+    display: flex !important;
     pointer-events: auto;
 }
 
@@ -1451,4 +1452,40 @@ body.admin-mode #user-title {
 .glass-select:hover {
     border-color: var(--accent-cyan);
     box-shadow: 0 0 10px rgba(94, 243, 255, 0.15);
+}
+/* Container do Jogo Estilo Mobile Premium */
+.game-container {
+    position: relative;
+    background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
+    border: 2px solid rgba(0, 242, 255, 0.2);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(0, 242, 255, 0.05);
+    border-radius: 30px; /* Bordas mais arredondadas como na imagem */
+    overflow: hidden;
+}
+
+/* Placar com estilo HUD */
+#scoreDisplay {
+    font-family: 'Orbitron', sans-serif; /* Se tiver, use uma fonte futurista */
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-size: 0.9rem;
+    margin-top: 15px;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+/* Canvas para efeito de profundidade */
+#gameCanvas {
+    filter: drop-shadow(0 0 5px rgba(0, 242, 255, 0.2));
+}
+
+/* Balão do Orbit (Baseado na imagem) */
+.orbit-speech-game {
+    background: rgba(0, 242, 255, 0.1);
+    border: 1px solid #00f2ff;
+    border-radius: 10px;
+    color: #fff;
+    padding: 10px;
+    font-size: 0.8rem;
+    box-shadow: 0 0 15px rgba(0, 242, 255, 0.3);
 }

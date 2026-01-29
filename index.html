@@ -3,19 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MindSphere - Ecossistema de Foco para Neurodivergentes</title>
+    <title>MindSphere - Ecossistema de Foco</title>
     
-    <meta name="description" content="Aumente sua produtividade com o MindSphere. Timer pomodoro gamificado com Modo Goblin e sons relaxantes para TDAH e neurodivergência.">
-    
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://mindsphere.app/">
-    <meta property="og:title" content="MindSphere | Produtividade Neurodivergente">
-    <meta property="og:description" content="Transforme paralisia de tarefa em progresso visual.">
-    <meta property="og:image" content="./assistente/orbits/orbit.png">
-
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:image" content="./assistente/orbits/orbit.png">
-
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="mobile.css" media="screen and (max-width: 768px)">
@@ -29,153 +18,22 @@
         <div class="header-left">
             <button id="panic-btn" class="glass-btn panic">RESET</button>
             <button id="auth-trigger" class="glass-btn">🔑 ENTRAR / REGISTAR</button>
-            <button id="view-metrics" class="glass-btn" style="display: none; margin-top: 15px; border-color: #00ff41; color: #00ff41;">
-    <i class="fas fa-terminal"></i> PAINEL ADM
-</button>
-
-
+            <button id="view-metrics" class="glass-btn" style="display: none; border-color: #00ff41; color: #00ff41;">
+                <i class="fas fa-terminal"></i> PAINEL ADM
+            </button>
         </div>
         <h1 class="logo">MindSphere</h1>
-       <div class="header-right" style="display: flex; gap: 10px; align-items: center;">
-        <select id="garden-style" class="glass-select">
-            <option value="plantas">🌿 Jardim</option>
-            <option value="espaco">✨ Galáxia</option>
-            <option value="notas">🎵 Musical</option>
-            <option value="comida">☕ Café</option>
-        </select>
-        
-        <button id="agenda-trigger" class="glass-btn circle-btn" title="Agenda"><i class="fas fa-calendar-day"></i></button>
-        <button id="game-trigger" class="glass-btn circle-btn" title="Relaxar"><i class="fas fa-gamepad"></i></button>
-    </div>
-
-    <div id="agenda-modal" class="modal-vitral">
-        <div class="auth-card agenda-card">
-            <button class="close-modal">×</button>
-            <h2 class="panel-title">📅 Agenda Diária</h2>
-            
-            <div class="agenda-controls">
-                <label for="agenda-date" style="font-size: 0.8rem; display: block; margin-bottom: 5px;">Escolha o dia:</label>
-                <input type="date" id="agenda-date" class="glass-input">
-            </div>
-
-            <textarea id="agenda-notes" class="glass-input" placeholder="O que temos para hoje?" rows="8"></textarea>
-            
-            <button id="save-agenda" class="glass-btn start" style="width: 100%;">GUARDAR MEMÓRIA</button>
+        <div class="header-right" style="display: flex; gap: 10px; align-items: center;">
+            <select id="garden-style" class="glass-select">
+                <option value="plantas">🌿 Jardim</option>
+                <option value="espaco">✨ Galáxia</option>
+                <option value="notas">🎵 Musical</option>
+                <option value="comida">☕ Café</option>
+            </select>
+            <button id="agenda-trigger" class="glass-btn circle-btn"><i class="fas fa-calendar-day"></i></button>
+            <button id="game-trigger" class="glass-btn circle-btn" title="Relaxar"><i class="fas fa-gamepad"></i></button>
         </div>
-    </div>
-
-        <div id="quick-reminder-card" class="glass-card" style="display: none; position: fixed; top: 85px; right: 20px; z-index: 90; padding: 10px; max-width: 200px; border-left: 4px solid var(--accent-cyan);">
-        <small style="opacity: 0.6; font-size: 0.6rem; text-transform: uppercase;">📌 Lembrete de Hoje:</small>
-        <p id="reminder-text" style="font-size: 0.8rem; margin: 5px 0; line-height: 1.2;"></p>
-        <button onclick="this.parentElement.style.display='none'" style="background:none; border:none; color:white; cursor:pointer; font-size: 0.7rem; opacity: 0.5;">[ fechar ]</button>
-    </div>
-
     </header>
-
-    <div id="auth-modal" class="modal-vitral">
-        <div class="auth-card">
-            <button class="close-modal">×</button>
-            <h2 class="panel-title">Entrar</h2>
-            <input type="email" id="login-email" class="glass-input" placeholder="E-mail">
-            <div class="password-container">
-                <input type="password" id="login-password" class="glass-input" placeholder="Senha">
-                <i class="fas fa-eye" id="toggle-password"></i>
-            </div>
-            <button id="login-btn" class="glass-btn start" style="width: 100%;">ENTRAR</button>
-            <p style="margin-top: 15px; font-size: 0.8rem;">
-                <a href="#" id="forgot-password-link" style="color: var(--accent-cyan); text-decoration: none;">Esqueci minha senha</a>
-            </p>
-            <hr style="opacity: 0.1; margin: 20px 0;">
-            <p style="font-size: 0.8rem;">Não tem conta? <a href="#" id="go-to-register" style="color: var(--accent-pink); text-decoration: none;">Criar agora</a></p>
-        </div>
-
-        
-</div>
-    </div> 
-    <div id="admin-hub" class="admin-only" style="position: fixed; top: 80px; right: 20px; z-index: 100;">
-    
-</div>
-
-<div id="admin-modal" class="modal-vitral" style="display: none;">
-    <div class="modal-content">
-        <h2>Painel do Supervisor</h2>
-        <div id="metrics-summary" style="margin-bottom: 20px;"></div>
-        <div id="feedback-wall" style="max-height: 300px; overflow-y: auto;">
-            </div>
-        <button class="glass-btn" onclick="getEl('admin-modal').style.display='none'">FECHAR</button>
-    </div>
-</div>
-
-    <div id="register-modal" class="modal-vitral">
-        <div class="auth-card">
-            <button class="close-modal">×</button>
-            <h2 class="panel-title">Criar Conta</h2>
-            <input type="text" id="reg-name" class="glass-input" placeholder="Nome">
-            <input type="email" id="reg-email" class="glass-input" placeholder="E-mail">
-            <input type="password" id="reg-password" class="glass-input" placeholder="Senha">
-            <button id="register-confirm-btn" class="glass-btn start" style="width: 100%;">CADASTRAR</button>
-            <p style="margin-top: 15px; font-size: 0.8rem;">Já tem conta? <a href="#" id="go-to-login" style="color: var(--accent-cyan); text-decoration: none;">Entrar</a></p>
-        </div>
-    </div>
-
-    <div id="forgot-password-modal" class="modal-vitral">
-        <div class="auth-card">
-            <button class="close-modal">×</button>
-            <h2 class="panel-title">Recuperar Senha</h2>
-            <input type="email" id="reset-email" class="glass-input" placeholder="Seu e-mail">
-            <button id="send-reset-btn" class="glass-btn start" style="width: 100%;">ENVIAR LINK</button>
-            <p style="margin-top: 15px; font-size: 0.8rem;"><a href="#" class="back-to-login" style="color: var(--accent-cyan); text-decoration: none;">Voltar ao login</a></p>
-        </div>
-    </div>
-    
-    <div id="profile-modal" class="modal-vitral">
-    <div class="profile-card profile-main-card">
-        <button id="feedback-trigger" class="glass-btn" 
-                style="position: absolute; top: 15px; left: 15px; padding: 4px 8px; font-size: 0.6rem; border-color: var(--accent-pink); z-index: 20;">
-            💬 Feedback
-        </button>
-        
-        
-        <select id="timer-duration" class="glass-select">
-            <option value="1500">25 Minutos (Padrão)</option>
-            <option value="3600" id="opt-1h" disabled>1 Hora (Bloqueado 🔒)</option>
-            <option value="7200" id="opt-2h" disabled>2 Horas (Bloqueado 🔒)</option>
-        </select>
-
-        <button class="close-modal">×</button>
-
-        <div class="profile-header-static" style="margin-top: 20px; text-align: center;">
-            <span id="user-level-badge" class="xp-number" style="font-size: 1.8rem;">Nível 1</span>
-            <h2 class="panel-title" id="user-display-name" style="margin: 10px 0;">Viajante</h2>
-            
-            <div class="level-system" style="padding: 0 20px;">
-                <div class="xp-bar-container">
-                    <div id="xp-bar-fill" style="width: 0%"></div>
-                </div>
-                <small id="xp-text">0 / 1000 XP</small>
-            </div>
-        </div>
-
-        <div class="profile-scroll-area">
-            <section class="profile-section">
-                <h3>🏆 Galeria de Prêmios</h3>
-                <div class="trophy-shelf-wrapper">
-                    <div class="trophy-grid" id="trophy-shelf-content">
-                        </div>
-                </div>
-            </section>
-
-            <section class="profile-section">
-                <h3>👹 Histórico Goblin</h3>
-                <div id="goblin-history-list" class="history-list">
-                    <p class="empty-msg">Nenhuma tarefa concluída ainda.</p>
-                </div>
-            </section>
-        </div>
-
-        <button id="logout-btn" class="glass-btn" style="margin-top: 15px; width: 100%; border-color: rgba(255,255,255,0.2);">🚪 SAIR DA CONTA</button>
-    </div>
-</div>
 
     <main class="container">
         <aside class="side-panel left interface-element">
@@ -226,6 +84,49 @@
         </div>
     </footer>
 
+    <div id="game-overlay" class="modal-vitral" style="display: none;">
+        <div class="auth-card game-card">
+            <button id="close-game" class="close-modal">×</button>
+            <h2 class="panel-title">Stellar Flow</h2>
+            <div class="game-container" style="position: relative; background: rgba(0,0,0,0.5); border-radius: 15px; width: 300px; height: 300px; margin: 0 auto;">
+                <canvas id="gameCanvas" width="300" height="300"></canvas>
+                <div id="game-tap-to-start" class="tap-overlay" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.7); color: cyan; cursor: pointer;">
+                    TOQUE PARA COMEÇAR
+                </div>
+            </div>
+            <div id="scoreDisplay" style="text-align: center; margin-top: 10px;">Foco: 0</div>
+        </div>
+    </div>
+
+    <div id="agenda-modal" class="modal-vitral" style="display: none;">
+        <div class="auth-card agenda-card">
+            <button class="close-modal">×</button>
+            <h2 class="panel-title">📅 Agenda Diária</h2>
+            <input type="date" id="agenda-date" class="glass-input">
+            <textarea id="agenda-notes" class="glass-input" placeholder="O que temos para hoje?" rows="8"></textarea>
+            <button id="save-agenda" class="glass-btn start" style="width: 100%;">GUARDAR MEMÓRIA</button>
+        </div>
+    </div>
+
+    <div id="profile-modal" class="modal-vitral" style="display: none;">
+        <div class="profile-card profile-main-card">
+            <button class="close-modal">×</button>
+            <div class="profile-header-static" style="text-align: center;">
+                <span id="user-level-badge" class="xp-number">Nível 1</span>
+                <h2 id="user-display-name">Viajante</h2>
+                <div class="xp-bar-container"><div id="xp-bar-fill" style="width: 0%"></div></div>
+                <small id="xp-text">0 / 1000 XP</small>
+            </div>
+            <div class="profile-scroll-area">
+                <section class="profile-section">
+                    <h3>🏆 Galeria de Prêmios</h3>
+                    <div class="trophy-grid" id="trophy-shelf-content"></div>
+                </section>
+            </div>
+            <button id="logout-btn" class="glass-btn" style="width: 100%;">SAIR DA CONTA</button>
+        </div>
+    </div>
+
     <div id="orbit-assistant" class="orbit-container">
         <div class="orbit-bubble" id="orbit-speech"></div>
         <div class="orbit-character">
@@ -236,67 +137,17 @@
         </div>
     </div>
 
-    <div id="conquista-modal" class="modal-vitral" style="display: none; z-index: 9999;">
-        <div class="modal-content conquista-animacao">
-            <div id="relic-step">
-                <h2 id="conquista-titulo">NOVA RELÍQUIA!</h2>
-                <div class="trophy-glow">
-                    <img id="conquista-img" src="" alt="Sua Recompensa">
-                </div>
-                <p id="conquista-desc">Você desbloqueou um novo item para sua coleção.</p>
-                <button class="glass-btn start" onclick="proximoPassoConquista()" style="border-color: white; color: white;">COLETAR</button>
-            </div>
-
-            <div id="orbit-congrats-step" style="display: none; flex-direction: column; align-items: center;">
-                <div class="orbit-character" style="width: 150px;">
-                    <img src="./components/orbits/orbit.png" alt="Orbit">
-                </div>
-                <div class="orbit-bubble active" style="position: relative; opacity: 1; visibility: visible; transform: scale(1); margin-top: 20px;">
-                    Incrível! Você é pura produtividade! 
-                </div>
-                <button class="glass-btn start" onclick="fecharConquista()" style="margin-top: 20px; border-color: white; color: white;">DE NADA, ORBIT!</button>
-            </div>
-        </div>
-    </div>
-
     <div hidden>
         <audio id="audio-rain" loop src="sons/chuva.mp3"></audio>
         <audio id="audio-fire" loop src="sons/fire.mp3"></audio>
         <audio id="audio-start" src="sons/start.mp3"></audio>
         <audio id="audio-complete" src="sons/complete.mp3"></audio>
-        <audio id="audio-up" src="sons/up.mp3"></audio>
     </div>
 
-   <script src="orbit.js" defer></script>
+    <script src="orbit.js" defer></script>
     <script type="module" src="firebase.js"></script>
     <script type="module" src="gameficacao.js"></script>
     <script type="module" src="script.js"></script>
-    <div id="feedback-modal" class="modal-vitral" style="display: none;">
-    <div class="auth-card"> <button class="close-modal" onclick="getEl('feedback-modal').style.display='none'">×</button>
-        <div class="orbit-mini">
-            <img src="./components/orbits/feedback.png" alt="Orbit" style="width: 80px; display: block; margin: 0 auto;">
-            <p id="orbit-msg-fb" style="text-align: center; margin-top: 10px;">"Como posso melhorar sua galáxia?"</p>
-        </div>
-        
-        <input type="text" id="fb-user-name" class="glass-input" placeholder="Seu nome ou apelido">
-        <textarea id="fb-text" class="glass-input" placeholder="Escreva sua sugestão aqui..." rows="4" style="resize: none;"></textarea>
-        
-        <button id="send-fb-btn" class="glass-btn start" style="width: 100%;">ENVIAR FEEDBACK</button>
-    </div>
-
-    <!-- Nova conquista -->
-     <div id="conquista-popup" class="conquista-overlay">
-    <div class="conquista-card">
-        <div class="conquista-brilho"></div>
-        <h3 id="conquista-titulo">NOVA CONQUISTA!</h3>
-        <div class="conquista-moldura">
-            <img id="conquista-img" src="" alt="Troféu">
-        </div>
-        <p id="conquista-nome-item">Explorador do Tempo</p>
-        <button onclick="fecharConquista()">CONTINUAR</button>
-    </div>
-</div>
-
-</div>
+    <script src="stellar-flow.js"></script>
 </body>
 </html>

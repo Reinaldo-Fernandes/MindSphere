@@ -9,6 +9,8 @@ import {
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { iniciarObservadorGamificacao } from "./gameficacao.js";
 
+
+
 /* ==========================================================================
    1. ESTADOS GLOBAIS E SELETORES
 ========================================================================== 
@@ -328,21 +330,38 @@ async function carregarDadosAdmin() {
 }
 
 /* ==========================================================================
-   10. MODAIS E INICIALIZAÇÃO
-========================================================================== 
-*/
-getEl('auth-trigger').onclick = () => getEl('auth-modal').classList.add('active');
-getEl('game-trigger')?.addEventListener('click', () => getEl('game-modal').classList.add('active'));
+   10. MODAIS E INICIALIZAÇÃO (VERSÃO SEGURA)
+========================================================================== */
+// Função auxiliar segura (evita o erro de 'null')
+const safeClick = (id, callback) => {
+    const el = document.getElementById(id);
+    if (el) el.onclick = callback;
+};
 
+// Abrir Login
+safeClick('auth-trigger', () => {
+    const modal = document.getElementById('auth-modal');
+    if (modal) modal.classList.add('active');
+});
+
+// Abrir Jogo (Corrigindo o ID para game-overlay)
+safeClick('game-trigger', () => {
+    const modal = document.getElementById('game-overlay');
+    if (modal) {
+        modal.classList.add('active');
+        // Se houver uma função de redimensionar o jogo, chamamos aqui
+        if (typeof resizeCanvas === 'function') resizeCanvas();
+    }
+});
+
+// Fechar todas as modais
 document.querySelectorAll('.close-modal').forEach(btn => {
     btn.onclick = () => {
         document.querySelectorAll('.modal-vitral').forEach(m => m.classList.remove('active'));
-        if (getEl('feedback-modal')) getEl('feedback-modal').style.display = 'none';
+        const fbModal = document.getElementById('feedback-modal');
+        if (fbModal) fbModal.style.display = 'none';
+        
+        // Parar o jogo ao fechar a modal
+        if (typeof gameInterval !== 'undefined') clearInterval(gameInterval);
     };
-});
-
-window.addEventListener('load', () => {
-    const hoje = new Date().toISOString().split('T')[0];
-    atualizarCardLembrete(localStorage.getItem(`note_${hoje}`));
-    atualizarDisplayVisual(); // Garante que o timer comece com 25:00 visualmente
 });
