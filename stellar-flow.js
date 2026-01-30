@@ -70,12 +70,24 @@
         });
 
         // Eventos de Menu
-        trigger.addEventListener('click', () => {
-            overlay.style.display = 'flex';
+        // No stellar-flow.js, procure a parte do trigger e substitua por:
+const initTrigger = () => {
+    const trigger = document.getElementById('game-trigger');
+    if (trigger) {
+        trigger.onclick = (e) => {
+            e.preventDefault();
+            console.log("Botão Stellar clicado!"); // Para você ver se funcionou no F12
+            overlay.style.setProperty('display', 'flex', 'important');
             gameRunning = false;
             startBtn.style.display = 'flex';
             startBtn.innerHTML = `<span>INICIAR FLUXO</span>`;
-        });
+        };
+    }
+};
+
+// Chame a função imediatamente e também no DOMContentLoaded
+initTrigger();
+document.addEventListener('DOMContentLoaded', initTrigger);
 
         closeBtn.addEventListener('click', () => {
             overlay.style.display = 'none';

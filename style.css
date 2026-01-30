@@ -406,6 +406,18 @@ header {
     pointer-events: none;
 }
 
+.tap-overlay {
+    font-weight: bold;
+    text-shadow: 0 0 10px cyan;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+}
+
 /* Ativa o modal quando tiver a classe .active */
 .modal-vitral.active {
     opacity: 1;
@@ -1496,4 +1508,19 @@ body.admin-mode #user-title {
     padding: 10px;
     font-size: 0.8rem;
     box-shadow: 0 0 15px rgba(0, 242, 255, 0.3);
+}
+
+/* Garante que o usuário consiga clicar em elementos no mobile */
+button, input, a, .auth-trigger, .close-modal {
+    touch-action: manipulation;
+    cursor: pointer;
+}
+
+/* Evita que a modal fique escondida atrás do teclado */
+@media (max-width: 768px) {
+    .modal-vitral .modal-content {
+        max-height: 90vh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
 }

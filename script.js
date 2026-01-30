@@ -330,12 +330,18 @@ async function carregarDadosAdmin() {
 }
 
 /* ==========================================================================
-   10. MODAIS E INICIALIZAÇÃO (VERSÃO SEGURA)
+   10. MODAIS E INICIALIZAÇÃO (VERSÃO MOBILE FRIENDLY)
 ========================================================================== */
-// Função auxiliar segura (evita o erro de 'null')
+
 const safeClick = (id, callback) => {
     const el = document.getElementById(id);
-    if (el) el.onclick = callback;
+    if (el) {
+        // Usar click, mas garantir que o mobile entenda
+        el.addEventListener('click', (e) => {
+            e.preventDefault(); // Evita comportamentos estranhos no mobile
+            callback(e);
+        });
+    }
 };
 
 // Abrir Login
@@ -344,24 +350,38 @@ safeClick('auth-trigger', () => {
     if (modal) modal.classList.add('active');
 });
 
-// Abrir Jogo (Corrigindo o ID para game-overlay)
-safeClick('game-trigger', () => {
-    const modal = document.getElementById('game-overlay');
-    if (modal) {
-        modal.classList.add('active');
-        // Se houver uma função de redimensionar o jogo, chamamos aqui
-        if (typeof resizeCanvas === 'function') resizeCanvas();
-    }
+// Reset e Esqueci Senha (Garanta que esses IDs existam no seu HTML)
+safeClick('reset-password-btn', () => {
+    // Sua lógica de reset do Firebase aqui
+    console.log("Reset solicitado");
 });
 
-// Fechar todas as modais
-document.querySelectorAll('.close-modal').forEach(btn => {
-    btn.onclick = () => {
-        document.querySelectorAll('.modal-vitral').forEach(m => m.classList.remove('active'));
-        const fbModal = document.getElementById('feedback-modal');
-        if (fbModal) fbModal.style.display = 'none';
-        
-        // Parar o jogo ao fechar a modal
-        if (typeof gameInterval !== 'undefined') clearInterval(gameInterval);
-    };
+// Fechar todas as modais - Versão corrigida para Mobile
+document.querySelectorAll('.close-modal, .modal-vitral').forEach(el => {
+    el.addEventListener('click', function(e) {
+        // Se clicar na lateral da modal (fundo) ou no botão fechar, ela fecha
+        if (e.target === this || this.classList.contains('close-modal')) {
+            document.querySelectorAll('.modal-vitral').forEach(m => m.classList.remove('active'));
+        }
+    });
+});
+
+// Abrir Perfil
+safeClick('profile-trigger', () => {
+    const modal = document.getElementById('profile-modal');
+    if (modal) modal.classList.add('active');
+});
+
+// Fechar modal de perfil especificamente (caso o close-modal geral falhe)
+document.querySelector('#profile-modal .close-modal').onclick = () => {
+    document.getElementById('profile-modal').classList.remove('active');
+};
+
+// Adicione isso ao final do seu script.js
+safeClick('game-trigger', () => {
+    const gameOverlay = document.getElementById('game-overlay');
+    if (gameOverlay) {
+        gameOverlay.classList.add('active'); // Usa o padrão de modais do seu script.js
+        gameOverlay.style.display = 'flex';  // Garante a compatibilidade com o stellar-flow.js
+    }
 });
