@@ -336,9 +336,8 @@ async function carregarDadosAdmin() {
 const safeClick = (id, callback) => {
     const el = document.getElementById(id);
     if (el) {
-        // Usar click, mas garantir que o mobile entenda
         el.addEventListener('click', (e) => {
-            e.preventDefault(); // Evita comportamentos estranhos no mobile
+            // Removemos o preventDefault para testar a resposta pura
             callback(e);
         });
     }
@@ -383,5 +382,70 @@ safeClick('game-trigger', () => {
     if (gameOverlay) {
         gameOverlay.classList.add('active'); // Usa o padrão de modais do seu script.js
         gameOverlay.style.display = 'flex';  // Garante a compatibilidade com o stellar-flow.js
+    }
+});
+
+/* ==========================================================================
+   11. Lógica do Botão RESET (Pânico) - SEM CONFIRMAÇÃO
+========================================================================== 
+*/
+
+const panicBtn = document.getElementById('panic-btn');
+if (panicBtn) {
+    panicBtn.addEventListener('click', () => {
+        // 1. Para o cronômetro imediatamente
+        clearInterval(timer);
+        timer = null;
+        
+        // 2. Reseta o tempo para o valor selecionado no seletor
+        timeLeft = totalTime;
+        atualizarDisplayVisual();
+        
+        // 3. Limpa o jardim visual (remove todos os emojis)
+        const container = document.querySelector('.sphere-wrapper');
+        if (container) {
+            container.querySelectorAll('.garden-item').forEach(el => el.remove());
+            gardenItemCount = 0;
+        }
+        
+        // 4. Reseta os textos da interface
+        if (startBtn) startBtn.innerText = "INICIAR";
+        setOrbitState('default');
+        orbitTalk("Resetado! ✨");
+        
+        console.log("Sistema resetado instantaneamente.");
+    });
+}
+
+//limpeza de tarefas moodo z
+/* ==========================================================================
+   12. Lógica do Botão COLETAR Relíquia
+========================================================================== 
+*/
+
+// Lógica do Botão COLETAR Relíquia
+safeClick('btn-coletar', () => {
+    const step1 = document.getElementById('relic-step');
+    const step2 = document.getElementById('orbit-congrats-step');
+    
+    if (step1 && step2) {
+        step1.style.display = 'none';
+        step2.style.display = 'flex';
+        
+        // Toca o som de upgrade se existir
+        getEl('audio-up')?.play().catch(() => {});
+    }
+});
+
+// Botão Finalizar Conquista (O "De nada!")
+safeClick('btn-finalizar-conquista', () => {
+    const modal = document.getElementById('conquista-modal');
+    if (modal) {
+        modal.classList.remove('active');
+        modal.style.display = 'none';
+        
+        // Reset para a próxima vez que abrir
+        document.getElementById('relic-step').style.display = 'block';
+        document.getElementById('orbit-congrats-step').style.display = 'none';
     }
 });
