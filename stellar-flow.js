@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', initTrigger);
         obstacles = [];
         for (let i = 0; i < level * 2; i++) generateObstacle();
         clearInterval(gameInterval);
-        const speed = Math.max(110 - (level * 5), 50);
+        const speed = Math.max(180 - (level * 5), 70);
         gameInterval = setInterval(draw, speed);
     }
 
