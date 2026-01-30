@@ -1477,6 +1477,14 @@ body.admin-mode #user-title {
 /* Canvas para efeito de profundidade */
 #gameCanvas {
     filter: drop-shadow(0 0 5px rgba(0, 242, 255, 0.2));
+    touch-action: none !important; /* Trava o scroll do navegador no canvas */
+    -webkit-tap-highlight-color: transparent; /* Remove o quadrado azul ao tocar */
+    user-select: none;
+}
+
+#game-overlay {
+    overflow: hidden; /* Garante que a modal não role */
+    touch-action: none;
 }
 
 /* Balão do Orbit (Baseado na imagem) */
