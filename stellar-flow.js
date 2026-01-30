@@ -203,3 +203,34 @@
         startBtn.innerHTML = `<div style="font-size: 0.8rem">SISTEMA SOBRECARREGADO<br>NÍVEL: ${level} • SCORE: ${score}<br><br><span style="color:#fff">CLIQUE PARA REINICIAR</span></div>`;
     }
 })();
+
+// --- ADICIONE ISSO PARA CELULAR ---
+let touchStartX = 0;
+let touchStartY = 0;
+
+canvas.addEventListener('touchstart', e => {
+    touchStartX = e.changedTouches[0].screenX;
+    touchStartY = e.changedTouches[0].screenY;
+}, false);
+
+canvas.addEventListener('touchend', e => {
+    if (!gameRunning) return;
+    
+    let touchEndX = e.changedTouches[0].screenX;
+    let touchEndY = e.changedTouches[0].screenY;
+    
+    let diffX = touchEndX - touchStartX;
+    let diffY = touchEndY - touchStartY;
+
+    // Verifica se o deslize foi horizontal ou vertical
+    if (Math.abs(diffX) > Math.abs(diffY)) {
+        // Horizontal
+        if (diffX > 0 && dx === 0) { dx = gridSize; dy = 0; } // Direita
+        else if (diffX < 0 && dx === 0) { dx = -gridSize; dy = 0; } // Esquerda
+    } else {
+        // Vertical
+        if (diffY > 0 && dy === 0) { dx = 0; dy = gridSize; } // Baixo
+        else if (diffY < 0 && dy === 0) { dx = 0; dy = -gridSize; } // Cima
+    }
+}, false);
+// ----------------------------------
