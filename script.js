@@ -79,6 +79,16 @@ function updateTimer() {
     }
 
     if (elapsed > 0 && elapsed % 1800 === 0) pausarParaDescanso();
+    
+    // Exemplo: A cada 45 minutos (2700 segundos) de foco
+    if (elapsed === 2700) {
+        window.OrbitAI.reagir('alerta_saude');
+    }
+
+    // Quando o ciclo terminar totalmente
+    if (timeLeft <= 0) {
+        window.OrbitAI.reagir('sugerir_jogo');
+    }
 
     atualizarDisplayVisual();
 }

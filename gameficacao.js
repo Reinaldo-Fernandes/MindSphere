@@ -10,9 +10,12 @@ const RELIC_CONFIG = {
     matutino: 12, meses: 12, noturno: 16, reigoblin: 17, vespertino: 17 
 };
 
+// Variável local para evitar múltiplas renderizações desnecessárias
+let ultimaConquistaCount = 0;
+
 export function iniciarObservadorGamificacao(uid) {
     if (!uid) return;
-    onSnapshot(doc(db, "users", uid), (docSnap) => {
+    return onSnapshot(doc(db, "users", uid), (docSnap) => {
         if (docSnap.exists()) {
             const data = docSnap.data();
             window.userDB = data; 
@@ -22,16 +25,18 @@ export function iniciarObservadorGamificacao(uid) {
 }
 
 function atualizarInterface(data) {
+    // 1. Lógica de Nível e XP
     const xpTotal = data.xp || 0;
     const nivel = Math.floor(xpTotal / 1000) + 1;
     const xpNoNivel = xpTotal % 1000;
-    const porcentagem = (xpNoNivel / 1000) * 100;
-
+    
     if (getEl('user-level-badge')) getEl('user-level-badge').innerText = `Nível ${nivel}`;
     if (getEl('xp-text')) getEl('xp-text').innerText = `${xpNoNivel}/1000 XP`;
+    
     const fill = getEl('xp-bar-fill');
-    if (fill) fill.style.width = `${porcentagem}%`;
+    if (fill) fill.style.width = `${(xpNoNivel / 1000) * 100}%`;
 
+    // 2. Histórico Goblin (Otimizado: só reconstrói se houver dados)
     const histList = getEl('goblin-history-list');
     if (histList && data.historicoGoblin) {
         histList.innerHTML = data.historicoGoblin.slice(-5).reverse().map(item => `
@@ -43,35 +48,33 @@ function atualizarInterface(data) {
         `).join('');
     }
 
-  const shelf = getEl('trophy-shelf-content');
-    if (shelf && data.conquistas) {
+    // 3. Prateleira de Troféus (Otimizado: só reconstrói se o número de conquistas mudou)
+    const shelf = getEl('trophy-shelf-content');
+    const conquistasAtuais = data.conquistas || [];
+    
+    if (shelf && conquistasAtuais.length !== ultimaConquistaCount) {
+        ultimaConquistaCount = conquistasAtuais.length;
         shelf.innerHTML = ""; 
-        data.conquistas.forEach(id => {
+        conquistasAtuais.forEach(id => {
             if (!id || !id.includes('_')) return;
             const [cat, num] = id.split('_');
             const catClean = cat.toLowerCase().trim();
             
             const div = document.createElement('div');
-            // MUDANÇA AQUI: Adicionamos 'catClean' como classe
             div.className = `trophy-item ${catClean}`; 
-            
-            const img = document.createElement('img');
-            img.src = `./components/${catClean}/${num}.png`;
-            img.onerror = () => div.remove();
-            
-            div.appendChild(img);
+            div.innerHTML = `<img src="./components/${catClean}/${num}.png" onerror="this.parentElement.remove()">`;
             shelf.appendChild(div);
         });
     }
 }
 
-// ÚNICA DEFINIÇÃO DA FUNÇÃO
 function mostrarModalConquista(cat, num) {
     const modal = getEl('conquista-modal');
     const img = getEl('conquista-img');
     if (modal && img) {
         img.src = `./components/${cat.toLowerCase()}/${num}.png`;
         modal.classList.add('active');
+        modal.style.display = 'flex'; // Garante visibilidade
         getEl('audio-complete')?.play().catch(()=>{});
     }
 }
@@ -84,49 +87,77 @@ window.adicionarProgresso = async (tipo, xpGanho, nomeTarefa = "") => {
     const agora = new Date();
     const hora = agora.getHours();
     const conquistasAtuais = window.userDB.conquistas || [];
-
-    let categoria = 'aleatorios';
-    if (tipo === 'foco') categoria = 'hiperfoco';
-    else if (hora >= 0 && hora < 6) categoria = 'madrugada';
-    else if (hora >= 6 && hora < 12) categoria = 'matutino';
-    else if (hora >= 12 && hora < 18) categoria = 'vespertino';
-    else categoria = 'noturno';
-
-    categoria = categoria.toLowerCase();
-    const maxImg = RELIC_CONFIG[categoria] || 10;
-    let disponiveis = [];
     
-    for (let i = 1; i <= maxImg; i++) {
-        const id = `${categoria}_${i}`;
-        if (!conquistasAtuais.includes(id)) disponiveis.push(i);
+    let categoria;
+    let deveGanharReliquia = false;
+
+    // --- LÓGICA GOBLIN (1 relíquia a cada 10 missões) ---
+    if (tipo === 'goblin') {
+        const novoContador = (window.userDB.contadorGoblin || 0) + 1;
+        categoria = 'reigoblin';
+        // Só tenta sortear relíquia se for múltiplo de 10
+        if (novoContador % 10 === 0) {
+            deveGanharReliquia = true;
+        }
+    } else {
+        // Lógica de Foco/Tempo (Ganha sempre por enquanto ou ajuste aqui)
+        deveGanharReliquia = true; 
+        if (tipo === 'foco') categoria = 'hiperfoco';
+        else if (hora >= 0 && hora < 6) categoria = 'madrugada';
+        else if (hora >= 6 && hora < 12) categoria = 'matutino';
+        else if (hora >= 12 && hora < 18) categoria = 'vespertino';
+        else categoria = 'noturno';
     }
 
-    if (disponiveis.length === 0 && categoria !== 'aleatorios') {
-        categoria = 'aleatorios';
-        for (let i = 1; i <= RELIC_CONFIG.aleatorios; i++) {
-            if (!conquistasAtuais.includes(`aleatorios_${i}`)) disponiveis.push(i);
+    // --- SORTEIO OTIMIZADO ---
+    let idFinal = null;
+    let numSorteado = null;
+
+    if (deveGanharReliquia) {
+        categoria = categoria.toLowerCase();
+        const maxImg = RELIC_CONFIG[categoria] || 10;
+        let disponiveis = [];
+
+        for (let i = 1; i <= maxImg; i++) {
+            const id = `${categoria}_${i}`;
+            if (!conquistasAtuais.includes(id)) disponiveis.push(i);
+        }
+
+        if (disponiveis.length === 0 && categoria !== 'aleatorios') {
+            categoria = 'aleatorios';
+            for (let i = 1; i <= RELIC_CONFIG.aleatorios; i++) {
+                if (!conquistasAtuais.includes(`aleatorios_${i}`)) disponiveis.push(i);
+            }
+        }
+
+        if (disponiveis.length > 0) {
+            numSorteado = disponiveis[Math.floor(Math.random() * disponiveis.length)];
+            idFinal = `${categoria}_${numSorteado}`;
         }
     }
 
-    let idFinal = null, numSorteado = null;
-    if (disponiveis.length > 0) {
-        numSorteado = disponiveis[Math.floor(Math.random() * disponiveis.length)];
-        idFinal = `${categoria}_${numSorteado}`;
-    }
-
+    // --- OPERAÇÃO ATÔMICA (Economiza escritas) ---
     const up = { xp: increment(xpGanho) };
+    
     if (idFinal) up.conquistas = arrayUnion(idFinal);
-    if (tipo === 'goblin' && nomeTarefa) {
-        up.historicoGoblin = arrayUnion({
-            tarefa: nomeTarefa,
-            data: agora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})
-        });
+    
+    if (tipo === 'goblin') {
+        up.contadorGoblin = increment(1); // Importante para a trava de 10
+        const contadorAtual = (window.userDB.contadorGoblin || 0) + 1;
+    // Chama o Orbit para incentivar se estiver perto de 10
+    window.OrbitAI.reagir('progresso_goblin', { contador: contadorAtual });
+        if (nomeTarefa) {
+            up.historicoGoblin = arrayUnion({
+                tarefa: nomeTarefa,
+                data: agora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})
+            });
+        }
     }
 
     try {
         await updateDoc(userRef, up);
         if (idFinal) mostrarModalConquista(categoria, numSorteado);
-    } catch (e) { console.error(e); }
+    } catch (e) { console.error("Erro Firebase:", e); }
 };
 
 window.fecharConquista = () => getEl('conquista-modal')?.classList.remove('active');
