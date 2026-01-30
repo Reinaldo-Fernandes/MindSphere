@@ -5,6 +5,10 @@
     let gameRunning = false;
     let canvas, ctx, startBtn, scoreDisplay;
 
+    // Variáveis de toque
+    let touchStartX = 0;
+    let touchStartY = 0;
+
     document.addEventListener('DOMContentLoaded', () => {
         canvas = document.getElementById('gameCanvas');
         if (!canvas) return;
@@ -16,6 +20,51 @@
         startBtn = document.getElementById('game-tap-to-start');
         scoreDisplay = document.getElementById('scoreDisplay');
 
+        // Controles de Toque (Mobile)
+        canvas.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].clientX;
+            touchStartY = e.changedTouches[0].clientY;
+            // Impede que a tela balance/role enquanto joga
+            if(gameRunning) e.preventDefault();
+        }, { passive: false });
+
+        canvas.addEventListener('touchend', e => {
+            if (!gameRunning) return;
+            e.preventDefault();
+            
+            let touchEndX = e.changedTouches[0].clientX;
+            let touchEndY = e.changedTouches[0].clientY;
+            
+            let diffX = touchEndX - touchStartX;
+            let diffY = touchEndY - touchStartY;
+
+            // Sensibilidade mínima para evitar toques acidentais
+            if (Math.abs(diffX) < 10 && Math.abs(diffY) < 10) return;
+
+            if (Math.abs(diffX) > Math.abs(diffY)) {
+                if (diffX > 0 && dx === 0) { dx = gridSize; dy = 0; } // Direita
+                else if (diffX < 0 && dx === 0) { dx = -gridSize; dy = 0; } // Esquerda
+            } else {
+                if (diffY > 0 && dy === 0) { dx = 0; dy = gridSize; } // Baixo
+                else if (diffY < 0 && dy === 0) { dx = 0; dy = -gridSize; } // Cima
+            }
+        }, { passive: false });
+
+        // Controles de Teclado (Desktop)
+        document.addEventListener('keydown', e => {
+            if (!gameRunning) return;
+            const goingUp = dy === -gridSize;
+            const goingDown = dy === gridSize;
+            const goingRight = dx === gridSize;
+            const goingLeft = dx === -gridSize;
+
+            if (e.key === 'ArrowUp' && !goingDown) { dx = 0; dy = -gridSize; }
+            if (e.key === 'ArrowDown' && !goingUp) { dx = 0; dy = gridSize; }
+            if (e.key === 'ArrowLeft' && !goingRight) { dx = -gridSize; dy = 0; }
+            if (e.key === 'ArrowRight' && !goingLeft) { dx = gridSize; dy = 0; }
+        });
+
+        // Eventos de Interface
         trigger.addEventListener('click', () => {
             overlay.style.display = 'flex';
             gameRunning = false;
@@ -29,30 +78,18 @@
             clearInterval(gameInterval);
         });
 
-        startBtn.addEventListener('click', () => {
+        startBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
             startBtn.style.display = 'none';
             resetGame();
         });
-
-        document.addEventListener('keydown', e => {
-            if (!gameRunning) return;
-            const goingUp = dy === -gridSize;
-            const goingDown = dy === gridSize;
-            const goingRight = dx === gridSize;
-            const goingLeft = dx === -gridSize;
-
-            if (e.key === 'ArrowUp' && !goingDown) { dx = 0; dy = -gridSize; }
-            if (e.key === 'ArrowDown' && !goingUp) { dx = 0; dy = gridSize; }
-            if (e.key === 'ArrowLeft' && !goingRight) { dx = -gridSize; dy = 0; }
-            if (e.key === 'ArrowRight' && !goingLeft) { dx = gridSize; dy = 0; }
-        });
     });
 
+    // --- Lógica do Jogo (Mantida e Estável) ---
     function resetGame() {
-        // CORREÇÃO: Começa estritamente com 2 segmentos
         snake = [
-            {x: gridSize * 5, y: gridSize * 5}, // Cabeça
-            {x: gridSize * 4, y: gridSize * 5}  // Corpo
+            {x: gridSize * 5, y: gridSize * 5},
+            {x: gridSize * 4, y: gridSize * 5}
         ];
         dx = gridSize; 
         dy = 0; 
@@ -60,40 +97,28 @@
         level = 1;
         obstacles = [];
         gameRunning = true;
-        
         updateScore();
         generateFood();
         startLevel();
     }
 
     function startLevel() {
-        // Limpa e gera barreiras baseadas no nível
         obstacles = [];
-        // Nível 1 = 2 barreiras, Nível 2 = 4 barreiras, etc.
         const numObstacles = level * 2; 
-        
-        for (let i = 0; i < numObstacles; i++) {
-            generateObstacle();
-        }
-
+        for (let i = 0; i < numObstacles; i++) { generateObstacle(); }
         clearInterval(gameInterval);
         const speed = Math.max(110 - (level * 5), 50);
         gameInterval = setInterval(draw, speed);
     }
 
     function generateObstacle() {
-        let obsX, obsY;
-        let validPos = false;
-        
+        let obsX, obsY, validPos = false;
         while (!validPos) {
             obsX = Math.floor(Math.random() * (canvas.width / gridSize)) * gridSize;
             obsY = Math.floor(Math.random() * (canvas.height / gridSize)) * gridSize;
-            
-            // Não pode nascer em cima da cobra, comida ou outros obstáculos
             const onSnake = snake.some(p => p.x === obsX && p.y === obsY);
             const onFood = food && food.x === obsX && food.y === obsY;
             const onObstacle = obstacles.some(o => o.x === obsX && o.y === obsY);
-            
             if (!onSnake && !onFood && !onObstacle) validPos = true;
         }
         obstacles.push({x: obsX, y: obsY});
@@ -120,7 +145,7 @@
         ctx.fillStyle = "rgba(2, 6, 23, 0.3)"; 
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // DESENHAR COMIDA (Cristal Dourado)
+        // Desenhar Comida
         ctx.shadowBlur = 15;
         ctx.shadowColor = "#fbbf24";
         ctx.fillStyle = "#fbbf24";
@@ -128,7 +153,7 @@
         ctx.arc(food.x + 10, food.y + 10, 6, 0, Math.PI * 2);
         ctx.fill();
 
-        // DESENHAR BARREIRAS (Obstáculos Rosa Neon)
+        // Desenhar Barreiras
         ctx.shadowBlur = 10;
         ctx.shadowColor = "#ff0055";
         ctx.fillStyle = "rgba(255, 0, 85, 0.8)";
@@ -138,23 +163,18 @@
             ctx.fill();
         });
 
-        // MOVIMENTAÇÃO
+        // Lógica de Movimento
         const head = {x: snake[0].x + dx, y: snake[0].y + dy};
 
-        // Teletransporte de borda
         if (head.x < 0) head.x = canvas.width - gridSize;
         else if (head.x >= canvas.width) head.x = 0;
         if (head.y < 0) head.y = canvas.height - gridSize;
         else if (head.y >= canvas.height) head.y = 0;
 
-        // Verificação de morte
         const hitSelf = snake.some(p => p.x === head.x && p.y === head.y);
         const hitObstacle = obstacles.some(o => o.x === head.x && o.y === head.y);
 
-        if (hitSelf || hitObstacle) {
-            gameOver();
-            return;
-        }
+        if (hitSelf || hitObstacle) { gameOver(); return; }
 
         snake.unshift(head);
 
@@ -162,33 +182,22 @@
             score += 10;
             updateScore();
             generateFood();
-            
-            // NOVO NÍVEL: A cada 100 pontos
-            if (score > 0 && score % 100 === 0) {
-                level++;
-                startLevel(); 
-            }
+            if (score > 0 && score % 100 === 0) { level++; startLevel(); }
         } else {
             snake.pop();
         }
 
-        // DESENHAR COBRA (Fluida)
+        // Desenhar Cobra
         snake.forEach((part, i) => {
             const isHead = i === 0;
             ctx.shadowBlur = isHead ? 20 : 10;
             ctx.shadowColor = "#00f2ff";
-
-            const gradient = ctx.createRadialGradient(
-                part.x + 10, part.y + 10, 2, 
-                part.x + 10, part.y + 10, 10
-            );
+            const gradient = ctx.createRadialGradient(part.x+10, part.y+10, 2, part.x+10, part.y+10, 10);
             gradient.addColorStop(0, "#fff"); 
-            gradient.addColorStop(0.2, "#00f2ff");
+            gradient.addColorStop(0.4, "#00f2ff");
             gradient.addColorStop(1, "rgba(0, 71, 255, 0.3)");
-
             ctx.fillStyle = gradient;
             ctx.beginPath();
-            // Efeito de cauda afinando
             const size = isHead ? 9 : Math.max(8 - (i * 0.2), 4); 
             ctx.arc(part.x + 10, part.y + 10, size, 0, Math.PI * 2);
             ctx.fill();
@@ -200,37 +209,6 @@
         gameRunning = false;
         clearInterval(gameInterval);
         startBtn.style.display = 'flex';
-        startBtn.innerHTML = `<div style="font-size: 0.8rem">SISTEMA SOBRECARREGADO<br>NÍVEL: ${level} • SCORE: ${score}<br><br><span style="color:#fff">CLIQUE PARA REINICIAR</span></div>`;
+        startBtn.innerHTML = `<div style="font-size: 0.8rem">SISTEMA SOBRECARREGADO<br>SCORE: ${score}<br><br><span style="color:#fff">REINICIAR</span></div>`;
     }
 })();
-
-// --- ADICIONE ISSO PARA CELULAR ---
-let touchStartX = 0;
-let touchStartY = 0;
-
-canvas.addEventListener('touchstart', e => {
-    touchStartX = e.changedTouches[0].screenX;
-    touchStartY = e.changedTouches[0].screenY;
-}, false);
-
-canvas.addEventListener('touchend', e => {
-    if (!gameRunning) return;
-    
-    let touchEndX = e.changedTouches[0].screenX;
-    let touchEndY = e.changedTouches[0].screenY;
-    
-    let diffX = touchEndX - touchStartX;
-    let diffY = touchEndY - touchStartY;
-
-    // Verifica se o deslize foi horizontal ou vertical
-    if (Math.abs(diffX) > Math.abs(diffY)) {
-        // Horizontal
-        if (diffX > 0 && dx === 0) { dx = gridSize; dy = 0; } // Direita
-        else if (diffX < 0 && dx === 0) { dx = -gridSize; dy = 0; } // Esquerda
-    } else {
-        // Vertical
-        if (diffY > 0 && dy === 0) { dx = 0; dy = gridSize; } // Baixo
-        else if (diffY < 0 && dy === 0) { dx = 0; dy = -gridSize; } // Cima
-    }
-}, false);
-// ----------------------------------
