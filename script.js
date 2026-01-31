@@ -8,7 +8,9 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { iniciarObservadorGamificacao } from "./gameficacao.js";
+import { initThreeBackground, add3DPlant } from './visual.js';
 
+initThreeBackground();
 
 
 /* ==========================================================================
@@ -20,7 +22,7 @@ let totalTime = 1500;
 let timeLeft = totalTime; 
 let gardenItemCount = 0;
 const circumference = 212 * 2 * Math.PI;
-
+const starCount = window.innerWidth < 768 ? 1000 : 3000;
 const getEl = (id) => document.getElementById(id);
 const display = getEl('timer-display');
 const circle = document.querySelector('.progress-ring__circle');
@@ -141,6 +143,8 @@ function spawnGardenItem() {
     item.style.setProperty('--orbit-distance', `170px`);
     item.style.setProperty('--start-angle', `${gardenItemCount * 45}deg`);
     
+
+    if (window.add3DPlant) add3DPlant(emoji);
     container.appendChild(item);
     gardenItemCount++;
 }
