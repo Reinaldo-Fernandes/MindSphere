@@ -15,13 +15,23 @@ let ultimaConquistaCount = 0;
 
 export function iniciarObservadorGamificacao(uid) {
     if (!uid) return;
-    return onSnapshot(doc(db, "users", uid), (docSnap) => {
-        if (docSnap.exists()) {
-            const data = docSnap.data();
-            window.userDB = data; 
-            atualizarInterface(data);
+    const userRef = doc(db, "users", uid);
+
+    return onSnapshot(userRef, 
+        (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                window.userDB = data; 
+                atualizarInterface(data);
+            } else {
+                console.warn("Documento do usuário não encontrado no Firestore.");
+            }
+        }, 
+        (error) => {
+            console.error("Erro de permissão no Firestore:", error);
+            // Aqui você pode avisar o usuário ou tentar criar o doc inicial
         }
-    });
+    );
 }
 
 function atualizarInterface(data) {

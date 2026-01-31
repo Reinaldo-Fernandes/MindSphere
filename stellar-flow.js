@@ -21,41 +21,42 @@
         scoreDisplay = document.getElementById('scoreDisplay');
 
         // --- TRAVA DE SCROLL E CONTROLE DE TOQUE ---
-        canvas.addEventListener('touchstart', e => {
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
-            // Impede o scroll apenas se o jogo estiver rodando
-            if(gameRunning) e.preventDefault(); 
-        }, { passive: false });
+      // --- TRAVA DE SCROLL E CONTROLE DE TOQUE CORRIGIDO ---
+canvas.addEventListener('touchstart', e => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+}, { passive: true }); // Passive true ajuda na performance
 
-        canvas.addEventListener('touchmove', e => {
-            // BLOQUEIO CRÍTICO: Impede a página de subir/descer durante o deslize
-            if(gameRunning) e.preventDefault();
-        }, { passive: false });
+canvas.addEventListener('touchmove', e => {
+    if(gameRunning) {
+        // Bloqueia o scroll da página enquanto joga
+        if (e.cancelable) e.preventDefault(); 
+    }
+}, { passive: false });
 
-        canvas.addEventListener('touchend', e => {
-            if (!gameRunning) return;
-            e.preventDefault();
+canvas.addEventListener('touchend', e => {
+    if (!gameRunning) return;
+    
+    // IMPORTANTE: No touchend, usamos changedTouches
+    let touchEndX = e.changedTouches[0].clientX;
+    let touchEndY = e.changedTouches[0].clientY;
+    
+    let diffX = touchEndX - touchStartX;
+    let diffY = touchEndY - touchStartY;
 
-            let touchEndX = e.changedTouches[0].clientX;
-            let touchEndY = e.changedTouches[0].clientY;
-            
-            let diffX = touchEndX - touchStartX;
-            let diffY = touchEndY - touchStartY;
+    // Sensibilidade: Ignora toques muito curtos
+    if (Math.abs(diffX) < 30 && Math.abs(diffY) < 30) return;
 
-            // Sensibilidade: Ignora toques muito curtos (cliques acidentais)
-            if (Math.abs(diffX) < 20 && Math.abs(diffY) < 20) return;
-
-            if (Math.abs(diffX) > Math.abs(diffY)) {
-                // Movimento Horizontal
-                if (diffX > 0 && dx === 0) { dx = gridSize; dy = 0; }
-                else if (diffX < 0 && dx === 0) { dx = -gridSize; dy = 0; }
-            } else {
-                // Movimento Vertical
-                if (diffY > 0 && dy === 0) { dx = 0; dy = gridSize; }
-                else if (diffY < 0 && dy === 0) { dx = 0; dy = -gridSize; }
-            }
-        }, { passive: false });
+    if (Math.abs(diffX) > Math.abs(diffY)) {
+        // Movimento Horizontal
+        if (diffX > 0 && dx === 0) { dx = gridSize; dy = 0; }
+        else if (diffX < 0 && dx === 0) { dx = -gridSize; dy = 0; }
+    } else {
+        // Movimento Vertical
+        if (diffY > 0 && dy === 0) { dx = 0; dy = gridSize; }
+        else if (diffY < 0 && dy === 0) { dx = 0; dy = -gridSize; }
+    }
+}, { passive: false });
 
         // --- CONTROLE DE TECLADO ---
         document.addEventListener('keydown', e => {
@@ -69,21 +70,25 @@
             if (keys[e.key]) keys[e.key]();
         });
 
-        // Eventos de Menu
-        // No stellar-flow.js, procure a parte do trigger e substitua por:
-const initTrigger = () => {
-    const trigger = document.getElementById('game-trigger');
-    if (trigger) {
-        trigger.onclick = (e) => {
-            e.preventDefault();
-            console.log("Botão Stellar clicado!"); // Para você ver se funcionou no F12
-            overlay.style.setProperty('display', 'flex', 'important');
-            gameRunning = false;
-            startBtn.style.display = 'flex';
-            startBtn.innerHTML = `<span>INICIAR FLUXO</span>`;
+      
+        const initTrigger = () => {
+            const trigger = document.getElementById('game-trigger');
+            const overlay = document.getElementById('game-overlay');
+            const startBtn = document.getElementById('game-tap-to-start');
+
+            if (trigger && overlay) {
+                trigger.onclick = (e) => {
+                    e.preventDefault();
+                    overlay.classList.add('active'); // Usa a classe que trava o scroll no CSS
+                    overlay.style.display = 'flex';
+                    gameRunning = false;
+                    if (startBtn) {
+                        startBtn.style.display = 'flex';
+                        startBtn.innerHTML = `<span>INICIAR FLUXO</span>`;
+                    }
+                };
+            }
         };
-    }
-};
 
 // Chame a função imediatamente e também no DOMContentLoaded
 initTrigger();

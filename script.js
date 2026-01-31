@@ -312,12 +312,34 @@ getEl('save-agenda')?.addEventListener('click', () => {
 });
 
 /* ==========================================================================
-   9. ADMIN E FEEDBACK
+   9. ADMIN E FEEDBACK (CORRIGIDO)
 ========================================================================== 
 */
+
+// FUNÇÃO PARA ABRIR O FEEDBACK
+const btnFeedback = document.getElementById('feedback-trigger');
+if (btnFeedback) {
+    btnFeedback.onclick = (e) => {
+        e.preventDefault();
+        const modal = document.getElementById('feedback-modal');
+        if (modal) {
+            modal.classList.add('active');
+            modal.style.display = 'flex'; // Força a exibição
+            console.log("Modal de feedback aberta");
+        }
+    };
+}
+
+// FUNÇÃO PARA ENVIAR O FEEDBACK
 getEl('send-fb-btn')?.addEventListener('click', async () => {
     const texto = getEl('fb-text').value.trim();
-    if (!texto) return;
+    const statusMsg = getEl('orbit-msg-fb'); // Certifique-se que este ID existe no HTML
+    
+    if (!texto) {
+        orbitTalk("Escreva algo antes de enviar! ✍️");
+        return;
+    }
+
     try {
         await addDoc(collection(db, "feedbacks"), {
             nome: getEl('fb-user-name').value || "Anônimo",
@@ -325,24 +347,23 @@ getEl('send-fb-btn')?.addEventListener('click', async () => {
             data: new Date(),
             email: auth.currentUser?.email || "N/A"
         });
-        getEl('orbit-msg-fb').innerText = "Recebido! Orbit Admin avisado.";
-        setTimeout(() => getEl('feedback-modal').style.display = 'none', 2000);
-    } catch (e) { console.error(e); }
+
+        if (statusMsg) statusMsg.innerText = "Recebido! Orbit Admin avisado.";
+        orbitTalk("Feedback enviado! Obrigado. ✨");
+
+        setTimeout(() => {
+            const modal = getEl('feedback-modal');
+            if (modal) {
+                modal.classList.remove('active');
+                modal.style.display = 'none';
+            }
+            getEl('fb-text').value = ""; // Limpa o campo
+        }, 2000);
+    } catch (e) { 
+        console.error("Erro ao enviar feedback:", e);
+        orbitTalk("Houve um erro ao enviar. ❌");
+    }
 });
-
-async function carregarDadosAdmin() {
-    const wall = getEl('feedback-wall');
-    if (!wall) return;
-    const q = query(collection(db, "feedbacks"), orderBy("data", "desc"));
-    onSnapshot(q, (snapshot) => {
-        wall.innerHTML = "";
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            wall.innerHTML += `<div class="feedback-item"><b>${data.email}:</b> ${data.mensagem}</div>`;
-        });
-    });
-}
-
 /* ==========================================================================
    10. MODAIS E INICIALIZAÇÃO (VERSÃO MOBILE FRIENDLY)
 ========================================================================== */
