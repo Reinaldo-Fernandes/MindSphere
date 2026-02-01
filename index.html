@@ -17,11 +17,19 @@
     
     <header class="interface-element">
         <div class="header-left">
-            <button id="panic-btn" class="glass-btn panic">RESET</button>
-            <button id="auth-trigger" class="glass-btn">🔑 ENTRAR / REGISTAR</button>
-            <button id="view-metrics" class="glass-btn" style="display: none; margin-top: 15px; border-color: #00ff41; color: #00ff41;">
-                <i class="fas fa-terminal"></i> PAINEL ADM
-            </button>
+    <button id="panic-btn" class="glass-btn panic">RESET</button>
+    <button id="auth-trigger" class="glass-btn">🔑 ENTRAR / REGISTAR</button>
+    
+    <button id="sensory-trigger" class="glass-btn">
+    <i class="fas fa-brain"></i>
+</button>
+
+    <button id="view-metrics" class="glass-btn" style="display: none; margin-top: 15px; border-color: #00ff41; color: #00ff41;">
+        <i class="fas fa-terminal"></i> PAINEL ADM
+    </button>
+</div>
+</button>
+
         </div>
         <h1 class="logo">MindSphere</h1>
         <div class="header-right" style="display: flex; gap: 10px; align-items: center;">
@@ -248,6 +256,48 @@
                 </div>
             </div>
         </div>
+
+        <div id="sensory-settings-modal" class="modal-vitral" style="display: none;">
+    <div class="auth-card">
+        <button class="close-modal">×</button>
+        <h2 class="panel-title">Ajustes Sensoriais 🧠</h2>
+        <p style="font-size: 0.8rem; margin-bottom: 20px; opacity: 0.8;">Desative estímulos que estejam causando desconforto.</p>
+        
+        <div class="setting-item">
+            <span>Animações de Fundo (Three.js)</span>
+            <label class="switch">
+                <input type="checkbox" id="toggle-bg-animation" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div class="setting-item">
+            <span>Jardim Orbitante (Visual)</span>
+            <label class="switch">
+                <input type="checkbox" id="toggle-garden" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div class="setting-item">
+            <span>Assistente Orbit (Balões de Fala)</span>
+            <label class="switch">
+                <input type="checkbox" id="toggle-orbit-speech" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div class="setting-item">
+            <span>Modo Tons de Cinza (Filtro)</span>
+            <label class="switch">
+                <input type="checkbox" id="toggle-grayscale">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <button id="apply-sensory-btn" class="glass-btn start" style="width: 100%; margin-top: 20px;">SALVAR PREFERÊNCIAS</button>
+    </div>
+</div>
 
     <div id="orbit-assistant" class="orbit-container">
         <div class="orbit-bubble" id="orbit-speech"></div>

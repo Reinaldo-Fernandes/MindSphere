@@ -1576,3 +1576,104 @@ body {
     user-select: none;
     -webkit-tap-highlight-color: transparent;
 }
+
+/* ==========================================================================
+   20. Zona Cinza
+   ========================================================================== */
+
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.setting-item span {
+    font-size: 0.9rem;
+    color: white;
+}
+
+/* O Switch (botão deslizante) */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 22px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.2);
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: var(--accent-cyan, #00f2ff);
+}
+
+input:checked + .slider:before {
+    transform: translateX(22px);
+}
+
+#sensory-settings-modal {
+    z-index: 99999 !important;
+    display: flex !important; 
+    position: fixed;
+    inset: 0;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(15px);
+}
+
+/* Panic Buttom */
+#panic-btn:active {
+    transform: scale(0.95);
+    background: rgba(255, 0, 0, 0.4);
+}
+
+/* Tooltip explicando o clique duplo */
+#panic-btn::after {
+    content: "2 cliques para silenciar tudo";
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.6rem;
+    white-space: nowrap;
+    opacity: 0;
+    transition: 0.3s;
+    pointer-events: none;
+}
+
+#panic-btn:hover::after {
+    opacity: 0.7;
+}

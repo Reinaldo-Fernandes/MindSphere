@@ -179,6 +179,18 @@ onAuthStateChanged(auth, async (user) => {
         if (authTrigger) authTrigger.innerText = "🔑 LOGIN";
         document.body.classList.remove('admin-mode');
     }
+
+    if (window.userDB.tipo === 'adm') {
+    aplicarEsteticaGlobalADM();
+    setTimeout(() => {
+        
+        conectarDadosDashboard(); 
+        
+        if (typeof window.OrbitAI?.reagir === 'function') {
+            window.OrbitAI.reagir('login_adm');
+        }
+    }, 1000);
+}
 });
 
 /* --- 4. FUNÇÕES ADM --- */

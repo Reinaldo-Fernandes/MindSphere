@@ -43,7 +43,13 @@ auth.onAuthStateChanged(user => {
         iniciarObservadorGamificacao(user.uid);
         if(opt1h) { opt1h.disabled = false; opt1h.innerText = "1 Hora (Premium)"; }
         if(opt2h) { opt2h.disabled = false; opt2h.innerText = "2 Horas (Premium)"; }
-        if (getEl('feedback-wall')) carregarDadosAdmin();
+        
+        // CORREÇÃO AQUI: Substituímos o nome da função e adicionamos uma verificação de segurança
+        if (getEl('feedback-wall') || getEl('adm-panel')) {
+            if (typeof conectarDadosDashboard === 'function') {
+                conectarDadosDashboard();
+            }
+        }
     } else {
         if(opt1h) { opt1h.disabled = true; opt1h.innerText = "1 Hora (Bloqueado 🔒)"; }
         if(opt2h) { opt2h.disabled = true; opt2h.innerText = "2 Horas (Bloqueado 🔒)"; }
@@ -424,9 +430,14 @@ safeClick('game-trigger', () => {
    11. Lógica do Botão RESET (Pânico) - SEM CONFIRMAÇÃO
 ========================================================================== 
 */
+/* ==========================================================================
+   11. Lógica do Botão RESET / PÂNICO (Unificada)
+========================================================================== 
+*/
+const panicBtn = document.getElementById('panic-btn'); // Única declaração necessária
 
-const panicBtn = document.getElementById('panic-btn');
 if (panicBtn) {
+    // CLIQUE ÚNICO: Reset do Timer e Jardim
     panicBtn.addEventListener('click', () => {
         // 1. Para o cronômetro imediatamente
         clearInterval(timer);
@@ -450,9 +461,38 @@ if (panicBtn) {
         
         console.log("Sistema resetado instantaneamente.");
     });
+
+    // CLIQUE DUPLO: Alívio Sensorial (Modo Pânico Aprimorado)
+    panicBtn.addEventListener('dblclick', () => {
+        console.log("⚠️ MODO PÂNICO ATIVADO: Limpando estímulos...");
+        
+        // 1. Silenciar Mixer de Áudio
+        document.querySelectorAll('audio').forEach(audio => {
+            audio.pause();
+            audio.currentTime = 0;
+        });
+        
+        // 2. Resetar Sliders de volume visualmente
+        const rainVol = document.getElementById('rain-vol');
+        const fireVol = document.getElementById('fire-vol');
+        if(rainVol) rainVol.value = 0;
+        if(fireVol) fireVol.value = 0;
+
+        // 3. Esconder elementos que causam distração
+        document.body.style.filter = "grayscale(100%) brightness(70%)";
+        const garden = document.getElementById('plants-display');
+        if(garden) garden.style.display = 'none';
+        document.querySelectorAll('.orbit-path').forEach(o => o.style.display = 'none');
+        
+        // 4. Feedback do Assistente
+        if (window.OrbitAI && typeof window.OrbitAI.falar === 'function') {
+            window.OrbitAI.falar("Respire fundo... Tudo em silêncio agora. ✨");
+        } else {
+            orbitTalk("Respire fundo... Tudo em silêncio. ✨");
+        }
+    });
 }
 
-//limpeza de tarefas moodo z
 /* ==========================================================================
    12. Lógica do Botão COLETAR Relíquia
 ========================================================================== 
@@ -484,3 +524,71 @@ safeClick('btn-finalizar-conquista', () => {
         document.getElementById('orbit-congrats-step').style.display = 'none';
     }
 });
+
+/* ==========================================================================
+   13. Gerenciamento Sensorial
+========================================================================== */
+const sensorySettings = {
+    init() {
+        this.bindEvents();
+        console.log("Sistema Sensorial inicializado.");
+    },
+
+    bindEvents() {
+        const getById = (id) => document.getElementById(id);
+        const sensoryModal = getById('sensory-settings-modal');
+
+        // 1. Animações de Fundo (Three.js)
+        getById('toggle-bg-animation')?.addEventListener('change', (e) => {
+            const canvas = getById('three-canvas');
+            if (canvas) canvas.style.opacity = e.target.checked ? '1' : '0';
+        });
+
+        // 2. Jardim Orbitante
+        getById('toggle-garden')?.addEventListener('change', (e) => {
+            const garden = getById('plants-display');
+            const orbits = document.querySelectorAll('.orbit-path');
+            const state = e.target.checked ? 'block' : 'none';
+            if (garden) garden.style.display = state;
+            orbits.forEach(orb => orb.style.display = state);
+        });
+
+        // 3. Assistente Orbit (Falas)
+        getById('toggle-orbit-speech')?.addEventListener('change', (e) => {
+            const speech = getById('orbit-speech');
+            if (speech) speech.style.visibility = e.target.checked ? 'visible' : 'hidden';
+        });
+
+        // 4. Modo Tons de Cinza
+        getById('toggle-grayscale')?.addEventListener('change', (e) => {
+            document.body.style.filter = e.target.checked ? "grayscale(100%) contrast(90%)" : "none";
+        });
+
+        // 5. Botão Abrir
+        getById('sensory-trigger')?.addEventListener('click', () => {
+            console.log("Botão clicado: Abrindo modal");
+            if (sensoryModal) {
+                sensoryModal.classList.add('active');
+                sensoryModal.style.display = 'flex';
+            }
+        });
+
+        // 6. Botões Fechar
+        const closeSelectors = '#apply-sensory-btn, #sensory-settings-modal .close-modal';
+        document.querySelectorAll(closeSelectors).forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (sensoryModal) {
+                    sensoryModal.classList.remove('active');
+                    sensoryModal.style.display = 'none';
+                }
+            });
+        });
+    } // Fim bindEvents
+}; // Fim sensorySettings
+
+// Inicialização segura
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => sensorySettings.init());
+} else {
+    sensorySettings.init();
+}
