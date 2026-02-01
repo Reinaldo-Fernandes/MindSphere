@@ -20,7 +20,7 @@
     <button id="panic-btn" class="glass-btn panic">RESET</button>
     <button id="auth-trigger" class="glass-btn">🔑 ENTRAR / REGISTAR</button>
     
-    <button id="sensory-trigger" class="glass-btn">
+    <button id="sensory-trigger" class="glass-btn" data-info="Ajustes Sensoriais: Aqui você desativa animações ou cores que estejam te incomodando.">
     <i class="fas fa-brain"></i>
 </button>
 
@@ -40,7 +40,9 @@
                 <option value="comida">☕ Café</option>
             </select>
             <button id="agenda-trigger" class="glass-btn circle-btn"><i class="fas fa-calendar-day"></i></button>
-            <button id="game-trigger" class="glass-btn circle-btn" title="Relaxar"><i class="fas fa-gamepad"></i></button>
+            <button id="game-trigger" class="glass-btn circle-btn" data-info="Stellar Flow: Um mini-game de foco rítmico para 'resetar' o cérebro entre ciclos.">
+    <i class="fas fa-gamepad"></i>
+</button>
         </div> 
     </header>
 
@@ -53,9 +55,9 @@
     <main class="container">
         <aside class="side-panel left interface-element">
             <h3 class="panel-title">Lentes</h3>
-            <button class="mode-btn" onclick="setMode('dopamina')">✨ Dopamina</button>
-            <button class="mode-btn" onclick="setMode('serenidade')">🌊 Serenidade</button>
-            <button class="mode-btn" onclick="setMode('autonomia')">🦾 Autonomia</button>
+           <button class="mode-btn" onclick="setMode('dopamina')" data-info="A Lente Dopamina usa cores vibrantes para estimular a motivação e energia.">✨ Dopamina</button>
+            <button class="mode-btn" onclick="setMode('serenidade')" data-info="A Lente Serenidade aplica tons frios para reduzir a ansiedade e acalmar a mente.">🌊 Serenidade</button>
+            <button class="mode-btn" onclick="setMode('autonomia')" data-info="A Lente Autonomia foca em cores de alto contraste para clareza mental extrema.">🦾 Autonomia</button>
         </aside>
 
         <div class="sphere-wrapper">
@@ -79,7 +81,7 @@
             <div class="task-input-group">
                 <input type="text" id="task-input" placeholder="O que é difícil?">
                 <div class="goblin-controls" style="display: flex; gap: 10px;">
-                    <button id="break-task-btn">Split</button>
+                    <button id="break-task-btn" data-info="O Split quebra uma tarefa grande em 3 subtarefas menores para evitar a paralisia por sobrecarga.">Split</button>
                     <button id="clear-tasks-btn" class="glass-btn" style="padding: 5px 10px; font-size: 0.6rem;">Limpar</button>
                 </div>
             </div>
@@ -88,15 +90,15 @@
     </main>
 
     <footer class="mixer interface-element">
-        <div class="sound-control">
-            <span>🌧️</span> 
-            <input type="range" id="rain-vol" min="0" max="1" step="0.1" value="0">
-        </div>
+        <div class="sound-control" data-info="Arraste para adicionar som de chuva e criar um isolamento acústico natural.">
+    <span>🌧️</span> 
+    <input type="range" id="rain-vol" min="0" max="1" step="0.1" value="0">
+</div>
         <div id="mixer-anchor"></div>
-        <div class="sound-control">
-            <span>🔥</span> 
-            <input type="range" id="fire-vol" min="0" max="1" step="0.1" value="0">
-        </div>
+       <div class="sound-control" data-info="O som de lareira (ruído marrom) ajuda a mascarar barulhos repentinos do ambiente.">
+    <span>🔥</span> 
+    <input type="range" id="fire-vol" min="0" max="1" step="0.1" value="0">
+</div>
     </footer>
 
     <div id="auth-modal" class="modal-vitral" style="display: none;">

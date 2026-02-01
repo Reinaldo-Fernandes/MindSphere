@@ -592,3 +592,38 @@ if (document.readyState === 'loading') {
 } else {
     sensorySettings.init();
 }
+
+/* ==========================================================================
+   14. Orbit Contextual Helper (Explicações por Hover/Tap)
+========================================================================== */
+const setupOrbitContextHelp = () => {
+    const infoElements = document.querySelectorAll('[data-info]');
+    let helpTimer;
+
+    infoElements.forEach(el => {
+        // DESKTOP: Mouse parado por 1 segundo
+        el.addEventListener('mouseenter', () => {
+            const text = el.getAttribute('data-info');
+            helpTimer = setTimeout(() => {
+                if (window.OrbitAI) window.OrbitAI.falar(text);
+            }, 1000); 
+        });
+
+        el.addEventListener('mouseleave', () => {
+            clearTimeout(helpTimer);
+        });
+
+        // MOBILE: Toque rápido
+        el.addEventListener('touchstart', (e) => {
+            const text = el.getAttribute('data-info');
+            if (window.OrbitAI) window.OrbitAI.falar(text);
+        }, { passive: true });
+    });
+};
+
+// Inicializa o sistema de ajuda
+if (document.readyState === 'complete') {
+    setupOrbitContextHelp();
+} else {
+    window.addEventListener('load', setupOrbitContextHelp);
+}
