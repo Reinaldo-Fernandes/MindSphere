@@ -1,5 +1,7 @@
 ## 🧠 MindSphere — Ecossistema de Foco para Neurodivergentes
 
+![MindSphere Interface](Captura%20de%20tela%202026-02-01%20202025.png)
+
 > **"A produtividade não é uma linha reta. Cada cérebro tem seu ritmo, suas pausas e suas cores."**
 
 O **MindSphere** é um ambiente de foco projetado especificamente para as necessidades de pessoas neurodivergentes (TDAH, Autismo, TOD e TOC). Ao contrário de ferramentas rígidas, ele utiliza **design adaptativo**, **sonoridade imersiva** e **gerenciamento de carga sensorial** para transformar a gestão do tempo em uma experiência de baixo estresse.
