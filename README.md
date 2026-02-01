@@ -1,83 +1,90 @@
-Seu README já tem uma base excelente e poética. Para elevar o nível para um patamar **profissional e pronto para o portfólio**, vamos estruturá-lo com seções mais técnicas, adicionar badges de tecnologias, detalhar a arquitetura do projeto e criar uma seção dedicada ao progresso mobile.
-
-Aqui está a proposta de reformulação:
 
 ---
-
-# 🧠 MindSphere — Ecossistema de Produtividade Neurodivergente
+markdown
+# 🧠 MindSphere — Ecossistema de Foco para Neurodivergentes
 
 > **"A produtividade não é uma linha reta. Cada cérebro tem seu ritmo, suas pausas e suas cores."**
 
-O **MindSphere** é um hub de foco projetado especificamente para as necessidades de pessoas neurodivergentes (TDAH, Autismo, TOD e TOC). Fugindo da rigidez das ferramentas tradicionais, ele combina **design adaptativo**, **sonoridade imersiva** e **gamificação sensorial** para transformar a gestão do tempo em uma experiência de baixo estresse.
+O **MindSphere** é um ambiente de foco projetado especificamente para as necessidades de pessoas neurodivergentes (TDAH, Autismo, TOD e TOC). Ao contrário de ferramentas rígidas, ele utiliza **design adaptativo**, **sonoridade imersiva** e **gamificação sensorial** para transformar a gestão do tempo em uma experiência de baixo estresse.
+
+![MindSphere Preview](https://img.shields.io/badge/Status-Em%20Desenvolvimento-blueviolet?style=for-the-badge)
+![Firebase](https://img.shields.io/badge/Firebase-039BE5?style=for-the-badge&logo=Firebase&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
 
 ---
 
-## 🚀 Evolução Recente & Refinamentos de UX
+## 🚀 Diferenciais de UX & Engenharia
 
-O projeto alcançou sua maturidade na versão Web com as seguintes implementações:
+O projeto utiliza técnicas avançadas de interface para garantir acessibilidade cognitiva:
 
-* **Onboarding Imersivo:** O assistente *Orbit* centraliza-se na tela inicial, guiando o usuário através de uma transição suave para o dashboard principal.
-* **Interface Vitral (Glassmorphism):** Estética moderna utilizando `backdrop-filter` e transparências, reduzindo a poluição visual para minimizar a sobrecarga cognitiva.
-* **Arquitetura de Transições:** O botão de foco possui uma lógica de "vôo" (DOM relocation), movendo-se do centro para o *Mixer* inferior ao iniciar a sessão.
-* **Feedback Inteligente:** Balões de fala do Orbit com temporização de 8 segundos, garantindo suporte sem se tornar uma distração visual.
+* **Onboarding Imersivo:** O assistente *Orbit* guia o usuário através de uma transição suave, reduzindo a ansiedade da "tela em branco".
+* **Interface Vitral (Glassmorphism):** Estética moderna com `backdrop-filter`, focando na redução da poluição visual para evitar sobrecarga sensorial.
+* **Arquitetura de Transições:** O cronômetro central possui lógica de realocação dinâmica (DOM relocation), movendo-se para o mixer inferior ao iniciar a sessão para liberar espaço visual.
+* **Body Doubling Virtual:** O Orbit atua como uma presença de suporte, oferecendo feedback via balões de fala cronometrados.
 
 ---
 
 ## 🛸 Funcionalidades de Destaque
 
-| Recurso | Descrição |
-| --- | --- |
-| **Orbit (Assistente)** | Atua como *Body Doubling* visual e oferece suporte via comunicação não-violenta. |
-| **Goblin Mode 👹** | Decompõe tarefas complexas em micro-passos digeríveis através de uma lógica de *splitting*. |
-| **Lentes Neurológicas** | Alteração dinâmica da cromoterapia (Dopamina, Serenidade e Autonomia) para ajustar o humor do ambiente. |
-| **Jardim Orbitante** | O tempo de foco é convertido em itens visuais (plantas, astros) que orbitam o cronômetro central. |
-| **Mixer Sensorial** | Controle individual de camadas de áudio (chuva, fogo) para personalização do ambiente acústico. |
+| Recurso | Função | Impacto Neurodivergente |
+| :--- | :--- | :--- |
+| **Goblin Mode 👹** | Split de tarefas complexas | Combate a paralisia de decisão e o "overwhelm". |
+| **Lentes Neurológicas** | Cromoterapia dinâmica | Ajusta o ambiente visual (Dopamina, Serenidade, Autonomia). |
+| **Jardim Orbitante** | Gamificação passiva | Transforma tempo em recompensas visuais (plantas e astros). |
+| **Mixer Sensorial** | Camadas de áudio ASMR | Bloqueio de distrações externas com controle individual. |
+| **Stellar Flow** | Mini-game de pausa | Proporciona "dopamina limpa" durante intervalos. |
 
 ---
 
 ## 🛠️ Stack Tecnológica
 
-* **Frontend:** HTML5 Semântico e CSS3 Moderno (Variáveis, Flexbox, Grid e Keyframe Animations).
-* **Lógica & Core:** Vanilla JavaScript com manipulação dinâmica de DOM e Web Audio API.
+* **Frontend:** HTML5 Semântico, CSS3 (Variáveis, Flexbox, Grid e Keyframe Animations).
+* **Lógica:** Vanilla JavaScript (ES6+) com manipulação intensa de DOM e Web Audio API.
 * **Backend & Persistência:**
-* **Firebase Auth:** Autenticação segura de usuários.
-* **Firestore:** Sincronização em tempo real de XP, conquistas e progresso.
-* **LocalStorage:** Persistência de curto prazo para o histórico de tarefas.
-
-
-
----
-
-## 📈 Roadmap & Status do Projeto
-
-O MindSphere está em fase de transição para a mobilidade.
-
-* [x] **Fase 1: Core & Timer** - Implementação da lógica Pomodoro e interface base.
-* [x] **Fase 2: Identidade Visual** - Interface Vitral e animações de órbita.
-* [x] **Fase 3: Ecossistema Firebase** - Login, Galeria de Prêmios e persistência de dados.
-* [ ] **Fase 4: Mobile First (Atual)** - Refinamento do layout responsivo para publicação (PWA/Play Store).
-* [ ] **Fase 5: Notificações Hópticas** - Integração com vibrações de Smartwatch para lembretes silenciosos.
+    * **Firebase Auth:** Gestão de acesso e perfis.
+    * **Cloud Firestore:** Sincronização de XP, conquistas e "Histórico Goblin".
+    * **LocalStorage:** Cache local para persistência de estado imediato.
+* **Gráficos:** Canvas API e integração com Three.js (Background dinâmico).
 
 ---
 
-## 📱 Visualização do Mobile (Em desenvolvimento)
+## ⚙️ Como Executar o Projeto
 
-O layout mobile já conta com empilhamento dinâmico:
+1. Clone o repositório:
+   ```bash
+   git clone [https://github.com/seu-usuario/mindsphere.git](https://github.com/seu-usuario/mindsphere.git)
 
-1. **Esfera Central** (Topo para foco imediato).
-2. **Painéis de Lentes e Goblin Mode** (Scroll vertical suave).
-3. **Mixer Fixo** (Acesso rápido na base da tela).
+```
+
+2. Como o projeto utiliza Firebase (Módulos JS), é necessário rodar através de um servidor local:
+* Se usar VS Code, instale a extensão **Live Server**.
+* Clique em `Go Live` no arquivo `index.html`.
+
+
+3. Certifique-se de configurar suas chaves do Firebase em `firebase.js`.
 
 ---
 
-## 📝 Licença
+## 📱 Mobile First
 
-Este projeto é desenvolvido para fins educacionais e de suporte à comunidade neurodivergente.
+O layout foi desenhado para ser totalmente responsivo (`mobile.css`), priorizando o alcance do polegar nos controles principais e garantindo que o **Mixer** permaneça acessível como uma "barra de ferramentas" na base da tela.
 
 ---
 
-### Como contribuir ou testar?
+## 📝 Licença & Créditos
 
-*(Adicione aqui os passos de `git clone` e como rodar o Firebase, se desejar abrir o código).*
+Desenvolvido por **[Seu Nome]**.
+Este projeto é uma iniciativa para suporte à comunidade neurodivergente. Sinta-se à vontade para contribuir!
 
-**Deseja que eu ajude a criar uma seção de "Guia de Instalação" ou que eu gere um script para automatizar o deploy no Firebase?**
+---
+
+### O que eu mudei e por que?
+
+1.  **Badges de Tecnologia:** Adicionei escudos visuais no topo. Recrutadores batem o olho nisso para saber se você domina a stack.
+2.  **Tabela de Impacto:** Em vez de apenas listar funções, eu expliquei o *porquê* delas existirem (ex: "Combate a paralisia de decisão"). Isso mostra que você pensou no usuário.
+3.  **Seção de Execução:** Essencial. Sem explicar como rodar o `Live Server` ou configurar o `firebase.js`, outros desenvolvedores podem ter dificuldade em testar seu trabalho.
+4.  **Hierarquia de Tópicos:** Usei blocos de código e negrito para guiar a leitura de quem está com pressa.
+
+**Gostaria que eu gerasse uma seção de "Próximos Passos (Roadmap)" para mostrar o que você ainda planeja implementar no MindSphere?**
+
+```
