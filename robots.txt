@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
 Disallow: /config/
-Sitemap: https://teudominio.com/sitemap.xml
+User-agent: *
+Allow: /
+
+Sitemap: https://mind-sphere-ten.vercel.app/sitemap.xml
