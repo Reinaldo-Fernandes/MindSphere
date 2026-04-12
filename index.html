@@ -3,12 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="MindSphere: O ecossistema de foco para neurodivergentes. Utilize ferramentas como Pomodoro, Goblin Mode e ajustes sensoriais para turbinar sua produtividade.">
+    <meta name="keywords" content="produtividade, TDAH, foco, neurodivergentes, pomodoro, goblin mode">
+    <meta property="og:title" content="MindSphere - Foco e Produtividade">
+    <meta property="og:description" content="A ferramenta definitiva para neurodivergentes organizarem o dia.">
+    <meta property="og:image" content="https://mind-sphere-ten.vercel.app/og-image.png">
     <title>MindSphere - Ecossistema de Foco para Neurodivergentes</title>
-    
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="mobile.css" media="screen and (max-width: 768px)">
     <link rel="icon" href="/components/orbits/Orbit.png" type="image/png">
+
+    <script type="application/ld+json">
+    {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "MindSphere",
+    "operatingSystem": "All",
+    "applicationCategory": "ProductivityApplication",
+    "description": "Ecossistema de foco e produtividade para pessoas neurodivergentes."
+    }
+</script>
+
 </head>
 
 <body class="onboarding-active">
@@ -87,17 +103,23 @@
             </div>
             <div id="subtasks-list"></div>
         </aside>
+
+        <section style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0;">
+    <h2>Ferramenta de Foco e Produtividade para TDAH</h2>
+    <p>O MindSphere oferece um timer Pomodoro customizável, sons de ruído marrom e branco (chuva e lareira) e a técnica Goblin Mode para decomposição de tarefas.</p>
+    <p>Ideal para neurodivergentes que buscam um ecossistema de foco com baixa sobrecarga sensorial e gamificação.</p>
+</section>
     </main>
 
     <footer class="mixer interface-element">
         <div class="sound-control" data-info="Arraste para adicionar som de chuva e criar um isolamento acústico natural.">
     <span>🌧️</span> 
-    <input type="range" id="rain-vol" min="0" max="1" step="0.1" value="0">
+    <input type="range" id="rain-vol" min="0" max="1" step="0.1" value="0" aria-label="Volume do som de chuva">
 </div>
         <div id="mixer-anchor"></div>
        <div class="sound-control" data-info="O som de lareira (ruído marrom) ajuda a mascarar barulhos repentinos do ambiente.">
     <span>🔥</span> 
-    <input type="range" id="fire-vol" min="0" max="1" step="0.1" value="0">
+    <input type="range" id="fire-vol" min="0" max="1" step="0.1" value="0" aria-label="volume do som de lareira">
 </div>
     </footer>
 
