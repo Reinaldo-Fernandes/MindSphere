@@ -105,4 +105,9 @@ const OrbitAI = {
     }
 };
 
+document.getElementById('start-btn').addEventListener('click', () => {
+    const introText = document.querySelector('.orbit-intro-text');
+    if(introText) introText.style.opacity = '0';
+});
+
 window.OrbitAI = OrbitAI;
