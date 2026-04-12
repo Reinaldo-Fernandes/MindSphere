@@ -224,6 +224,28 @@ header {
     display: flex !important;
 }
 
+/* O texto que aparece ao lado */
+.orbit-intro-text {
+    position: absolute;
+    left: 115%; /* Joga para o lado direito da imagem */
+    top: 50%;
+    transform: translateY(-50%); /* Centraliza verticalmente com a imagem */
+    
+    width: 200px;
+    text-align: left;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 15px;
+    border-radius: 15px;
+    border-left: 4px solid var(--accent-cyan);
+    pointer-events: none; /* Deixa cliques passarem para o fundo se necessário */
+    z-index: 50;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    
+    animation: fadeInSlideRight 0.8s ease forwards;
+}
+
 .orbit-character img { 
     width: 100%; 
     filter: drop-shadow(0 0 15px var(--accent-cyan)); 
