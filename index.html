@@ -25,6 +25,7 @@
     }
 </script>
 
+
 </head>
 
 <body class="onboarding-active">
@@ -103,12 +104,7 @@
             </div>
             <div id="subtasks-list"></div>
         </aside>
-
-        <section style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0;">
-    <h2>Ferramenta de Foco e Produtividade para TDAH</h2>
-    <p>O MindSphere oferece um timer Pomodoro customizável, sons de ruído marrom e branco (chuva e lareira) e a técnica Goblin Mode para decomposição de tarefas.</p>
-    <p>Ideal para neurodivergentes que buscam um ecossistema de foco com baixa sobrecarga sensorial e gamificação.</p>
-</section>
+        z
     </main>
 
     <footer class="mixer interface-element">
@@ -206,7 +202,7 @@
     </div>
 </div>
 
-    <div id="feedback-modal" class="modal-vitral" style="display: none;">
+    <div id="info-modal" class="modal-vitral" style="display: none;">
         <div class="auth-card"> 
             <button class="close-modal">×</button>
             <div class="orbit-mini"><img src="./components/orbits/feedback.png" alt="Orbit" style="width: 80px; display: block; margin: 0 auto;"></div>
@@ -323,15 +319,22 @@
     </div>
 </div>
 
-    <div id="orbit-assistant" class="orbit-container">
-        <div class="orbit-bubble" id="orbit-speech"></div>
-        <div class="orbit-character">
-            <img src="./components/orbits/orbit.png" alt="Orbit" id="orbit-img" style="cursor: pointer;">
-        </div>
-        <div id="start-btn-container">
-            <button id="start-btn" class="glass-btn">INICIAR</button>
+ <div id="orbit-assistant" class="orbit-container">
+    <div class="orbit-bubble" id="orbit-speech"></div>
+    
+    <div class="orbit-character">
+        <img src="./components/orbits/orbit.png" alt="Orbit" id="orbit-img">
+        
+        <div class="orbit-intro-text">
+            <h3>MindSphere</h3>
+            <p>Seu ecossistema de foco neurodivergente. Use o <strong>Goblin Mode</strong> para quebrar tarefas.</p>
         </div>
     </div>
+
+    <div id="start-btn-container">
+        <button id="start-btn" class="glass-btn">INICIAR</button>
+    </div>
+</div>
 
     <div hidden>
     <audio id="audio-rain" loop preload="auto" src="sons/chuva.mp3"></audio>
