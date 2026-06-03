@@ -185,8 +185,8 @@ header {
    ========================================================================== */
 .orbit-container {
     position: absolute; 
-    bottom: 37%; 
-    right: 50%;
+    bottom: 30%; 
+    right: 30%;
     display: flex;
     flex-direction: column; 
     align-items: center;
@@ -227,10 +227,10 @@ header {
 /* O texto que aparece ao lado */
 .orbit-intro-text {
     position: absolute;
-    left: 10%;
-    top: 100%;
-    transform: translateY(-150%); /* Centraliza verticalmente com a imagem */
-    transform:translateX(80%);
+    left: 115%; /* Joga para o lado direito da imagem */
+    top: 150%;
+    transform: translateY(-50%); /* Centraliza verticalmente com a imagem */
+    
     width: 200px;
     text-align: left;
     background: rgba(255, 255, 255, 0.05);
@@ -242,6 +242,7 @@ header {
     pointer-events: none; /* Deixa cliques passarem para o fundo se necessário */
     z-index: 50;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    
     animation: fadeInSlideRight 0.8s ease forwards;
 }
 
