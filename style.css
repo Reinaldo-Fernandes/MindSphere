@@ -198,8 +198,8 @@ header {
 }
 
 .onboarding-active .orbit-container {
-    position: fixed; 
-    top: 50%; 
+    position: absolute!important; 
+    top: 53%; 
     left: 50%; 
     transform: translate(-50%, -110%); /* Centraliza perfeitamente */
     display: flex;
