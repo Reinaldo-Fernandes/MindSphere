@@ -262,8 +262,14 @@ if (breakBtn) {
         parts.forEach(t => {
             const div = document.createElement('div');
             div.className = 'subtask-item';
-            div.innerHTML = `<input type="checkbox"> <span>${t}</span>`;
-            div.querySelector('input').onchange = (e) => {
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            const span = document.createElement('span');
+            span.textContent = t;
+            div.appendChild(checkbox);
+            div.appendChild(document.createTextNode(' '));
+            div.appendChild(span);
+            checkbox.onchange = (e) => {
                 if (e.target.checked && window.adicionarProgresso) {
                     window.adicionarProgresso('goblin', 25, t);
                     div.style.opacity = "0.5";

@@ -2,16 +2,23 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="MindSphere: O ecossistema de foco para neurodivergentes. Utilize ferramentas como Pomodoro, Goblin Mode e ajustes sensoriais para turbinar sua produtividade.">
     <meta name="keywords" content="produtividade, TDAH, foco, neurodivergentes, pomodoro, goblin mode">
+    <link rel="canonical" href="https://mind-sphere-ten.vercel.app/">
     <meta property="og:title" content="MindSphere - Foco e Produtividade">
     <meta property="og:description" content="A ferramenta definitiva para neurodivergentes organizarem o dia.">
     <meta property="og:image" content="https://mind-sphere-ten.vercel.app/og-image.png">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://mind-sphere-ten.vercel.app/">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="MindSphere - Foco e Produtividade">
+    <meta name="twitter:description" content="A ferramenta definitiva para neurodivergentes organizarem o dia.">
+    <meta name="twitter:image" content="https://mind-sphere-ten.vercel.app/og-image.png">
     <title>MindSphere - Ecossistema de Foco para Neurodivergentes</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="mobile.css" media="screen and (max-width: 768px)">
+    <link rel="stylesheet" href="/mobile.css" media="screen and (max-width: 768px)">
     <link rel="icon" href="/components/orbits/Orbit.png" type="image/png">
 
     <script type="application/ld+json">
@@ -24,7 +31,6 @@
     "description": "Ecossistema de foco e produtividade para pessoas neurodivergentes."
     }
 </script>
-
 
 </head>
 
@@ -44,9 +50,6 @@
     <button id="view-metrics" class="glass-btn" style="display: none; margin-top: 15px; border-color: #00ff41; color: #00ff41;">
         <i class="fas fa-terminal"></i> PAINEL ADM
     </button>
-</div>
-</button>
-
         </div>
         <h1 class="logo">MindSphere</h1>
         <div class="header-right" style="display: flex; gap: 10px; align-items: center;">
@@ -57,9 +60,6 @@
                 <option value="comida">☕ Café</option>
             </select>
             <button id="agenda-trigger" class="glass-btn circle-btn"><i class="fas fa-calendar-day"></i></button>
-            <button id="game-trigger" class="glass-btn circle-btn" data-info="Stellar Flow: Um mini-game de foco rítmico para 'resetar' o cérebro entre ciclos.">
-    <i class="fas fa-gamepad"></i>
-</button>
         </div> 
     </header>
 
@@ -213,20 +213,6 @@
         </div>
     </div>
 
-<div id="game-overlay" class="modal-vitral" style="display: none;">
-        <div class="auth-card game-card">
-            <button id="close-game" class="close-modal">×</button>
-            <h2 class="panel-title">Stellar Flow</h2>
-            <div class="game-container" style="position: relative; background: rgba(0,0,0,0.5); border-radius: 15px; width: 300px; height: 300px; margin: 0 auto;">
-                <canvas id="gameCanvas" width="300" height="300"></canvas>
-                <div id="game-tap-to-start" class="tap-overlay" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.7); color: cyan; cursor: pointer;">
-                    TOQUE PARA COMEÇAR
-                </div>
-            </div>
-            <div id="scoreDisplay" style="text-align: center; margin-top: 10px;">Foco: 0</div>
-        </div>
-    </div>
-
     <div id="agenda-modal" class="modal-vitral" style="display: none;">
         <div class="auth-card agenda-card">
             <button class="close-modal">×</button>
@@ -236,20 +222,6 @@
             <button id="save-agenda" class="glass-btn start" style="width: 100%;">GUARDAR MEMÓRIA</button>
         </div>
     </div>
-
-<div id="game-overlay" class="modal-vitral" style="display: none; z-index: 1000;">
-    <div class="auth-card game-card">
-        <button id="close-game" class="close-modal">×</button>
-        <h2 class="panel-title">Stellar Flow</h2>
-        <div class="game-container" style="position: relative; background: rgba(0,0,0,0.5); border-radius: 15px; width: 300px; height: 300px; margin: 0 auto;">
-            <canvas id="gameCanvas" width="300" height="300"></canvas>
-            <div id="game-tap-to-start" class="tap-overlay" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.8); color: cyan; cursor: pointer; z-index: 1001;">
-                TOQUE PARA COMEÇAR
-            </div>
-        </div>
-        <div id="scoreDisplay" style="text-align: center; margin-top: 10px;">Foco: 0</div>
-    </div>
-</div>
 
     <div id="admin-modal" class="modal-vitral" style="display: none;">
         <div class="modal-content auth-card">
@@ -348,6 +320,5 @@
     <script type="module" src="firebase.js"></script>
     <script type="module" src="gameficacao.js"></script>
     <script type="module" src="script.js"></script>
-    <script type="module" src="stellar-flow.js"></script>
 </body>
 </html>
