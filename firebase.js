@@ -80,6 +80,9 @@ const realizarLogin = async () => {
 
     if (!email || !pass) return notify("Preencha e-mail e senha.");
 
+    const btn = getEl('login-btn');
+    if (btn) btn.disabled = true; // Evita clique duplo enquanto espera o Firebase responder
+
     try {
         console.log("Tentando logar...");
         await signInWithEmailAndPassword(auth, email, pass);
@@ -97,6 +100,8 @@ const realizarLogin = async () => {
         } else {
             notify("Erro ao fazer login: " + e.code);
         }
+    } finally {
+        if (btn) btn.disabled = false;
     }
 };
 // Vincula o botão de login (usando listener que é mais seguro que onclick direto)
@@ -111,6 +116,9 @@ getEl('register-confirm-btn')?.addEventListener('click', async () => {
     
     if (!nome || !email || !pass) return notify("Preencha todos os campos.");
     if (pass.length < 6) return notify("A senha deve ter no mínimo 6 caracteres.");
+
+    const btn = getEl('register-confirm-btn');
+    if (btn) btn.disabled = true;
 
     try {
         console.log("Tentando cadastrar...");
@@ -136,6 +144,8 @@ getEl('register-confirm-btn')?.addEventListener('click', async () => {
         if (e.code === 'auth/email-already-in-use') notify("Este e-mail já está sendo usado.");
         else if (e.code === 'auth/invalid-email') notify("E-mail inválido.");
         else notify("Erro ao criar conta. Tente novamente.");
+    } finally {
+        if (btn) btn.disabled = false;
     }
 });
 
@@ -178,19 +188,12 @@ onAuthStateChanged(auth, async (user) => {
     } else {
         if (authTrigger) authTrigger.innerText = "🔑 LOGIN";
         document.body.classList.remove('admin-mode');
+        // Limpa o estado local. Sem isso, dados/permissões da sessão
+        // anterior (ex: admin) podem "vazar" visualmente para o próximo
+        // visitante que usar o mesmo navegador.
+        window.userDB = { xp: 0, focos: 0, goblins: 0, conquistas: [], nome: "Viajante" };
+        pararListenersAdmin();
     }
-
-    if (window.userDB.tipo === 'adm') {
-    aplicarEsteticaGlobalADM();
-    setTimeout(() => {
-        
-        conectarDadosDashboard(); 
-        
-        if (typeof window.OrbitAI?.reagir === 'function') {
-            window.OrbitAI.reagir('login_adm');
-        }
-    }, 1000);
-}
 });
 
 /* --- 4. FUNÇÕES ADM --- */
@@ -219,8 +222,21 @@ function ativarModoAdmin() {
     }
 }
 
+// Guarda as funções de "desligar" os listeners ativos, para nunca
+// deixar mais de um par rodando ao mesmo tempo (evita gastar cota
+// de leitura do Firestore sem necessidade).
+let unsubscribeUsers = null;
+let unsubscribeFeedbacks = null;
+
+function pararListenersAdmin() {
+    if (unsubscribeUsers) { unsubscribeUsers(); unsubscribeUsers = null; }
+    if (unsubscribeFeedbacks) { unsubscribeFeedbacks(); unsubscribeFeedbacks = null; }
+}
+
 function conectarDadosDashboard() {
-    onSnapshot(collection(db, "users"), (snap) => {
+    pararListenersAdmin(); // Fecha qualquer listener anterior antes de abrir um novo
+
+    unsubscribeUsers = onSnapshot(collection(db, "users"), (snap) => {
         if(getEl('stat-users')) getEl('stat-users').innerText = snap.size;
         let xpAcumulado = 0;
         snap.forEach(d => xpAcumulado += (d.data().xp || 0));
@@ -228,7 +244,7 @@ function conectarDadosDashboard() {
     }, (err) => console.log("Aguardando permissão ADM..."));
 
     const q = query(collection(db, "feedbacks"), orderBy("data", "desc"));
-    onSnapshot(q, (snap) => {
+    unsubscribeFeedbacks = onSnapshot(q, (snap) => {
         if(getEl('stat-fb')) getEl('stat-fb').innerText = snap.size;
         const wall = getEl('feedback-wall-perfil');
         if (wall) {
@@ -237,7 +253,14 @@ function conectarDadosDashboard() {
                 const f = doc.data();
                 const item = document.createElement('div');
                 item.style = "background: rgba(255,255,255,0.03); padding: 8px; border-radius: 8px; border-left: 3px solid #00ff41; margin-bottom: 5px; font-size: 0.8rem;";
-                item.innerHTML = `<b>${f.nome || 'Anônimo'}:</b> ${f.mensagem}`;
+                // Usar textContent (em vez de innerHTML) impede que texto
+                // enviado por qualquer usuário seja interpretado como HTML/script.
+                const nomeEl = document.createElement('b');
+                nomeEl.textContent = (f.nome || 'Anônimo') + ': ';
+                const msgEl = document.createElement('span');
+                msgEl.textContent = f.mensagem || '';
+                item.appendChild(nomeEl);
+                item.appendChild(msgEl);
                 wall.appendChild(item);
             });
         }
