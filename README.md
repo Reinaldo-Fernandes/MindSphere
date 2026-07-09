@@ -1,172 +1,83 @@
-## 🧠 MindSphere — Ecossistema de Foco para Neurodivergentes
+# 🧠 MindSphere — Focus Ecosystem for Neurodivergent Minds
 
-![MindSphere Interface](Captura%20de%20tela%202026-02-01%20202025.png)
+> *"Productivity is not a straight line. Every brain has its own rhythm, its own pauses, and its own colors."*
 
-> **"A produtividade não é uma linha reta. Cada cérebro tem seu ritmo, suas pausas e suas cores."**
+**MindSphere** is a focus environment designed specifically for neurodivergent individuals (ADHD, Autism, ODD, and OCD). Instead of the rigid, punishing structure of traditional productivity tools, it uses **adaptive design**, **immersive soundscapes**, and **sensory-aware UI patterns** to turn time management into a low-pressure, engaging experience.
 
-O **MindSphere** é um ambiente de foco projetado especificamente para as necessidades de pessoas neurodivergentes (TDAH, Autismo, TOD e TOC). Ao contrário de ferramentas rígidas, ele utiliza **design adaptativo**, **sonoridade imersiva** e **gerenciamento de carga sensorial** para transformar a gestão do tempo em uma experiência de baixo estresse.
-
----
-
-## 🚀 Diferenciais de UX & Engenharia (Calm Tech)
-
-O projeto utiliza técnicas avançadas de interface para garantir acessibilidade cognitiva:
-
-* **Apoio Contextual Inteligente:** O assistente *Orbit* explica funcionalidades via "hover" ou "tap", reduzindo a barreira de entrada e o medo de interações desconhecidas.
-* **Design para Crise (Panic Mode):** Implementação de um gatilho de emergência que silencia o ambiente e reduz estímulos visuais instantaneamente.
-* **Interface Vitral (Glassmorphism):** Estética moderna com `backdrop-filter`, focando na redução da poluição visual para evitar sobrecarga sensorial.
-* **Body Doubling Virtual:** O Orbit atua como uma presença de suporte, oferecendo feedback e companhia durante os ciclos de trabalho.
+This is the **full version** of the project, including user accounts, cloud sync, and gamification. A lighter, no-login **Demo Edition** is also available — see [`README.demo.md`](./README.demo.md).
 
 ---
 
-## 🛸 Funcionalidades de Destaque
+## 🚀 UX & Engineering Highlights (Calm Tech)
 
-| Recurso | Função Técnica | Impacto Neurodivergente |
-| --- | --- | --- |
-| **Modo Pânico ⚠️** | `dblclick` global reset | Silencia áudios e escurece a UI em momentos de sobrecarga. |
-| **Painel Sensorial 🧠** | Filtros e Toggle de UI | Permite desativar animações, o jardim ou ativar Modo Tons de Cinza. |
-| **Goblin Mode 👹** | Task Splitting Algorithm | Combate a paralisia de decisão quebrando tarefas em 3 subníveis. |
-| **Lentes Neurológicas** | Cromoterapia Dinâmica | Ajusta o ambiente visual (Dopamina, Serenidade, Autonomia). |
-| **Mixer Sensorial** | Web Audio API | Camadas de som (chuva, fogo) para criar isolamento acústico. |
-| **Stellar Flow** | Canvas Mini-game | Fornece "dopamina limpa" e regulação motora em intervalos. |
-
----
-
-## 🛠️ Stack Tecnológica
-
-* **Frontend:** HTML5 Semântico, CSS3 (Variáveis, Flexbox, Grid e Keyframe Animations).
-* **Lógica:** Vanilla JavaScript (ES6+) com manipulação intensiva de DOM e Web Audio API.
-* **Backend & Persistência:**
-* **Firebase Auth:** Gestão de perfis e acesso premium.
-* **Cloud Firestore:** Sincronização em tempo real de XP, conquistas e Histórico Goblin.
-
-
-* **Gráficos:** Canvas API (Stellar Flow) e Three.js (Backgrounds procedurais).
-
----
-
-## ⚙️ Como Executar o Projeto
-
-1. **Clone o repositório:**
-```bash
-git clone https://github.com/seu-usuario/mindsphere.git
-
-```
-
-
-2. **Servidor Local:**
-Como o projeto utiliza módulos do Firebase, é necessário um servidor. No VS Code, use a extensão **Live Server** (clique em `Go Live` no `index.html`).
-3. **Firebase:**
-Configure suas credenciais no arquivo `firebase.js` para habilitar a gamificação.
-
----
-
-## 📱 Mobile First & Acessibilidade
-
-O layout foi desenhado para ser totalmente responsivo (`mobile.css`), com foco no alcance do polegar. Adicionamos suporte a gestos e interações simplificadas para garantir que o **Mixer Sensorial** e o **Orbit** funcionem perfeitamente em telas pequenas.
-
----
-
-## 🗺️ Próximos Passos (Roadmap)
-
-* [ ] Implementação de sons Binaurais (8D) para foco profundo.
-* [ ] Exportação de relatórios de produtividade para terapeutas/psicólogos.
-* [ ] Sistema de "Guildas" para Body Doubling em grupo.
-
----
-
-## 📝 Licença & Créditos
-
-Desenvolvido por **[Reinaldo Fernandes]**.
-Este projeto é uma iniciativa Open Source para suporte à comunidade neurodivergente. Contribuições são bem-vindas! ✨
-
----
-
-Fazer o README em inglês é uma das melhores estratégias para aumentar a visibilidade do seu projeto, pois permite que desenvolvedores e recrutadores do mundo todo entendam seu trabalho.
-
-Aqui está a versão profissional em inglês, adaptada com os termos técnicos corretos da área de **Accessibility (A11y)** e **UX Design**:
-
----
-
-# 🧠 MindSphere — Focus Ecosystem for Neurodivergents
-
-> **"Productivity is not a straight line. Every brain has its own rhythm, pauses, and colors."**
-
-**MindSphere** is a focus environment specifically designed for the needs of neurodivergent individuals (ADHD, Autism, ODD, and OCD). Unlike rigid productivity tools, it utilizes **adaptive design**, **immersive soundscapes**, and **sensory gamification** to transform time management into a low-stress, engaging experience.
-
----
-
-## 🚀 UX & Engineering Differentiators (Calm Tech)
-
-The project implements advanced interface techniques to ensure cognitive accessibility:
-
-* **Intelligent Contextual Support:** The *Orbit* assistant explains features via "hover" (desktop) or "tap" (mobile), lowering the barrier to entry and reducing the anxiety of unknown interactions.
-* **Design for Crisis (Panic Mode):** A global emergency trigger (`dblclick`) that instantly silences all audio and dims the UI to prevent sensory overload.
-* **Glassmorphism Interface:** A modern aesthetic using `backdrop-filter`, focusing on reducing visual noise and "UI clutter" to prevent sensory fatigue.
-* **Virtual Body Doubling:** Orbit acts as a supportive presence, providing real-time feedback and companionship during deep work cycles.
+- **Contextual Assistant — Orbit:** explains features on hover (desktop) or tap (mobile), lowering the barrier to entry for first-time users.
+- **Panic Mode:** a global emergency trigger that instantly mutes all audio and dims visual stimuli during sensory overload.
+- **Glassmorphism Interface:** a `backdrop-filter`-based aesthetic built to reduce visual clutter and cognitive load.
+- **Virtual Body Doubling:** Orbit provides light, non-invasive feedback during focus cycles — company without pressure.
 
 ---
 
 ## 🛸 Key Features
 
-| Feature | Technical Function | Neurodivergent Impact |
-| --- | --- | --- |
-| **Panic Mode ⚠️** | `dblclick` global reset | Instantly mutes audio and dims UI during sensory meltdowns. |
-| **Sensory Panel 🧠** | UI Filter & Toggles | Allows disabling animations, the garden, or enabling Grayscale Mode. |
-| **Goblin Mode 👹** | Task Splitting Algorithm | Combats executive dysfunction by breaking tasks into 3 sub-levels. |
-| **Neurological Lenses** | Dynamic Chromotherapy | Adjusts the visual energy (Dopamine, Serenity, Autonomy). |
-| **Sensory Mixer** | Web Audio API | Layered ASMR soundscapes (rain, fire) for acoustic isolation. |
-| **Stellar Flow** | Canvas Mini-game | Provides "clean dopamine" and motor regulation during breaks. |
+| Feature | Technical Implementation | Neurodivergent Impact |
+|---|---|---|
+| **Panic Mode ⚠️** | Global `dblclick` reset handler | Mutes audio and dims the UI instantly during a sensory meltdown |
+| **Sensory Settings 🧠** | CSS filters + UI toggles | Disable background animations, the garden, or enable grayscale mode |
+| **Goblin Mode 👹** | Task-splitting algorithm | Reduces decision paralysis by breaking a task into 3 smaller steps |
+| **Neurological Lenses** | Dynamic color theming | Adjusts the visual environment (Dopamine, Serenity, Autonomy) |
+| **Sensory Mixer** | Web Audio API | Layered ambient sound (rain, fire) for acoustic isolation |
+| **Accounts & Sync** | Firebase Auth + Firestore | Cross-device progress: XP, achievements, Goblin history |
 
 ---
 
 ## 🛠️ Tech Stack
 
-* **Frontend:** Semantic HTML5, CSS3 (Custom Variables, Flexbox, Grid, and Keyframe Animations).
-* **Logic:** Vanilla JavaScript (ES6+) with intensive DOM manipulation and Web Audio API.
-* **Backend & Persistence:**
-* **Firebase Auth:** User profile and premium access management.
-* **Cloud Firestore:** Real-time synchronization for XP, achievements, and "Goblin History".
-
-
-* **Graphics:** Canvas API (Stellar Flow) and Three.js (Procedural backgrounds).
+- **Frontend:** Semantic HTML5, CSS3 (custom properties, Flexbox, Grid, keyframe animations)
+- **Logic:** Vanilla JavaScript (ES6+), Web Audio API
+- **Graphics:** Three.js (procedural background)
+- **Backend & Persistence:**
+  - **Firebase Authentication** — account creation, login, password recovery
+  - **Cloud Firestore** — real-time sync for XP, achievements, and Goblin history, protected by [Firestore Security Rules](#security)
 
 ---
 
-## ⚙️ Installation & Setup
+## ⚙️ Getting Started
 
-1. **Clone the repository:**
-```bash
-git clone https://github.com/your-username/mindsphere.git
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/your-username/mindsphere.git
+   ```
 
-```
+2. **Serve locally**
+   This project uses native Firebase JS modules, so it must be served over HTTP(S) — opening `index.html` directly (`file://`) will not work. In VS Code, use the **Live Server** extension and click `Go Live`.
 
+3. **Configure Firebase**
+   Create a project at [console.firebase.google.com](https://console.firebase.google.com), enable **Authentication (Email/Password)** and **Firestore**, then add your own project credentials to `firebase.js`.
 
-2. **Local Server:**
-Since the project uses Firebase JS Modules, it must be served through a local server. In VS Code, use the **Live Server** extension (click `Go Live` on `index.html`).
-3. **Firebase Configuration:**
-Ensure you set up your API keys in the `firebase.js` file to enable gamification and authentication.
+<a id="security"></a>
+4. **Set your Firestore Security Rules**
+   The app's client code alone does **not** protect user data — access control is enforced entirely through Firestore Security Rules, which must be configured separately in the Firebase Console before going live. See `firestore.rules` for the recommended baseline (ownership checks, field-level write validation, and rate-limited XP writes).
 
 ---
 
-## 📱 Mobile First & Accessibility
+## 📱 Mobile-First & Accessibility
 
-The layout is fully responsive (`mobile.css`), designed with "thumb-reach" zones in mind. We've added gesture support and simplified interactions to ensure the **Sensory Mixer** and **Orbit Assistant** work seamlessly on smaller screens.
+The layout is fully responsive (`mobile.css`), designed around thumb-reach zones for one-handed use. Touch gestures and simplified interactions ensure the Sensory Mixer and Orbit Assistant work smoothly on small screens. Users can also disable background motion and enable grayscale mode for sensory comfort.
 
 ---
 
 ## 🗺️ Roadmap
 
-* [ ] Implementation of Binaural Beats (8D audio) for deep focus.
-* [ ] Exportable productivity reports for therapists/psychologists.
-* [ ] "Guild" system for collaborative Body Doubling.
+- [ ] Binaural / layered ambient audio for deeper focus
+- [ ] Exportable focus reports for therapists and coaches
+- [ ] Group "Guilds" for collaborative body doubling
+- [ ] Server-side XP validation (Cloud Functions) to replace client-side rate limiting
 
 ---
 
 ## 📝 License & Credits
 
-Developed by **[Reinaldo Fernadnes]**.
+Developed by **Reinaldo Fernandes**.
+This project is an open-source initiative supporting the neurodivergent community. Contributions are welcome — please open an issue or pull request. ✨
 
-This project is an Open Source initiative to support the neurodivergent community. Contributions are welcome! ✨
-
----
+Licensed under the [MIT License](./LICENSE) *(add a `LICENSE` file to your repo if you haven't yet — GitHub can generate one for you in a few clicks).*
