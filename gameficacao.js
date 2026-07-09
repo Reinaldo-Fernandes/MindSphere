@@ -1,6 +1,6 @@
 import { db, auth } from "./firebase.js";
 import { 
-    doc, updateDoc, arrayUnion, increment, onSnapshot 
+    doc, updateDoc, arrayUnion, increment, onSnapshot, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const getEl = (id) => document.getElementById(id);
@@ -49,13 +49,26 @@ function atualizarInterface(data) {
     // 2. Histórico Goblin (Otimizado: só reconstrói se houver dados)
     const histList = getEl('goblin-history-list');
     if (histList && data.historicoGoblin) {
-        histList.innerHTML = data.historicoGoblin.slice(-5).reverse().map(item => `
-            <div class="history-item">
-                <span style="color:var(--accent-pink)">👹</span>
-                <span>${item.tarefa}</span>
-                <small>${item.data}</small>
-            </div>
-        `).join('');
+        histList.innerHTML = "";
+        data.historicoGoblin.slice(-5).reverse().forEach(item => {
+            const row = document.createElement('div');
+            row.className = 'history-item';
+
+            const icon = document.createElement('span');
+            icon.style.color = 'var(--accent-pink)';
+            icon.textContent = '👹';
+
+            const tarefaEl = document.createElement('span');
+            tarefaEl.textContent = item.tarefa;
+
+            const dataEl = document.createElement('small');
+            dataEl.textContent = item.data;
+
+            row.appendChild(icon);
+            row.appendChild(tarefaEl);
+            row.appendChild(dataEl);
+            histList.appendChild(row);
+        });
     }
 
     // 3. Prateleira de Troféus (Otimizado: só reconstrói se o número de conquistas mudou)
@@ -89,6 +102,8 @@ function mostrarModalConquista(cat, num) {
     }
 }
 
+const COOLDOWN_MS = 15000; // 15 segundos — abaixo disso, um humano normal não conclui outra ação real
+
 window.adicionarProgresso = async (tipo, xpGanho, nomeTarefa = "") => {
     const user = auth.currentUser;
     if (!user || !window.userDB) return;
@@ -97,6 +112,18 @@ window.adicionarProgresso = async (tipo, xpGanho, nomeTarefa = "") => {
     const agora = new Date();
     const hora = agora.getHours();
     const conquistasAtuais = window.userDB.conquistas || [];
+
+    // --- DETECÇÃO DE RITMO SUSPEITO ---
+    // Se a última vez que XP foi somado foi há menos de COOLDOWN_MS,
+    // a ação ainda é registrada (tarefa marcada, histórico salvo),
+    // mas o XP e o sorteio de relíquia dessa rodada ficam retidos.
+    const ultimaAtualizacaoMs = window.userDB.ultimaAtualizacaoXP?.toMillis?.() || 0;
+    const emCooldown = (agora.getTime() - ultimaAtualizacaoMs) < COOLDOWN_MS;
+    const xpEfetivo = emCooldown ? 0 : xpGanho;
+
+    if (emCooldown && xpGanho > 0) {
+        console.log("XP retido: ações muito rápidas detectadas, aguardando ritmo normal.");
+    }
     
     let categoria;
     let deveGanharReliquia = false;
@@ -105,11 +132,11 @@ window.adicionarProgresso = async (tipo, xpGanho, nomeTarefa = "") => {
     if (tipo === 'goblin') {
         const novoContador = (window.userDB.contadorGoblin || 0) + 1;
         categoria = 'reigoblin';
-        // Só tenta sortear relíquia se for múltiplo de 10
-        if (novoContador % 10 === 0) {
+        // Só tenta sortear relíquia se for múltiplo de 10 E não estiver em cooldown
+        if (novoContador % 10 === 0 && !emCooldown) {
             deveGanharReliquia = true;
         }
-    } else {
+    } else if (!emCooldown) {
         // Lógica de Foco/Tempo (Ganha sempre por enquanto ou ajuste aqui)
         deveGanharReliquia = true; 
         if (tipo === 'foco') categoria = 'hiperfoco';
@@ -147,7 +174,7 @@ window.adicionarProgresso = async (tipo, xpGanho, nomeTarefa = "") => {
     }
 
     // --- OPERAÇÃO ATÔMICA (Economiza escritas) ---
-    const up = { xp: increment(xpGanho) };
+    const up = { xp: increment(xpEfetivo), ultimaAtualizacaoXP: serverTimestamp() };
     
     if (idFinal) up.conquistas = arrayUnion(idFinal);
     
@@ -155,7 +182,7 @@ window.adicionarProgresso = async (tipo, xpGanho, nomeTarefa = "") => {
         up.contadorGoblin = increment(1); // Importante para a trava de 10
         const contadorAtual = (window.userDB.contadorGoblin || 0) + 1;
     // Chama o Orbit para incentivar se estiver perto de 10
-    window.OrbitAI.reagir('progresso_goblin', { contador: contadorAtual });
+    window.OrbitAssistant.reagir('progresso_goblin', { contador: contadorAtual });
         if (nomeTarefa) {
             up.historicoGoblin = arrayUnion({
                 tarefa: nomeTarefa,
