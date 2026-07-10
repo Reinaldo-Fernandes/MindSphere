@@ -1,0 +1,155 @@
+
+/* ==========================================================================
+   AJUSTES PARA MOBILE (Otimizado)
+   ========================================================================== */
+@media (max-width: 768px) {
+    body {
+        overflow-y: auto;
+        height: auto;
+        min-height: 100vh;
+    }
+
+    header {
+        padding: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .logo {
+        order: -1;
+        width: 100%;
+        text-align: center;
+        font-size: 0.9rem;
+        margin-bottom: 5px;
+    }
+
+    .container {
+        flex-direction: column;
+        padding: 0 15px;
+        gap: 20px;
+        margin-bottom: 140px; 
+        
+    }
+
+    /* Esfera Central (Timer) */
+    .sphere-wrapper {
+        width: 220px;
+        height: 220px;
+        margin: 10px auto;
+    }
+
+    #timer-display {
+        font-size: 2.8rem;
+    }
+
+    /* --- ORBIT E BOTÃO INICIAR (FIXOS NO MEIO) --- */
+   .onboarding-active .orbit-container {
+        position: absolute !important;
+        top: 57%;
+        left: 50%;
+        transform: translate(-50%, -10%) scale(1.1); 
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0px; 
+        z-index: 10000;
+        width: 100%;
+        pointer-events: none; 
+    }
+
+    /* Ajuste do botão dentro do Orbit no Mobile */
+    #start-btn {
+        pointer-events: all !important; 
+        padding: 12px 30px;
+        font-size: 1rem;
+        margin-top: 15px;
+        background: var(--accent-cyan);
+        box-shadow: 0 0 15px var(--accent-cyan);
+        border-radius: 25px;
+    }
+
+        /* O texto que aparece ao lado */
+    .orbit-intro-text {
+        position: absolute;
+        left: 15%; /* Joga para o lado direito da imagem */
+        top: 15%;
+        transform: translateY(-100%); /* Centraliza verticalmente com a imagem */
+        width: 200px;
+        text-align: left;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        padding: 15px;
+        border-radius: 15px;
+        border-left: 4px solid var(--accent-cyan);
+        pointer-events: none; /* Deixa cliques passarem para o fundo se necessário */
+        z-index: 50;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        
+        animation: fadeInSlideRight 0.8s ease forwards;
+    }
+
+    /* Orbit após o início (opcional: se quiser que ele vá para o canto depois) */
+    .orbit-container {
+        bottom: 80px;
+        right: 15px;
+        transform: scale(0.7);
+        z-index: 999;
+    }
+
+    /* MIXER DE ÁUDIO (Volumes compactos) */
+    .mixer {
+        width: 95%;
+        padding: 10px;
+        bottom: 5px;
+        left: 50%;
+        transform: translateX(-50%);
+        gap: 8px;
+        flex-direction: row;
+        justify-content: space-around;
+        background: rgba(15, 32, 50, 0.9); 
+    }
+
+    .sound-control {
+        width: auto;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .sound-control input[type="range"] {
+        width: 50px; 
+    }
+
+    #mixer-anchor {
+        width: 80px;
+    }
+}
+
+/* --- AJUSTE DAS PLANTAS/ESTRELAS NO MOBILE --- */
+.garden-item {
+    --orbit-distance: 100px !important; 
+    font-size: 1.5rem;
+}
+
+/* Estilo do Slider de Volume para Touch */
+.sound-control input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    outline: none;
+}
+
+.sound-control input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    background: var(--accent-cyan);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 8px var(--accent-cyan);
+}
